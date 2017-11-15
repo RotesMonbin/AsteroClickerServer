@@ -41,18 +41,26 @@ io.on("connection", (socket) => {
     socket.on('incrementOre', (message) => {
         incrementOre(message);
     });
+    socket.on('upgradeShip', (message) => {
+        upgradeShip(message);
+    });
+    socket.on('sellOre', (message) => {
+        sellOre(message);
+    });
+    socket.on('buyOre', (message) => {
+        buyOre(message);
+    });
 });
 function incrementOre(data) {
-    defaultDatabase.ref("users/" + data["user"]).once('value').then(function (snapshot) {
-        const maxMinerate = mineRateUpgrade[snapshot.val()["mineRateLvl"]].maxRate *
-            asteroidTypes[snapshot.val()["numAsteroid"]].mineRate / 100;
-        console.log(data.amount);
+    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        const maxMinerate = mineRateUpgrade[user.val().mineRateLvl].maxRate *
+            asteroidTypes[user.val().numAsteroid].mineRate / 100;
         if (data.amount <= maxMinerate) {
-            const currentAmount = snapshot.val()[data.ore];
-            const maxAmount = storageUpgrade[snapshot.val()["storageLvl"]].capacity;
+            const currentAmount = user.val()[data.ore];
+            const maxAmount = storageUpgrade[user.val().storageLvl].capacity;
             if (currentAmount < maxAmount) {
                 if (currentAmount + data.amount <= maxAmount) {
-                    defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(parseFloat((currentAmount + data.amount).toFixed(2)));
+                    defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(currentAmount + data.amount));
                 }
                 else {
                     defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(maxAmount);
@@ -61,9 +69,57 @@ function incrementOre(data) {
         }
     });
 }
+function upgradeShip(data) {
+    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        const currentLvl = user.val()[data.upgrade + "Lvl"];
+        const cost = getUpgradeFromString(data.upgrade)[currentLvl].cost;
+        if (user.val().credit >= cost) {
+            defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
+            defaultDatabase.ref("users/" + data.user + "/" + data.upgrade + "Lvl").set(currentLvl + 1);
+        }
+    });
+}
+function sellOre(data) {
+    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        const currentOreAmount = user.val()[data.ore];
+        if (currentOreAmount >= data.amount) {
+            defaultDatabase.ref("trading/" + data.ore).once('value').then((oreValue) => {
+                var keys = Object.keys(oreValue.val());
+                const currentValue = oreValue.val()[keys[29]];
+                defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit + currentValue * data.amount));
+                defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
+            });
+        }
+    });
+}
+function buyOre(data) {
+    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        const currentCredit = user.val().credit;
+        defaultDatabase.ref("trading/" + data.ore).once('value').then((oreValue) => {
+            var keys = Object.keys(oreValue.val());
+            const currentValue = oreValue.val()[keys[29]];
+            const cost = data.amount * currentValue;
+            if (currentCredit >= cost) {
+                defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
+                defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(user.val()[data.ore] + data.amount));
+            }
+        });
+    });
+}
+function getUpgradeFromString(name) {
+    switch (name) {
+        case "mineRate":
+            return mineRateUpgrade;
+        case "storage":
+            return storageUpgrade;
+        default:
+            console.log("Upgrade unknown");
+            return null;
+    }
+}
 function loadMineRate() {
     return new Promise(function (resolve) {
-        defaultDatabase.ref("mineRate").once('value').then(function (snapshot) {
+        defaultDatabase.ref("mineRate").once('value').then((snapshot) => {
             mineRateUpgrade = snapshot.val();
             resolve(1);
         });
@@ -71,7 +127,7 @@ function loadMineRate() {
 }
 function loadStorage() {
     return new Promise(function (resolve) {
-        defaultDatabase.ref("storage").once('value').then(function (snapshot) {
+        defaultDatabase.ref("storage").once('value').then((snapshot) => {
             storageUpgrade = snapshot.val();
             resolve(1);
         });
@@ -79,10 +135,13 @@ function loadStorage() {
 }
 function loadAsteroidTypes() {
     return new Promise(function (resolve) {
-        defaultDatabase.ref("typeAste").once('value').then(function (snapshot) {
+        defaultDatabase.ref("typeAste").once('value').then((snapshot) => {
             asteroidTypes = snapshot.val();
             resolve(1);
         });
     });
+}
+function toFixed2(number) {
+    return parseFloat(number.toFixed(2));
 }
 //# sourceMappingURL=server.js.map
