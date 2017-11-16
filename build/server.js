@@ -54,6 +54,9 @@ io.on("connection", (socket) => {
     socket.on('buyOre', (message) => {
         buyOre(message);
     });
+    socket.on('searchAster', (message) => {
+        searchAster(message);
+    });
 });
 function incrementOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
@@ -114,41 +117,29 @@ function buyOre(data) {
         });
     });
 }
-function checkQuest(oreName, values, currentUser, userID) {
-    if (currentUser.quest.gain === 0) {
-        return;
-    }
-    if (oreName === currentUser.quest.type) {
-        const finalValues = currentUser.quest.values - values;
-        if (finalValues <= 0) {
-            defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.quest.gain + currentUser.credit);
-            defaultDatabase.ref("users/" + userID + "/quest/gain").set(0);
-            defaultDatabase.ref("users/" + userID + "/quest/values").set(0);
-        }
-        else {
-            defaultDatabase.ref("users/" + userID + "/quest/values").set(toFixed2(finalValues));
-        }
-    }
+function searchAster(data) {
+    const asteNum = getNewAsteroidType();
+    const seed = generateRandomNumber(4) + generateRandomNumber(4);
+    defaultDatabase.ref("users/" + data.user + "/asteroid/numAsteroid").set(asteNum);
+    defaultDatabase.ref("users/" + data.user + "/asteroid/seed").set(seed);
 }
-function updateQuestUser() {
-    defaultDatabase.ref("users/").once('value').then((user) => {
-        const userUis = Object.keys(user.val());
-        for (let i = 0; i < userUis.length; i++) {
-            const currentUser = user.val()[userUis[i]];
-            if (currentUser.quest.gain != 0) {
-                continue;
-            }
-            const randomQuest = Math.floor((Math.random() * quest.length));
-            initQuestUser(randomQuest, userUis[i]);
-        }
-    });
+function getNewAsteroidType() {
+    return Math.floor(Math.random() * asteroidTypes.length);
 }
-function initQuestUser(i, userID) {
-    defaultDatabase.ref("users/" + userID + "/quest/values").set(quest[i].values);
-    defaultDatabase.ref("users/" + userID + "/quest/gain").set(quest[i].gain);
-    defaultDatabase.ref("users/" + userID + "/quest/name").set(quest[i].name);
-    defaultDatabase.ref("users/" + userID + "/quest/type").set(quest[i].type);
-    defaultDatabase.ref("users/" + userID + "/quest/num").set(i);
+function generateRandomNumber(range) {
+    let seed = "";
+    let nums = [];
+    for (let i = 0; i < range; i++) {
+        nums[i] = i;
+    }
+    let i = nums.length;
+    let j = 0;
+    while (i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        seed = seed + "" + nums[j];
+        nums.splice(j, 1);
+    }
+    return seed;
 }
 function getUpgradeFromString(name) {
     switch (name) {
