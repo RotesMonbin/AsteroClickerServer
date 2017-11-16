@@ -10,6 +10,7 @@ var admin = require("firebase-admin");
 var mineRateUpgrade;
 var storageUpgrade;
 var asteroidTypes;
+var quest;
 var serviceAccount = {
     "type": "service_account",
     "project_id": "asteroclicker",
@@ -27,13 +28,16 @@ admin.initializeApp({
     databaseURL: "https://asteroclicker.firebaseio.com"
 });
 var defaultDatabase = admin.database();
-Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes()]).then(() => {
+Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes(), loadQuest()]).then(() => {
     server.listen(4000, (err) => {
         if (err) {
             console.log(err);
         }
         else {
             console.log("Server listen on 4000");
+            setInterval(() => {
+                updateQuestUser();
+            }, 1000 * 60);
         }
     });
 });
@@ -64,6 +68,7 @@ function incrementOre(data) {
             if (currentAmount < maxAmount) {
                 if (currentAmount + data.amount <= maxAmount) {
                     defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(currentAmount + data.amount));
+                    checkQuest(data.ore, data.amount, user.val(), data.user);
                 }
                 else {
                     defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(maxAmount);
@@ -79,6 +84,7 @@ function upgradeShip(data) {
         if (user.val().credit >= cost) {
             defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
             defaultDatabase.ref("users/" + data.user + "/" + data.upgrade + "Lvl").set(currentLvl + 1);
+            checkQuest('upgrade' + data.upgrade, 1, user.val(), data.user);
         }
     });
 }
@@ -91,6 +97,7 @@ function sellOre(data) {
                 const currentValue = oreValue.val()[keys[29]];
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit + currentValue * data.amount));
                 defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
+                checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
             });
         }
     });
@@ -102,9 +109,10 @@ function buyOre(data) {
             var keys = Object.keys(oreValue.val());
             const currentValue = oreValue.val()[keys[29]];
             const cost = data.amount * currentValue;
-            if (currentCredit >= cost) {
+            if (currentCredit >= cost && toFixed2(user.val()[data.ore] + data.amount) <= storageUpgrade[user.val().storageLvl].capacity) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
                 defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(user.val()[data.ore] + data.amount));
+                checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
             }
         });
     });
@@ -164,6 +172,14 @@ function loadAsteroidTypes() {
     return new Promise(function (resolve) {
         defaultDatabase.ref("typeAste").once('value').then((snapshot) => {
             asteroidTypes = snapshot.val();
+            resolve(1);
+        });
+    });
+}
+function loadQuest() {
+    return new Promise(function (resolve) {
+        defaultDatabase.ref("quest").once('value').then((snapshot) => {
+            quest = snapshot.val();
             resolve(1);
         });
     });
