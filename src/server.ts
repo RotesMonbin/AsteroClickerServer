@@ -42,7 +42,7 @@ Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes(), loadQuest()]).t
             console.log("Server listen on 4000");
             setInterval(() => {
                 updateQuestUser();
-            }, 1000 * 3600);
+            }, 1000 * 60);
         }
     });
 });
@@ -109,6 +109,7 @@ function upgradeShip(data) {
         if (user.val().credit >= cost) {
             defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
             defaultDatabase.ref("users/" + data.user + "/" + data.upgrade + "Lvl").set(currentLvl + 1);
+            checkQuest('upgrade' + data.upgrade, 1, user.val(), data.user);
         }
     });
 }
@@ -129,6 +130,7 @@ function sellOre(data) {
                 const currentValue = oreValue.val()[keys[29]];
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit + currentValue * data.amount));
                 defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
+                checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
             });
         }
     });
@@ -148,9 +150,10 @@ function buyOre(data) {
             var keys = Object.keys(oreValue.val());
             const currentValue = oreValue.val()[keys[29]];
             const cost = data.amount * currentValue;
-            if (currentCredit >= cost) {
+            if (currentCredit >= cost && toFixed2(user.val()[data.ore] + data.amount) <= storageUpgrade[user.val().storageLvl].capacity) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
                 defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(user.val()[data.ore] + data.amount));
+                checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
             }
 
         });
@@ -164,7 +167,7 @@ function checkQuest(oreName: string, values: number, currentUser, userID) {
     }
     if (oreName === currentUser.quest.type) {
         const finalValues = currentUser.quest.values - values;
-        if (finalValues < 0) {
+        if (finalValues <= 0) {
             defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.quest.gain + currentUser.credit);
             defaultDatabase.ref("users/" + userID + "/quest/gain").set(0);
             defaultDatabase.ref("users/" + userID + "/quest/values").set(0);
@@ -240,7 +243,6 @@ function loadQuest() {
     return new Promise(function (resolve) {
         defaultDatabase.ref("quest").once('value').then((snapshot) => {
             quest = snapshot.val();
-            console.log(quest);
             resolve(1);
         });
     });
