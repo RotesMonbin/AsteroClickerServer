@@ -38,6 +38,9 @@ Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes(), loadQuest()]).t
             setInterval(() => {
                 updateQuestUser();
             }, 1000 * 60);
+            setInterval(() => {
+                calculRanking();
+            }, 1000 * 60);
         }
     });
 });
@@ -61,7 +64,7 @@ io.on("connection", (socket) => {
 function incrementOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const maxMinerate = mineRateUpgrade[user.val().mineRateLvl].maxRate *
-            asteroidTypes[user.val().numAsteroid].mineRate / 100;
+            asteroidTypes[user.val().asteroid.numAsteroid].mineRate / 100;
         if (data.amount <= maxMinerate) {
             const currentAmount = user.val()[data.ore];
             const maxAmount = storageUpgrade[user.val().storageLvl].capacity;
@@ -80,11 +83,12 @@ function incrementOre(data) {
 function upgradeShip(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const currentLvl = user.val()[data.upgrade + "Lvl"];
-        const cost = getUpgradeFromString(data.upgrade)[currentLvl].cost;
+        const cost = getUpgradeFromString(data.upgrade)[currentLvl + 1].cost;
         if (user.val().credit >= cost) {
             defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
             defaultDatabase.ref("users/" + data.user + "/" + data.upgrade + "Lvl").set(currentLvl + 1);
             checkQuest('upgrade' + data.upgrade, 1, user.val(), data.user);
+            calculScore(cost, user.val(), data.user);
         }
     });
 }
@@ -98,6 +102,7 @@ function sellOre(data) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit + currentValue * data.amount));
                 defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
                 checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
+                calculScore(toFixed2(currentValue * data.amount), user.val(), data.user);
             });
         }
     });
@@ -149,6 +154,7 @@ function checkQuest(oreName, values, currentUser, userID) {
         const finalValues = currentUser.quest.values - values;
         if (finalValues <= 0) {
             defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.quest.gain + currentUser.credit);
+            calculScore(currentUser.quest.gain, currentUser, userID);
             defaultDatabase.ref("users/" + userID + "/quest/gain").set(0);
             defaultDatabase.ref("users/" + userID + "/quest/values").set(0);
         }
@@ -177,6 +183,24 @@ function initQuestUser(i, userID) {
     defaultDatabase.ref("users/" + userID + "/quest/type").set(quest[i].type);
     defaultDatabase.ref("users/" + userID + "/quest/num").set(i);
 }
+function calculScore(amount, user, userID) {
+    defaultDatabase.ref("users/" + userID + "/score").set(amount + user.score);
+}
+function calculRanking() {
+    let scoreTab = [];
+    defaultDatabase.ref("users/").once('value').then((user) => {
+        const userUis = Object.keys(user.val());
+        for (let i = 0; i < userUis.length; i++) {
+            const currentUser = user.val()[userUis[i]];
+            scoreTab[i] = {
+                name: currentUser.email,
+                score: currentUser.score
+            };
+        }
+        scoreTab.sort(sort_by('score', true, parseInt));
+        defaultDatabase.ref("ranking").set(scoreTab);
+    });
+}
 function getUpgradeFromString(name) {
     switch (name) {
         case "mineRate":
@@ -188,6 +212,13 @@ function getUpgradeFromString(name) {
             return null;
     }
 }
+const sort_by = function (field, reverse, primer) {
+    var key = function (x) { return primer ? primer(x[field]) : x[field]; };
+    return function (a, b) {
+        var A = key(a), B = key(b);
+        return ((A < B) ? -1 : (A > B) ? +1 : 0) * [-1, 1][+!!reverse];
+    };
+};
 function loadMineRate() {
     return new Promise(function (resolve) {
         defaultDatabase.ref("mineRate").once('value').then((snapshot) => {
