@@ -43,6 +43,9 @@ Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes(), loadQuest()]).t
             setInterval(() => {
                 updateQuestUser();
             }, 1000 * 60);
+            setInterval(() => {
+                calculRanking();
+            }, 1000 * 60);
         }
     });
 });
@@ -81,11 +84,10 @@ data = {
 function incrementOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const maxMinerate = mineRateUpgrade[user.val().mineRateLvl].maxRate *
-            asteroidTypes[user.val().numAsteroid].mineRate / 100;
+            asteroidTypes[user.val().asteroid.numAsteroid].mineRate / 100;    
         if (data.amount <= maxMinerate) {
             const currentAmount = user.val()[data.ore];
             const maxAmount = storageUpgrade[user.val().storageLvl].capacity;
-
             if (currentAmount < maxAmount) {
                 if (currentAmount + data.amount <= maxAmount) {
                     defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(
@@ -109,11 +111,12 @@ data = {
 function upgradeShip(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const currentLvl = user.val()[data.upgrade + "Lvl"];
-        const cost = getUpgradeFromString(data.upgrade)[currentLvl].cost
+        const cost = getUpgradeFromString(data.upgrade)[currentLvl + 1].cost
         if (user.val().credit >= cost) {
             defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
             defaultDatabase.ref("users/" + data.user + "/" + data.upgrade + "Lvl").set(currentLvl + 1);
             checkQuest('upgrade' + data.upgrade, 1, user.val(), data.user);
+            calculScore(cost, user.val(), data.user);
         }
     });
 }
@@ -135,6 +138,7 @@ function sellOre(data) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit + currentValue * data.amount));
                 defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
                 checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
+                calculScore(toFixed2(currentValue * data.amount), user.val(), data.user);
             });
         }
     });
@@ -174,7 +178,7 @@ data = {
 function searchAster(data) {
     //defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
     const asteNum = getNewAsteroidType();
-    const seed = generateRandomNumber(4)+generateRandomNumber(4);
+    const seed = generateRandomNumber(4) + generateRandomNumber(4);
     defaultDatabase.ref("users/" + data.user + "/asteroid/numAsteroid").set(asteNum);
     defaultDatabase.ref("users/" + data.user + "/asteroid/seed").set(seed);
 
@@ -214,6 +218,7 @@ function checkQuest(oreName: string, values: number, currentUser, userID) {
         const finalValues = currentUser.quest.values - values;
         if (finalValues <= 0) {
             defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.quest.gain + currentUser.credit);
+            calculScore(currentUser.quest.gain, currentUser, userID);
             defaultDatabase.ref("users/" + userID + "/quest/gain").set(0);
             defaultDatabase.ref("users/" + userID + "/quest/values").set(0);
         } else {
@@ -225,12 +230,12 @@ function checkQuest(oreName: string, values: number, currentUser, userID) {
 function updateQuestUser() {
     defaultDatabase.ref("users/").once('value').then((user) => {
         const userUis = Object.keys(user.val());
-        
-        for (let i = 0; i < userUis.length ; i++) {
+
+        for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]]
             if (currentUser.quest.gain != 0) {
-                continue;                    
-            } 
+                continue;
+            }
             const randomQuest = Math.floor((Math.random() * quest.length));
             initQuestUser(randomQuest, userUis[i]);
         }
@@ -244,6 +249,33 @@ function initQuestUser(i, userID) {
     defaultDatabase.ref("users/" + userID + "/quest/num").set(i);
 }
 
+
+// Ranking managed
+function calculScore(amount: number, user, userID: number) {
+    defaultDatabase.ref("users/" + userID + "/score").set(amount + user.score);
+}
+
+// Calcul the ranking with the score
+function calculRanking() {
+    let scoreTab = [];
+
+    defaultDatabase.ref("users/").once('value').then((user) => {
+        const userUis = Object.keys(user.val());
+
+        for (let i = 0; i < userUis.length; i++) {
+            const currentUser = user.val()[userUis[i]]
+            scoreTab[i] = {
+                name: currentUser.email,
+                score: currentUser.score
+            }
+        }
+        scoreTab.sort(sort_by('score', true, parseInt));
+        defaultDatabase.ref("ranking").set(scoreTab);
+    });   
+}
+
+
+// useful function
 function getUpgradeFromString(name) {
     switch (name) {
         case "mineRate":
@@ -253,6 +285,16 @@ function getUpgradeFromString(name) {
         default:
             console.log("Upgrade unknown");
             return null;
+    }
+}
+
+// tri a json 
+const sort_by = function (field, reverse, primer) {
+    var key = function (x) { return primer ? primer(x[field]) : x[field] };
+
+    return function (a, b) {
+        var A = key(a), B = key(b);
+        return ((A < B) ? -1 : (A > B) ? +1 : 0) * [-1, 1][+!!reverse];
     }
 }
 
