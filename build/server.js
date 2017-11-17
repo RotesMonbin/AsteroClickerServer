@@ -35,6 +35,7 @@ Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes(), loadQuest()]).t
         }
         else {
             console.log("Server listen on 4000");
+            generateStorageUpgrade(50);
             setInterval(() => {
                 updateQuestUser();
             }, 1000 * 60);
@@ -222,5 +223,15 @@ function loadQuest() {
 }
 function toFixed2(number) {
     return parseFloat(number.toFixed(2));
+}
+function generateStorageUpgrade(range) {
+    let json = [];
+    for (let i = 0; i < range; i++) {
+        json[i] = {
+            capacity: Math.floor(5000 / 1000 * Math.pow(i + 1, 1.5)) * 1000,
+            cost: Math.floor(30000 / 1000 * Math.pow(i, 1.07)) * 1000
+        };
+    }
+    defaultDatabase.ref("storage/").set(json);
 }
 //# sourceMappingURL=server.js.map

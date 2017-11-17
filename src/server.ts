@@ -40,12 +40,14 @@ Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes(), loadQuest()]).t
             console.log(err);
         } else {
             console.log("Server listen on 4000");
+
             setInterval(() => {
                 updateQuestUser();
             }, 1000 * 60);
         }
     });
 });
+
 
 io.on("connection", (socket: SocketIO.Socket) => {
 
@@ -174,7 +176,7 @@ data = {
 function searchAster(data) {
     //defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
     const asteNum = getNewAsteroidType();
-    const seed = generateRandomNumber(4)+generateRandomNumber(4);
+    const seed = generateRandomNumber(4) + generateRandomNumber(4);
     defaultDatabase.ref("users/" + data.user + "/asteroid/numAsteroid").set(asteNum);
     defaultDatabase.ref("users/" + data.user + "/asteroid/seed").set(seed);
 
@@ -225,12 +227,12 @@ function checkQuest(oreName: string, values: number, currentUser, userID) {
 function updateQuestUser() {
     defaultDatabase.ref("users/").once('value').then((user) => {
         const userUis = Object.keys(user.val());
-        
-        for (let i = 0; i < userUis.length ; i++) {
+
+        for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]]
             if (currentUser.quest.gain != 0) {
-                continue;                    
-            } 
+                continue;
+            }
             const randomQuest = Math.floor((Math.random() * quest.length));
             initQuestUser(randomQuest, userUis[i]);
         }
@@ -296,3 +298,29 @@ function loadQuest() {
 function toFixed2(number) {
     return parseFloat(number.toFixed(2));
 }
+
+/*function generateMineRateUpgrade( range: number) {
+    let json = [];
+    for (let i = 0; i < range; i++) {
+        const rate = toFixed2(Math.round(Math.pow(i+1, 1.05) * 10) / 10);
+        json[i] = {
+            baseRate: rate,
+            cost: Math.floor(20000/1000 *Math.pow(i , 1.04))*1000,
+            maxRate: toFixed2(Math.round(rate * 3 * 10) / 10)
+        }
+    }
+
+    defaultDatabase.ref("mineRate/").set(json);
+}*/
+
+/*function generateStorageUpgrade( range: number) {
+    let json = [];
+    for (let i = 0; i < range; i++) {
+        json[i] = {
+            capacity:Math.floor(5000/1000 *Math.pow(i+1 , 1.5))*1000,
+            cost: Math.floor(30000/1000 *Math.pow(i , 1.07))*1000
+        }
+    }
+
+    defaultDatabase.ref("storage/").set(json);
+}*/
