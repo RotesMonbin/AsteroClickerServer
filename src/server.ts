@@ -1,10 +1,12 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as socketIO from 'socket.io';
+import * as cors from 'cors';
 
 const app = express();
 const server = new http.Server(app);
 const io = socketIO(server);
+app.use(cors());
 
 var admin = require("firebase-admin");
 
