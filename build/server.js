@@ -3,9 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const http = require("http");
 const socketIO = require("socket.io");
+const cors = require("cors");
 const app = express();
 const server = new http.Server(app);
 const io = socketIO(server);
+app.use(cors());
 var admin = require("firebase-admin");
 var mineRateUpgrade;
 var storageUpgrade;
@@ -104,6 +106,9 @@ function sellOre(data) {
                 checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
                 calculScore(toFixed2(currentValue * data.amount), user.val(), data.user);
             });
+            defaultDatabase.ref("trend/" + data.ore).once('value').then((trend) => {
+                defaultDatabase.ref("trend/" + data.ore).set(trend.val() - data.amount);
+            });
         }
     });
 }
@@ -119,6 +124,9 @@ function buyOre(data) {
                 defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(user.val()[data.ore] + data.amount));
                 checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
             }
+        });
+        defaultDatabase.ref("trend/" + data.ore).once('value').then((trend) => {
+            defaultDatabase.ref("trend/" + data.ore).set(trend.val() + data.amount);
         });
     });
 }

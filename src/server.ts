@@ -1,10 +1,12 @@
 import * as express from 'express';
 import * as http from 'http';
 import * as socketIO from 'socket.io';
+import * as cors from 'cors';
 
 const app = express();
 const server = new http.Server(app);
 const io = socketIO(server);
+app.use(cors());
 
 var admin = require("firebase-admin");
 
@@ -40,6 +42,7 @@ Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes(), loadQuest()]).t
             console.log(err);
         } else {
             console.log("Server listen on 4000");
+
             setInterval(() => {
                 updateQuestUser();
             }, 1000 * 60);
@@ -49,6 +52,7 @@ Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes(), loadQuest()]).t
         }
     });
 });
+
 
 io.on("connection", (socket: SocketIO.Socket) => {
 
@@ -140,6 +144,9 @@ function sellOre(data) {
                 checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
                 calculScore(toFixed2(currentValue * data.amount), user.val(), data.user);
             });
+            defaultDatabase.ref("trend/" + data.ore).once('value').then((trend) => {
+                defaultDatabase.ref("trend/" + data.ore).set(trend.val()-data.amount);
+            });
         }
     });
 }
@@ -163,7 +170,10 @@ function buyOre(data) {
                 defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(user.val()[data.ore] + data.amount));
                 checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
             }
+        });
 
+        defaultDatabase.ref("trend/" + data.ore).once('value').then((trend) => {
+            defaultDatabase.ref("trend/" + data.ore).set(trend.val()+data.amount);
         });
 
     });
@@ -338,3 +348,29 @@ function loadQuest() {
 function toFixed2(number) {
     return parseFloat(number.toFixed(2));
 }
+
+/*function generateMineRateUpgrade( range: number) {
+    let json = [];
+    for (let i = 0; i < range; i++) {
+        const rate = toFixed2(Math.round(Math.pow(i+1, 1.05) * 10) / 10);
+        json[i] = {
+            baseRate: rate,
+            cost: Math.floor(20000/1000 *Math.pow(i , 1.04))*1000,
+            maxRate: toFixed2(Math.round(rate * 3 * 10) / 10)
+        }
+    }
+
+    defaultDatabase.ref("mineRate/").set(json);
+}*/
+
+/*function generateStorageUpgrade( range: number) {
+    let json = [];
+    for (let i = 0; i < range; i++) {
+        json[i] = {
+            capacity:Math.floor(5000/1000 *Math.pow(i+1 , 1.5))*1000,
+            cost: Math.floor(30000/1000 *Math.pow(i , 1.07))*1000
+        }
+    }
+
+    defaultDatabase.ref("storage/").set(json);
+}*/
