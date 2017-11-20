@@ -1,0 +1,33 @@
+
+import {defaultDatabase} from "./environment"
+import { mineRateUpgrade, asteroidTypes, storageUpgrade } from "./resources";
+import { toFixed2 } from "./utils";
+import { checkQuest } from "./quest";
+
+/*
+data = {
+    user : userId,
+    ore: oreName,
+    amount: oreIncreasing
+}
+*/
+export function incrementOre(data) {
+    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        const maxMinerate = mineRateUpgrade[user.val().mineRateLvl].maxRate *
+            asteroidTypes[user.val().asteroid.numAsteroid].mineRate / 100;    
+        if (data.amount <= maxMinerate) {
+            const currentAmount = user.val()[data.ore];
+            const maxAmount = storageUpgrade[user.val().storageLvl].capacity;
+            if (currentAmount < maxAmount) {
+                if (currentAmount + data.amount <= maxAmount) {
+                    defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(
+                        toFixed2(currentAmount + data.amount));
+                    checkQuest(data.ore, data.amount, user.val(), data.user);
+                }
+                else {
+                    defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(maxAmount);
+                }
+            }
+        }
+    });
+}
