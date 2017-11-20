@@ -271,12 +271,12 @@ function calculRanking() {
 
     defaultDatabase.ref("users/").once('value').then((user) => {
         const userUis = Object.keys(user.val());
-
         for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]]
+            const currentScoreFixed = toFixed2(currentUser.score).toString();
             scoreTab[i] = {
                 name: currentUser.email,
-                score: currentUser.score
+                score: currentScoreFixed
             }
         }
         scoreTab.sort(sort_by('score', true, parseInt));
@@ -302,7 +302,7 @@ function getUpgradeFromString(name) {
 const sort_by = function (field, reverse, primer) {
     var key = function (x) { return primer ? primer(x[field]) : x[field] };
 
-    return function (a, b) {
+    return function (b, a) {
         var A = key(a), B = key(b);
         return ((A < B) ? -1 : (A > B) ? +1 : 0) * [-1, 1][+!!reverse];
     }
