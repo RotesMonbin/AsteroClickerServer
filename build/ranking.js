@@ -12,7 +12,7 @@ function calculRanking() {
         const userUis = Object.keys(user.val());
         for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]];
-            const currentScoreFixed = utils_1.toFixed2(currentUser.score).toString();
+            const currentScoreFixed = utils_1.toFixed2(currentUser.score + currentUser.credit).toString();
             scoreTab[i] = {
                 name: currentUser.email,
                 score: currentScoreFixed

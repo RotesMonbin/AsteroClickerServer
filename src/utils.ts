@@ -1,5 +1,5 @@
 
-// tri a json 
+// sort a json 
 export const sort_by = function (field, reverse, primer) {
     var key = function (x) { return primer ? primer(x[field]) : x[field] };
 

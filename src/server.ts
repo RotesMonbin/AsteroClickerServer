@@ -8,7 +8,7 @@ import { incrementOre } from './mining';
 import { sellOre, buyOre } from './market';
 import { searchAster, researchFinished, travelFinished, chooseAsteroid } from './asteroid';
 import { calculRanking } from './ranking';
-import { updateQuestUser } from './quest';
+import { updateQuestUser, initQuestGroup } from './quest';
 
 
 
@@ -31,6 +31,9 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
             setInterval(() => {
                 calculRanking();
             }, 1000 * 60);
+            setInterval(() => {
+                initQuestGroup();
+            }, 1000 * 60 * 60 * 24);
         }
     });
 });
