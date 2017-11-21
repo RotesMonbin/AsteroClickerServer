@@ -1,16 +1,37 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const environment_1 = require("./environment");
+const utils_1 = require("./utils");
 const resources_1 = require("./resources");
 function searchAster(data) {
-    const asteNum = getNewAsteroidType();
-    const seed = generateRandomNumber(4) + generateRandomNumber(4);
-    environment_1.defaultDatabase.ref("users/" + data.user + "/asteroid/numAsteroid").set(asteNum);
-    environment_1.defaultDatabase.ref("users/" + data.user + "/asteroid/seed").set(seed);
+    environment_1.defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        if (user.val().search.timer == 0) {
+            environment_1.defaultDatabase.ref("users/" + data.user + "/search/timer").set(Date.now());
+        }
+    });
 }
 exports.searchAster = searchAster;
-function getNewAsteroidType() {
-    return Math.floor(Math.random() * resources_1.asteroidTypes.length);
+function researchFinished(message) {
+    environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
+        if (user.val().search.result == 0 &&
+            user.val().search.timer != 0 &&
+            utils_1.isTimerFinished(user.val().search.timer, resources_1.researchUpgrade[user.val().researchLvl].time * 60 * 1000)) {
+            fillSearchResult(message.user);
+        }
+    });
+}
+exports.researchFinished = researchFinished;
+function fillSearchResult(userId) {
+    const oreNames = Object.keys(resources_1.oreInfo);
+    for (let i = 0; i < 3; i++) {
+        let json = {};
+        json["capacity"] = 1000;
+        json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
+        json["ore"] = oreNames[Math.floor(Math.random() * oreNames.length)];
+        json["purity"] = 80 + Math.floor(Math.random() * 40);
+        json["timeToGo"] = 15;
+        environment_1.defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
+    }
 }
 function generateRandomNumber(range) {
     let seed = "";

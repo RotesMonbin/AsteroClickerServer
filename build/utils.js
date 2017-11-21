@@ -11,4 +11,8 @@ function toFixed2(number) {
     return parseFloat(number.toFixed(2));
 }
 exports.toFixed2 = toFixed2;
+function isTimerFinished(start, duration) {
+    return (Date.now() - start) >= duration;
+}
+exports.isTimerFinished = isTimerFinished;
 //# sourceMappingURL=utils.js.map

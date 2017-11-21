@@ -7,6 +7,8 @@ function getUpgradeFromString(name) {
             return exports.mineRateUpgrade;
         case "storage":
             return exports.storageUpgrade;
+        case "research":
+            return exports.researchUpgrade;
         default:
             console.log("Upgrade unknown");
             return null;
@@ -31,6 +33,15 @@ function loadStorage() {
     });
 }
 exports.loadStorage = loadStorage;
+function loadResearch() {
+    return new Promise(function (resolve) {
+        environment_1.defaultDatabase.ref("research").once('value').then((snapshot) => {
+            exports.researchUpgrade = snapshot.val();
+            resolve(1);
+        });
+    });
+}
+exports.loadResearch = loadResearch;
 function loadAsteroidTypes() {
     return new Promise(function (resolve) {
         environment_1.defaultDatabase.ref("typeAste").once('value').then((snapshot) => {
@@ -40,6 +51,15 @@ function loadAsteroidTypes() {
     });
 }
 exports.loadAsteroidTypes = loadAsteroidTypes;
+function loadOreInfo() {
+    return new Promise(function (resolve) {
+        environment_1.defaultDatabase.ref("oreInfo").once('value').then((snapshot) => {
+            exports.oreInfo = snapshot.val();
+            resolve(1);
+        });
+    });
+}
+exports.loadOreInfo = loadOreInfo;
 function loadQuest() {
     return new Promise(function (resolve) {
         environment_1.defaultDatabase.ref("quest").once('value').then((snapshot) => {

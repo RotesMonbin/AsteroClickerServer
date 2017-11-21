@@ -1,5 +1,7 @@
 import { defaultDatabase } from "./environment";
-import { asteroidTypes } from "./resources";
+import { isTimerFinished } from "./utils";
+import { researchUpgrade, oreInfo } from "./resources";
+//import { asteroidTypes } from "./resources";
 
 
 /*
@@ -9,18 +11,41 @@ data = {
 */
 
 export function searchAster(data) {
-    //defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
-    const asteNum = getNewAsteroidType();
-    const seed = generateRandomNumber(4) + generateRandomNumber(4);
-    defaultDatabase.ref("users/" + data.user + "/asteroid/numAsteroid").set(asteNum);
-    defaultDatabase.ref("users/" + data.user + "/asteroid/seed").set(seed);
-
-    // });
+    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        if (user.val().search.timer == 0) {
+            defaultDatabase.ref("users/" + data.user + "/search/timer").set(Date.now());
+        }
+    });
 }
 
-function getNewAsteroidType() {
-    return Math.floor(Math.random() * asteroidTypes.length);
+/**
+ * 
+ * @param message [user] : userId
+ */
+export function researchFinished(message) {
+    defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
+        if (user.val().search.result == 0 &&
+        user.val().search.timer!=0 &&
+            isTimerFinished(user.val().search.timer, researchUpgrade[user.val().researchLvl].time * 60 * 1000)) {
+            fillSearchResult(message.user);
+        }
+    });
 }
+
+function fillSearchResult(userId) {
+    const oreNames=Object.keys(oreInfo);
+    for(let i=0;i<3;i++){
+        let json={};
+        json["capacity"]=1000;
+        json["seed"]=generateRandomNumber(4) + generateRandomNumber(4);
+        json["ore"]=oreNames[Math.floor(Math.random() * oreNames.length)];
+        json["purity"]=80+Math.floor(Math.random() * 40);
+        json["timeToGo"]=15;
+
+        defaultDatabase.ref("users/" + userId + "/search/result/"+i).set(json);
+    }
+}
+
 
 function generateRandomNumber(range: number) {
 
