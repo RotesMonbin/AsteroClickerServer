@@ -1,8 +1,11 @@
-import {defaultDatabase} from "./environment"
+import { defaultDatabase } from "./environment"
 
-export let  mineRateUpgrade;
+export let mineRateUpgrade;
 export let storageUpgrade;
+export let researchUpgrade;
 export let asteroidTypes;
+export let oreInfo;
+
 export let quest;
 
 export function getUpgradeFromString(name) {
@@ -11,6 +14,8 @@ export function getUpgradeFromString(name) {
             return mineRateUpgrade;
         case "storage":
             return storageUpgrade;
+        case "research":
+            return researchUpgrade;
         default:
             console.log("Upgrade unknown");
             return null;
@@ -35,10 +40,28 @@ export function loadStorage() {
     });
 }
 
+export function loadResearch() {
+    return new Promise(function (resolve) {
+        defaultDatabase.ref("research").once('value').then((snapshot) => {
+            researchUpgrade = snapshot.val();
+            resolve(1);
+        });
+    });
+}
+
 export function loadAsteroidTypes() {
     return new Promise(function (resolve) {
         defaultDatabase.ref("typeAste").once('value').then((snapshot) => {
             asteroidTypes = snapshot.val();
+            resolve(1);
+        });
+    });
+}
+
+export function loadOreInfo() {
+    return new Promise(function (resolve) {
+        defaultDatabase.ref("oreInfo").once('value').then((snapshot) => {
+            oreInfo = snapshot.val();
             resolve(1);
         });
     });

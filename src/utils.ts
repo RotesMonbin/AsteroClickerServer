@@ -12,3 +12,12 @@ export const sort_by = function (field, reverse, primer) {
 export function toFixed2(number) {
     return parseFloat(number.toFixed(2));
 }
+
+/**
+ * 
+ * @param start Starting time of the timer in timestamp form
+ * @param duration Duration in miliseconds
+ */
+export function isTimerFinished(start: number, duration: number) : boolean{
+    return (Date.now() - start) >= duration;
+}
