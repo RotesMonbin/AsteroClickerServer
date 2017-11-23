@@ -3,7 +3,7 @@ import { toFixed2, sort_by } from "./utils";
 
 // Ranking managed
 export function calculScore(amount: number, user, userID: number) {
-    defaultDatabase.ref("users/" + userID + "/score").set(amount + user.score);
+    defaultDatabase.ref("users/" + userID + "/upgrade/score").set(amount + user.score);
 }
 
 // Calcul the ranking with the score
@@ -14,9 +14,9 @@ export function calculRanking() {
         const userUis = Object.keys(user.val());
         for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]]
-            const currentScoreFixed = toFixed2(currentUser.score + currentUser.credit).toString();
+            const currentScoreFixed = toFixed2(currentUser.upgrade.score + currentUser.credit).toString();
             scoreTab[i] = {
-                name: currentUser.email,
+                name: currentUser.profile.name,
                 score: currentScoreFixed
             }
         }

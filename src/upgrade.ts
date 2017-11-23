@@ -12,11 +12,11 @@ data = {
 */
 export function upgradeShip(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
-        const currentLvl = user.val()[data.upgrade + "Lvl"];
+        const currentLvl = user.val().upgrade[data.upgrade + "Lvl"];
         const cost = getUpgradeFromString(data.upgrade)[currentLvl + 1].cost
         if (user.val().credit >= cost) {
             defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
-            defaultDatabase.ref("users/" + data.user + "/" + data.upgrade + "Lvl").set(currentLvl + 1);
+            defaultDatabase.ref("users/" + data.user + "/upgrade/" + data.upgrade + "Lvl").set(currentLvl + 1);
             checkQuest('upgrade' + data.upgrade, 1, user.val(), data.user);
             calculScore(cost, user.val(), data.user);
         }
