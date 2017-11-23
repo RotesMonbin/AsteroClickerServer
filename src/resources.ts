@@ -3,7 +3,6 @@ import { defaultDatabase } from "./environment"
 export let mineRateUpgrade;
 export let storageUpgrade;
 export let researchUpgrade;
-export let asteroidTypes;
 export let oreInfo;
 
 export let quest;
@@ -44,15 +43,6 @@ export function loadResearch() {
     return new Promise(function (resolve) {
         defaultDatabase.ref("research").once('value').then((snapshot) => {
             researchUpgrade = snapshot.val();
-            resolve(1);
-        });
-    });
-}
-
-export function loadAsteroidTypes() {
-    return new Promise(function (resolve) {
-        defaultDatabase.ref("typeAste").once('value').then((snapshot) => {
-            asteroidTypes = snapshot.val();
             resolve(1);
         });
     });

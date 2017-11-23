@@ -3,10 +3,10 @@ import * as http from 'http';
 import * as socketIO from 'socket.io';
 import * as cors from 'cors';
 import { upgradeShip } from './upgrade';
-import { loadMineRate, loadAsteroidTypes, loadStorage, loadQuest, loadOreInfo, loadResearch } from './resources';
+import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch } from './resources';
 import { incrementOre } from './mining';
 import { sellOre, buyOre } from './market';
-import { searchAster, researchFinished } from './asteroid';
+import { searchAster, researchFinished, travelFinished, chooseAsteroid } from './asteroid';
 import { calculRanking } from './ranking';
 import { updateQuestUser } from './quest';
 
@@ -17,7 +17,7 @@ const server = new http.Server(app);
 const io = socketIO(server);
 app.use(cors());
 
-Promise.all([loadMineRate(), loadStorage(), loadAsteroidTypes(),
+Promise.all([loadMineRate(), loadStorage(),
 loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
     server.listen(4000, (err: Error) => {
         if (err) {
@@ -66,9 +66,18 @@ io.on("connection", (socket: SocketIO.Socket) => {
         researchFinished(message);
     });
 
+    socket.on('chooseAsteroid', (message) => {
+        chooseAsteroid(message);
+    });
+
+    socket.on('arrivedToAsteroid', (message) => {
+        travelFinished(message);
+    });
+
 })
 
 
 function verifyTimers(message) {
     researchFinished(message);
+    travelFinished(message);
 }

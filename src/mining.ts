@@ -1,6 +1,6 @@
 
 import {defaultDatabase} from "./environment"
-import { mineRateUpgrade, asteroidTypes, storageUpgrade } from "./resources";
+import { mineRateUpgrade, storageUpgrade, oreInfo } from "./resources";
 import { toFixed2 } from "./utils";
 import { checkQuest } from "./quest";
 
@@ -14,7 +14,7 @@ data = {
 export function incrementOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const maxMinerate = mineRateUpgrade[user.val().mineRateLvl].maxRate *
-            asteroidTypes[user.val().asteroid.numAsteroid].mineRate / 100;    
+            oreInfo[user.val().asteroid.ore].miningSpeed;   
         if (data.amount <= maxMinerate) {
             const currentAmount = user.val()[data.ore];
             const maxAmount = storageUpgrade[user.val().storageLvl].capacity;

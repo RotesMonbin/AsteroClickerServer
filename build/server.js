@@ -15,7 +15,7 @@ const app = express();
 const server = new http.Server(app);
 const io = socketIO(server);
 app.use(cors());
-Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(), resources_1.loadAsteroidTypes(),
+Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(),
     resources_1.loadQuest(), resources_1.loadResearch(), resources_1.loadOreInfo()]).then(() => {
     server.listen(4000, (err) => {
         if (err) {
@@ -54,8 +54,15 @@ io.on("connection", (socket) => {
     socket.on('researchFinished', (message) => {
         asteroid_1.researchFinished(message);
     });
+    socket.on('chooseAsteroid', (message) => {
+        asteroid_1.chooseAsteroid(message);
+    });
+    socket.on('arrivedToAsteroid', (message) => {
+        asteroid_1.travelFinished(message);
+    });
 });
 function verifyTimers(message) {
     asteroid_1.researchFinished(message);
+    asteroid_1.travelFinished(message);
 }
 //# sourceMappingURL=server.js.map
