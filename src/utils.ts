@@ -19,5 +19,5 @@ export function toFixed2(number) {
  * @param duration Duration in miliseconds
  */
 export function isTimerFinished(start: number, duration: number) : boolean{
-    return (Date.now() - start) >= duration;
+    return (Date.now() - start)  >= duration;
 }

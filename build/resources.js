@@ -42,15 +42,6 @@ function loadResearch() {
     });
 }
 exports.loadResearch = loadResearch;
-function loadAsteroidTypes() {
-    return new Promise(function (resolve) {
-        environment_1.defaultDatabase.ref("typeAste").once('value').then((snapshot) => {
-            exports.asteroidTypes = snapshot.val();
-            resolve(1);
-        });
-    });
-}
-exports.loadAsteroidTypes = loadAsteroidTypes;
 function loadOreInfo() {
     return new Promise(function (resolve) {
         environment_1.defaultDatabase.ref("oreInfo").once('value').then((snapshot) => {

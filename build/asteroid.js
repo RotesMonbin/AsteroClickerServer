@@ -21,6 +21,36 @@ function researchFinished(message) {
     });
 }
 exports.researchFinished = researchFinished;
+function chooseAsteroid(message) {
+    environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
+        if (user.val().search.result != 0 && Object.keys(user.val().search.result).length == 3
+            && message.ind >= 0 && message.ind < 3) {
+            let json = {};
+            json[0] = user.val().search.result[message.ind];
+            environment_1.defaultDatabase.ref("users/" + message.user + "/search/result")
+                .set(json);
+            environment_1.defaultDatabase.ref("users/" + message.user + "/search/timer").set(Date.now());
+        }
+    });
+}
+exports.chooseAsteroid = chooseAsteroid;
+function travelFinished(message) {
+    environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
+        if (user.val().search.result != 0 &&
+            user.val().search.timer != 0 &&
+            Object.keys(user.val().search.result).length == 1 &&
+            utils_1.isTimerFinished(user.val().search.timer, user.val().search.result[0].timeToGo * 60 * 1000)) {
+            changeAsteroid(message.user, user.val().search.result[0]);
+        }
+    });
+}
+exports.travelFinished = travelFinished;
+function changeAsteroid(userId, newAsteroid) {
+    delete newAsteroid.timeToGo;
+    environment_1.defaultDatabase.ref("users/" + userId + "/asteroid").set(newAsteroid);
+    environment_1.defaultDatabase.ref("users/" + userId + "/search/result").set(0);
+    environment_1.defaultDatabase.ref("users/" + userId + "/search/timer").set(0);
+}
 function fillSearchResult(userId) {
     const oreNames = Object.keys(resources_1.oreInfo);
     for (let i = 0; i < 3; i++) {
