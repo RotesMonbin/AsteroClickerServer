@@ -15,13 +15,13 @@ data = {
  */
 export function sellOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
-        const currentOreAmount = user.val()[data.ore];
+        const currentOreAmount = user.val().ore[data.ore];
         if (currentOreAmount >= data.amount) {
             defaultDatabase.ref("trading/" + data.ore).once('value').then((oreValue) => {
                 var keys = Object.keys(oreValue.val());
                 const currentValue = oreValue.val()[keys[29]];
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit + currentValue * data.amount));
-                defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
+                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
                 checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
                 checkQuest('credit', currentValue * data.amount, user.val(), data.user);
             });
@@ -46,9 +46,9 @@ export function buyOre(data) {
             var keys = Object.keys(oreValue.val());
             const currentValue = oreValue.val()[keys[29]];
             const cost = data.amount * currentValue;
-            if (currentCredit >= cost && toFixed2(user.val()[data.ore] + data.amount) <= storageUpgrade[user.val().storageLvl].capacity) {
+            if (currentCredit >= cost && toFixed2(user.val().ore[data.ore] + data.amount) <= storageUpgrade[user.val().upgrade.storageLvl].capacity) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
-                defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(user.val()[data.ore] + data.amount));
+                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(user.val()[data.ore] + data.amount));
                 checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
             }
         });

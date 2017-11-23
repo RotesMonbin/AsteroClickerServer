@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const environment_1 = require("./environment");
 const utils_1 = require("./utils");
 function calculScore(amount, user, userID) {
-    environment_1.defaultDatabase.ref("users/" + userID + "/score").set(amount + user.score);
+    environment_1.defaultDatabase.ref("users/" + userID + "/upgrade/score").set(amount + user.score);
 }
 exports.calculScore = calculScore;
 function calculRanking() {
@@ -12,9 +12,9 @@ function calculRanking() {
         const userUis = Object.keys(user.val());
         for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]];
-            const currentScoreFixed = utils_1.toFixed2(currentUser.score + currentUser.credit).toString();
+            const currentScoreFixed = utils_1.toFixed2(currentUser.upgrade.score + currentUser.credit).toString();
             scoreTab[i] = {
-                name: currentUser.email,
+                name: currentUser.profile.name,
                 score: currentScoreFixed
             };
         }

@@ -25,7 +25,7 @@ Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(),
             console.log("Server listen on 4000");
             setInterval(() => {
                 quest_1.updateQuestUser();
-            }, 1000);
+            }, 1000 * 60 * 60 * 3);
             setInterval(() => {
                 ranking_1.calculRanking();
             }, 1000 * 60);
