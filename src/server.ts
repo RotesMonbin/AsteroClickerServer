@@ -6,7 +6,7 @@ import { upgradeShip } from './upgrade';
 import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch } from './resources';
 import { incrementOre } from './mining';
 import { sellOre, buyOre } from './market';
-import { searchAster, researchFinished, travelFinished, chooseAsteroid } from './asteroid';
+import { searchAster, researchFinished, travelFinished, chooseAsteroid, rejectResults } from './asteroid';
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup } from './quest';
 
@@ -24,7 +24,6 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
             console.log(err);
         } else {
             console.log("Server listen on 4000");
-
             setInterval(() => {
                 updateQuestUser();
             }, 1000 * 60 * 60 * 3);
@@ -75,6 +74,10 @@ io.on("connection", (socket: SocketIO.Socket) => {
 
     socket.on('arrivedToAsteroid', (message) => {
         travelFinished(message);
+    });
+
+    socket.on('rejectResults', (message) => {
+        rejectResults(message);
     });
 
 })

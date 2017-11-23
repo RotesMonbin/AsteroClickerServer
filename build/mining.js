@@ -6,8 +6,8 @@ const utils_1 = require("./utils");
 const quest_1 = require("./quest");
 function incrementOre(data) {
     environment_1.defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
-        const maxMinerate = resources_1.mineRateUpgrade[user.val().mineRateLvl].maxRate *
-            resources_1.oreInfo[user.val().asteroid.ore].miningSpeed;
+        const maxMinerate = (resources_1.mineRateUpgrade[user.val().mineRateLvl].maxRate *
+            resources_1.oreInfo[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1;
         if (data.amount <= maxMinerate) {
             const currentAmount = user.val()[data.ore];
             const maxAmount = resources_1.storageUpgrade[user.val().storageLvl].capacity;
@@ -20,6 +20,7 @@ function incrementOre(data) {
                 else {
                     environment_1.defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(maxAmount);
                 }
+                environment_1.defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(utils_1.toFixed2(user.val().asteroid.currentCapacity - data.amount));
             }
         }
     });

@@ -45,8 +45,14 @@ function travelFinished(message) {
     });
 }
 exports.travelFinished = travelFinished;
+function rejectResults(message) {
+    environment_1.defaultDatabase.ref("users/" + message.user + "/search/result").set(0);
+    environment_1.defaultDatabase.ref("users/" + message.user + "/search/timer").set(0);
+}
+exports.rejectResults = rejectResults;
 function changeAsteroid(userId, newAsteroid) {
     delete newAsteroid.timeToGo;
+    newAsteroid.currentCapacity = newAsteroid.capacity;
     environment_1.defaultDatabase.ref("users/" + userId + "/asteroid").set(newAsteroid);
     environment_1.defaultDatabase.ref("users/" + userId + "/search/result").set(0);
     environment_1.defaultDatabase.ref("users/" + userId + "/search/timer").set(0);

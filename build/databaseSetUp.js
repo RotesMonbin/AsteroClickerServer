@@ -26,4 +26,37 @@ function generateStorageUpgrade(range) {
     environment_1.defaultDatabase.ref("storage/").set(json);
 }
 exports.generateStorageUpgrade = generateStorageUpgrade;
+function resetUsers() {
+    environment_1.defaultDatabase.ref("users/").once('value').then((user) => {
+        let allUsers = user.val();
+        let usersId = Object.keys(allUsers);
+        let json = {};
+        json["asteroid"] = {};
+        json["asteroid"]["capacity"] = 1000;
+        json["asteroid"]["currentCapacity"] = 1000;
+        json["asteroid"]["ore"] = "carbon";
+        json["asteroid"]["purity"] = 100;
+        json["asteroid"]["seed"] = "01230123";
+        json["ore"] = {};
+        json["ore"]["carbon"] = 0;
+        json["ore"]["titanium"] = 0;
+        json["profile"] = {};
+        json["quest"] = 0;
+        json["upgrade"] = {};
+        json["upgrade"]["mineRateLvl"] = 0;
+        json["upgrade"]["storageLvl"] = 0;
+        json["upgrade"]["researchLvl"] = 0;
+        json["upgrade"]["score"] = 0;
+        json["search"] = {};
+        json["search"]["result"] = 0;
+        json["search"]["timer"] = 0;
+        json["credit"] = 0;
+        for (let i = 0; i < usersId.length; i++) {
+            json["profile"]["email"] = allUsers[usersId[i]].email;
+            json["profile"]["name"] = allUsers[usersId[i]].email;
+            environment_1.defaultDatabase.ref("users/" + usersId[i]).set(json);
+        }
+    });
+}
+exports.resetUsers = resetUsers;
 //# sourceMappingURL=databaseSetUp.js.map
