@@ -15,4 +15,16 @@ function isTimerFinished(start, duration) {
     return (Date.now() - start) >= duration;
 }
 exports.isTimerFinished = isTimerFinished;
+function getOreAmountFromString(oreName, currentUser) {
+    switch (oreName) {
+        case 'carbon':
+            return currentUser.carbon;
+        case 'titanium':
+            return currentUser.titanium;
+        default:
+            console.log('unknown material (user)' + oreName);
+            break;
+    }
+}
+exports.getOreAmountFromString = getOreAmountFromString;
 //# sourceMappingURL=utils.js.map

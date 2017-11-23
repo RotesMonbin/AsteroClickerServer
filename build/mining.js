@@ -15,6 +15,7 @@ function incrementOre(data) {
                 if (currentAmount + data.amount <= maxAmount) {
                     environment_1.defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(utils_1.toFixed2(currentAmount + data.amount));
                     quest_1.checkQuest(data.ore, data.amount, user.val(), data.user);
+                    quest_1.checkQuestGroup(data.ore, data.amount, user.val(), data.user);
                 }
                 else {
                     environment_1.defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(maxAmount);
