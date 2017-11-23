@@ -65,8 +65,18 @@ export function travelFinished(message) {
     });
 }
 
+/**
+ * 
+ * @param message [user] : userId
+ */
+export function rejectResults(message) {
+    defaultDatabase.ref("users/" + message.user + "/search/result").set(0);
+    defaultDatabase.ref("users/" + message.user + "/search/timer").set(0);
+}
+
 function changeAsteroid(userId,newAsteroid){
     delete newAsteroid.timeToGo;
+    newAsteroid.currentCapacity=newAsteroid.capacity;
     defaultDatabase.ref("users/" + userId + "/asteroid").set(newAsteroid);
     defaultDatabase.ref("users/" + userId + "/search/result").set(0);
     defaultDatabase.ref("users/" + userId + "/search/timer").set(0);

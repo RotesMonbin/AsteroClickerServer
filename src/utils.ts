@@ -13,6 +13,7 @@ export function toFixed2(number) {
     return parseFloat(number.toFixed(2));
 }
 
+
 /**
  * 
  * @param start Starting time of the timer in timestamp form
