@@ -53,14 +53,14 @@ function initQuestUser(i, userID, currentUser) {
         i = 4;
     }
     const questCurrent = quest[i];
-    const gainCredit = currentUser.score * 
+    const gainCredit = currentUser.upgrade.score * 
     toFixed2((Math.random() * questCurrent.gainMax) + questCurrent.gainMin) 
     + questCurrent.gain;
     defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
         defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
             let type = (Math.floor(Math.random()* 10)) % 2 === 0 ? "carbon" : "titanium";
             let values;
-            const mineRateCurrent = mineRate.val()[currentUser.mineRateLvl].maxRate * oreInfo.val()[type].miningSpeed;
+            const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()[type].miningSpeed;
             let typeFinal; 
             switch (questCurrent.type) {
                 case 'Buy':
