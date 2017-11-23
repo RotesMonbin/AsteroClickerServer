@@ -26,7 +26,7 @@ export function researchFinished(message) {
     defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (user.val().search.result == 0 &&
             user.val().search.timer != 0 &&
-            isTimerFinished(user.val().search.timer, researchUpgrade[user.val().researchLvl].time * 60 * 1000)) {
+            isTimerFinished(user.val().search.timer, researchUpgrade[user.val().upgrade.researchLvl].time * 60 * 1000)) {
             fillSearchResult(message.user);
         }
     });
