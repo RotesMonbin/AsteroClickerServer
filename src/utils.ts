@@ -19,5 +19,17 @@ export function toFixed2(number) {
  * @param duration Duration in miliseconds
  */
 export function isTimerFinished(start: number, duration: number) : boolean{
-    return (Date.now() - start)  >= duration;
+    return (Date.now() - start) >= duration;
+}
+
+export function getOreAmountFromString(oreName: string, currentUser) {
+    switch (oreName) {
+        case 'carbon':
+            return currentUser.carbon;
+        case 'titanium':
+             return currentUser.titanium;
+        default:
+            console.log('unknown material (user)' + oreName);
+            break;
+    }
 }

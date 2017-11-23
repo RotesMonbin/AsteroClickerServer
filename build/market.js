@@ -14,6 +14,7 @@ function sellOre(data) {
                 environment_1.defaultDatabase.ref("users/" + data.user + "/credit").set(utils_1.toFixed2(user.val().credit + currentValue * data.amount));
                 environment_1.defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(utils_1.toFixed2(currentOreAmount - data.amount));
                 quest_1.checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
+                quest_1.checkQuest('credit', currentValue * data.amount, user.val(), data.user);
             });
             environment_1.defaultDatabase.ref("trend/" + data.ore).once('value').then((trend) => {
                 environment_1.defaultDatabase.ref("trend/" + data.ore).set(trend.val() - data.amount);

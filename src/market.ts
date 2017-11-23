@@ -23,6 +23,7 @@ export function sellOre(data) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit + currentValue * data.amount));
                 defaultDatabase.ref("users/" + data.user + "/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
                 checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
+                checkQuest('credit', currentValue * data.amount, user.val(), data.user);
             });
             defaultDatabase.ref("trend/" + data.ore).once('value').then((trend) => {
                 defaultDatabase.ref("trend/" + data.ore).set(trend.val()-data.amount);

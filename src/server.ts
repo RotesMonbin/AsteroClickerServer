@@ -27,7 +27,7 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
 
             setInterval(() => {
                 updateQuestUser();
-            }, 1000 * 60);
+            }, 1000 * 60 * 60 * 3);
             setInterval(() => {
                 calculRanking();
             }, 1000 * 60);
