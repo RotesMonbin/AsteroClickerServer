@@ -32,7 +32,7 @@ function buyOre(data) {
             const cost = data.amount * currentValue;
             if (currentCredit >= cost && utils_1.toFixed2(user.val().ore[data.ore] + data.amount) <= resources_1.storageUpgrade[user.val().upgrade.storageLvl].capacity) {
                 environment_1.defaultDatabase.ref("users/" + data.user + "/credit").set(utils_1.toFixed2(user.val().credit - cost));
-                environment_1.defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(utils_1.toFixed2(user.val()[data.ore] + data.amount));
+                environment_1.defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(utils_1.toFixed2(user.val().ore[data.ore] + data.amount));
                 quest_1.checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
             }
         });
