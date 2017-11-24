@@ -25,7 +25,7 @@ function checkQuestGroup(oreName, values, currentUser, userID) {
         environment_1.defaultDatabase.ref("questGroup/").once('value').then((questGroup) => {
             const finalValues = questGroup.val().values - values;
             if (finalValues <= 0) {
-                environment_1.defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.credit + questGroup.val().gain + currentUser.score * 0.05);
+                environment_1.defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.credit + questGroup.val().gain + currentUser.score * 0.2);
             }
             else {
                 environment_1.defaultDatabase.ref("questGroup/values").set(utils_1.toFixed2(finalValues));
@@ -53,14 +53,14 @@ function initQuestUser(i, userID, currentUser) {
         i = 4;
     }
     const questCurrent = resources_1.quest[i];
-    const gainCredit = currentUser.score *
+    const gainCredit = currentUser.upgrade.score *
         utils_1.toFixed2((Math.random() * questCurrent.gainMax) + questCurrent.gainMin)
         + questCurrent.gain;
     environment_1.defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
         environment_1.defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
             let type = (Math.floor(Math.random() * 10)) % 2 === 0 ? "carbon" : "titanium";
             let values;
-            const mineRateCurrent = mineRate.val()[currentUser.mineRateLvl].maxRate * oreInfo.val()[type].miningSpeed;
+            const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()[type].miningSpeed;
             let typeFinal;
             switch (questCurrent.type) {
                 case 'Buy':

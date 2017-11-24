@@ -15,7 +15,7 @@ function researchFinished(message) {
     environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (user.val().search.result == 0 &&
             user.val().search.timer != 0 &&
-            utils_1.isTimerFinished(user.val().search.timer, resources_1.researchUpgrade[user.val().researchLvl].time * 60 * 1000)) {
+            utils_1.isTimerFinished(user.val().search.timer, resources_1.researchUpgrade[user.val().upgrade.researchLvl].time * 60 * 1000)) {
             fillSearchResult(message.user);
         }
     });
