@@ -26,7 +26,7 @@ export function researchFinished(message) {
     defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (user.val().search.result == 0 &&
             user.val().search.timer != 0 &&
-            isTimerFinished(user.val().search.timer, researchUpgrade[user.val().upgrade.researchLvl].time * 60 * 1000)) {
+            isTimerFinished(user.val().search.timer, researchUpgrade[user.val().upgrade.researchLvl].time * 1000)) {
             fillSearchResult(message.user);
         }
     });
@@ -59,7 +59,7 @@ export function travelFinished(message) {
         if (user.val().search.result != 0 &&
             user.val().search.timer != 0 &&
             Object.keys(user.val().search.result).length == 1 &&
-            isTimerFinished(user.val().search.timer, user.val().search.result[0].timeToGo * 60 * 1000)) {
+            isTimerFinished(user.val().search.timer, user.val().search.result[0].timeToGo * 1000)) {
             changeAsteroid(message.user,user.val().search.result[0]);
         }
     });
@@ -89,8 +89,9 @@ function fillSearchResult(userId) {
         json["capacity"] = 1000;
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         json["ore"] = oreNames[Math.floor(Math.random() * oreNames.length)];
-        json["purity"] = 80 + Math.floor(Math.random() * 40);
-        json["timeToGo"] = 15;
+        const purityRand=Math.random();
+        json["purity"] = 80 + Math.floor(purityRand * 40);
+        json["timeToGo"] = Math.floor((purityRand*20)+10);
 
         defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
     }
