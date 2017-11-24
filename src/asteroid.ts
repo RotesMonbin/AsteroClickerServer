@@ -87,7 +87,7 @@ function fillSearchResult(userId) {
     const oreNames = Object.keys(oreInfo);
     for (let i = 0; i < 3; i++) {
         let json = {};
-        json["capacity"] = 5000;
+        json["capacity"] = 2000;
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         json["ore"] = oreNames[Math.floor(Math.random() * oreNames.length)];
         const purityRand=Math.random();

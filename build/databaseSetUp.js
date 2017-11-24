@@ -8,7 +8,7 @@ function generateMineRateUpgrade(range) {
         const rate = utils_1.toFixed2(Math.round(Math.pow(i + 1, 1.05) * 10) / 10);
         json[i] = {
             baseRate: rate,
-            cost: Math.floor(20000 / 1000 * Math.pow(i, 1.04)) * 1000,
+            cost: Math.floor(2500 / 1000 * Math.pow(i, 1.04)) * 1000,
             maxRate: utils_1.toFixed2(Math.round(rate * 3 * 10) / 10)
         };
     }
@@ -20,7 +20,7 @@ function generateStorageUpgrade(range) {
     for (let i = 0; i < range; i++) {
         json[i] = {
             capacity: Math.floor(5000 / 1000 * Math.pow(i + 1, 1.5)) * 1000,
-            cost: Math.floor(30000 / 1000 * Math.pow(i, 1.07)) * 1000
+            cost: Math.floor(3000 / 1000 * Math.pow(i, 1.07)) * 1000
         };
     }
     environment_1.defaultDatabase.ref("storage/").set(json);
