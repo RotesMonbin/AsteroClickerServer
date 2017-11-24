@@ -15,7 +15,7 @@ function researchFinished(message) {
     environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (user.val().search.result == 0 &&
             user.val().search.timer != 0 &&
-            utils_1.isTimerFinished(user.val().search.timer, resources_1.researchUpgrade[user.val().upgrade.researchLvl].time * 60 * 1000)) {
+            utils_1.isTimerFinished(user.val().search.timer, resources_1.researchUpgrade[user.val().upgrade.researchLvl].time * 1000)) {
             fillSearchResult(message.user);
         }
     });
@@ -30,6 +30,7 @@ function chooseAsteroid(message) {
             environment_1.defaultDatabase.ref("users/" + message.user + "/search/result")
                 .set(json);
             environment_1.defaultDatabase.ref("users/" + message.user + "/search/timer").set(Date.now());
+            environment_1.defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
         }
     });
 }
@@ -39,7 +40,7 @@ function travelFinished(message) {
         if (user.val().search.result != 0 &&
             user.val().search.timer != 0 &&
             Object.keys(user.val().search.result).length == 1 &&
-            utils_1.isTimerFinished(user.val().search.timer, user.val().search.result[0].timeToGo * 60 * 1000)) {
+            utils_1.isTimerFinished(user.val().search.timer, user.val().search.result[0].timeToGo * 1000)) {
             changeAsteroid(message.user, user.val().search.result[0]);
         }
     });
@@ -61,11 +62,12 @@ function fillSearchResult(userId) {
     const oreNames = Object.keys(resources_1.oreInfo);
     for (let i = 0; i < 3; i++) {
         let json = {};
-        json["capacity"] = 1000;
+        json["capacity"] = 2000;
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         json["ore"] = oreNames[Math.floor(Math.random() * oreNames.length)];
-        json["purity"] = 80 + Math.floor(Math.random() * 40);
-        json["timeToGo"] = 15;
+        const purityRand = Math.random();
+        json["purity"] = 80 + Math.floor(purityRand * 40);
+        json["timeToGo"] = Math.floor((purityRand * 20) + 10);
         environment_1.defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
     }
 }
