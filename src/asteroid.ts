@@ -46,6 +46,7 @@ export function chooseAsteroid(message) {
                 defaultDatabase.ref("users/" + message.user + "/search/result")
                 .set(json);
                 defaultDatabase.ref("users/" + message.user + "/search/timer").set(Date.now());
+                defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
         }
     });
 }
