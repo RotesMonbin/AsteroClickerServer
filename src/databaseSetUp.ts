@@ -55,6 +55,8 @@ export function resetUsers() {
         json["upgrade"]["mineRateLvl"]=0;
         json["upgrade"]["storageLvl"]=0;
         json["upgrade"]["researchLvl"]=0;
+        json["upgrade"]["timerStock"]=0;
+        json["upgrade"]["timerRate"]=0;
         json["upgrade"]["score"]=0;
 
         json["search"]={};
