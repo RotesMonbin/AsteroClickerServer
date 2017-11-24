@@ -3,7 +3,7 @@ import { toFixed2, sort_by } from "./utils";
 
 // Ranking managed
 export function calculScore(amount: number, user, userID: number) {
-    defaultDatabase.ref("users/" + userID + "/upgrade/score").set(amount + user.score);
+    defaultDatabase.ref("users/" + userID + "/upgrade/score").set(amount + user.upgrade.score);
 }
 
 // Calcul the ranking with the score

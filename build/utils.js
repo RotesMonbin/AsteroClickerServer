@@ -18,9 +18,9 @@ exports.isTimerFinished = isTimerFinished;
 function getOreAmountFromString(oreName, currentUser) {
     switch (oreName) {
         case 'carbon':
-            return currentUser.carbon;
+            return currentUser.ore.carbon;
         case 'titanium':
-            return currentUser.titanium;
+            return currentUser.ore.titanium;
         default:
             console.log('unknown material (user)' + oreName);
             break;

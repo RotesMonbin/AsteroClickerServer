@@ -24,7 +24,7 @@ export function checkQuestGroup(oreName: string, values: number, currentUser, us
         defaultDatabase.ref("questGroup/").once('value').then((questGroup) => {
             const finalValues = questGroup.val().values - values;
             if (finalValues <= 0) {
-                defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.credit + questGroup.val().gain + currentUser.score * 0.05);
+                defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.credit + questGroup.val().gain + currentUser.score * 0.2);
             } else {
                 defaultDatabase.ref("questGroup/values").set(toFixed2(finalValues));
             }
