@@ -9,6 +9,7 @@ import { sellOre, buyOre } from './market';
 import { searchAster, researchFinished, travelFinished, chooseAsteroid, rejectResults } from './asteroid';
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup } from './quest';
+//import { resetUsers } from './databaseSetUp';
 
 
 

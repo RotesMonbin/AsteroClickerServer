@@ -48,8 +48,8 @@ export function resetUsers() {
 
         json["profile"]={};
 
-
-        json["quest"]=0;
+        json["quest"]={};
+        json["quest"]["gain"]=0;
 
         json["upgrade"]={};
         json["upgrade"]["mineRateLvl"]=0;
@@ -64,8 +64,8 @@ export function resetUsers() {
         json["credit"]=0;
 
         for (let i = 0; i < usersId.length; i++) {
-            json["profile"]["email"]=allUsers[usersId[i]].email;
-            json["profile"]["name"]=allUsers[usersId[i]].email;
+            json["profile"]["email"]=allUsers[usersId[i]].profile.email;
+            json["profile"]["name"]=allUsers[usersId[i]].profile.email;
             defaultDatabase.ref("users/"+usersId[i]).set(json);
         }
 
