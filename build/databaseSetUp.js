@@ -41,19 +41,22 @@ function resetUsers() {
         json["ore"]["carbon"] = 0;
         json["ore"]["titanium"] = 0;
         json["profile"] = {};
-        json["quest"] = 0;
+        json["quest"] = {};
+        json["quest"]["gain"] = 0;
         json["upgrade"] = {};
         json["upgrade"]["mineRateLvl"] = 0;
         json["upgrade"]["storageLvl"] = 0;
         json["upgrade"]["researchLvl"] = 0;
+        json["upgrade"]["timerStock"] = 0;
+        json["upgrade"]["timerRate"] = 0;
         json["upgrade"]["score"] = 0;
         json["search"] = {};
         json["search"]["result"] = 0;
         json["search"]["timer"] = 0;
         json["credit"] = 0;
         for (let i = 0; i < usersId.length; i++) {
-            json["profile"]["email"] = allUsers[usersId[i]].email;
-            json["profile"]["name"] = allUsers[usersId[i]].email;
+            json["profile"]["email"] = allUsers[usersId[i]].profile.email;
+            json["profile"]["name"] = allUsers[usersId[i]].profile.email;
             environment_1.defaultDatabase.ref("users/" + usersId[i]).set(json);
         }
     });

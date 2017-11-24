@@ -48,7 +48,7 @@ export function buyOre(data) {
             const cost = data.amount * currentValue;
             if (currentCredit >= cost && toFixed2(user.val().ore[data.ore] + data.amount) <= storageUpgrade[user.val().upgrade.storageLvl].capacity) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
-                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(user.val()[data.ore] + data.amount));
+                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(user.val().ore[data.ore] + data.amount));
                 checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
             }
         });

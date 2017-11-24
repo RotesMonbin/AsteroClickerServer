@@ -6,22 +6,27 @@ const utils_1 = require("./utils");
 const quest_1 = require("./quest");
 function incrementOre(data) {
     environment_1.defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        const asteroidCapacity = user.val().asteroid.currentCapacity;
         const maxMinerate = (resources_1.mineRateUpgrade[user.val().upgrade.mineRateLvl].maxRate *
             resources_1.oreInfo[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1;
-        if (data.amount <= maxMinerate) {
-            const currentAmount = user.val().ore[data.ore];
-            const maxAmount = resources_1.storageUpgrade[user.val().upgrade.storageLvl].capacity;
-            if (currentAmount < maxAmount) {
-                if (currentAmount + data.amount <= maxAmount) {
-                    environment_1.defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(utils_1.toFixed2(currentAmount + data.amount));
-                    quest_1.checkQuest(data.ore, data.amount, user.val(), data.user);
-                    quest_1.checkQuestGroup(data.ore, data.amount, user.val(), data.user);
-                }
-                else {
-                    environment_1.defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(maxAmount);
-                }
-                environment_1.defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(utils_1.toFixed2(user.val().asteroid.currentCapacity - data.amount));
+        const maxAmount = resources_1.storageUpgrade[user.val().upgrade.storageLvl].capacity;
+        const currentAmount = user.val().ore[data.ore];
+        if (data.amount <= maxMinerate && asteroidCapacity > 0 && currentAmount < maxAmount) {
+            let newAmount = currentAmount + data.amount;
+            let newCapacity = asteroidCapacity - data.amount;
+            if (currentAmount + data.amount > maxAmount) {
+                data.amount = maxAmount - currentAmount;
+                newAmount = maxAmount;
+                newCapacity = asteroidCapacity - data.amount;
             }
+            if (asteroidCapacity - data.amount < 0) {
+                newAmount = currentAmount + data.amount;
+                newCapacity = 0;
+            }
+            quest_1.checkQuest(data.ore, data.amount, user.val(), data.user);
+            quest_1.checkQuestGroup(data.ore, data.amount, user.val(), data.user);
+            environment_1.defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(utils_1.toFixed2(newCapacity));
+            environment_1.defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(utils_1.toFixed2(newAmount));
         }
     });
 }
