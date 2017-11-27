@@ -36,7 +36,7 @@ Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(),
             }, 1000 * 60);
             setInterval(() => {
                 quest_1.initQuestGroup();
-            }, 1000 * 60 * 60 * 24);
+            }, 1000 * 60 * 60 * 24 * 7);
         }
     });
 });
