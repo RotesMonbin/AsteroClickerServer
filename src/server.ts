@@ -6,7 +6,7 @@ import { upgradeShip } from './upgrade';
 import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch } from './resources';
 import { incrementOre } from './mining';
 import { sellOre, buyOre } from './market';
-import { searchAster, researchFinished, travelFinished, chooseAsteroid, rejectResults } from './asteroid';
+import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup } from './quest';
 //import { resetUsers } from './databaseSetUp';
@@ -65,26 +65,21 @@ io.on("connection", (socket: SocketIO.Socket) => {
         searchAster(message);
     });
 
-    socket.on('researchFinished', (message) => {
-        researchFinished(message);
-    });
-
     socket.on('chooseAsteroid', (message) => {
         chooseAsteroid(message);
-    });
-
-    socket.on('arrivedToAsteroid', (message) => {
-        travelFinished(message);
     });
 
     socket.on('rejectResults', (message) => {
         rejectResults(message);
     });
 
+    socket.on('updateAsteroidTimer',(message)=>{
+        updateAsteroidTimer(message);
+    });
+
 })
 
 
 function verifyTimers(message) {
-    researchFinished(message);
-    travelFinished(message);
+    updateAsteroidTimer(message);
 }

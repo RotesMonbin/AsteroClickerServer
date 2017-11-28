@@ -1,33 +1,16 @@
 import { defaultDatabase } from "./environment";
-import { isTimerFinished } from "./utils";
 import { researchUpgrade, oreInfo } from "./resources";
 //import { asteroidTypes } from "./resources";
 
-
-/*
-data = {
-    user : userId
-}
-*/
-
-export function searchAster(data) {
-    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
-        if (user.val().search.timer == 0) {
-            defaultDatabase.ref("users/" + data.user + "/search/timer").set(Date.now());
-        }
-    });
-}
 
 /**
  * 
  * @param message [user] : userId
  */
-export function researchFinished(message) {
-    defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
-        if (user.val().search.result == 0 &&
-            user.val().search.timer != 0 &&
-            isTimerFinished(user.val().search.timer, researchUpgrade[user.val().upgrade.researchLvl].time * 1000)) {
-            fillSearchResult(message.user);
+export function searchAster(data) {
+    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        if (user.val().search.start == 0) {
+            defaultDatabase.ref("users/" + data.user + "/search/start").set(Date.now());
         }
     });
 }
@@ -41,12 +24,12 @@ export function chooseAsteroid(message) {
     defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (user.val().search.result != 0 && Object.keys(user.val().search.result).length == 3
             && message.ind >= 0 && message.ind < 3) {
-                let json ={}
-                json[0]=user.val().search.result[message.ind];
-                defaultDatabase.ref("users/" + message.user + "/search/result")
+            let json = {};
+            json[0] = user.val().search.result[message.ind];
+            defaultDatabase.ref("users/" + message.user + "/search/result")
                 .set(json);
-                defaultDatabase.ref("users/" + message.user + "/search/timer").set(Date.now());
-                defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
+            defaultDatabase.ref("users/" + message.user + "/search/start").set(Date.now());
+            defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
         }
     });
 }
@@ -55,13 +38,29 @@ export function chooseAsteroid(message) {
  * 
  * @param message [user] : userId
  */
-export function travelFinished(message) {
+export function updateAsteroidTimer(message) {
     defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
-        if (user.val().search.result != 0 &&
-            user.val().search.timer != 0 &&
-            Object.keys(user.val().search.result).length == 1 &&
-            isTimerFinished(user.val().search.timer, user.val().search.result[0].timeToGo * 1000)) {
-            changeAsteroid(message.user,user.val().search.result[0]);
+        if (user.val().search.start != 0) {
+            //Searching
+            if (user.val().search.result == 0) {
+                let timer = (researchUpgrade[user.val().upgrade.researchLvl].time * 1000) -
+                    (Date.now() - user.val().search.start);
+                if (timer <= 0) {
+                    timer = 0;
+                    fillSearchResult(message.user);
+                }
+                defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
+            }
+            //Traveling
+            else if (user.val().search.result.length == 1) {
+                let timer = (user.val().search.result[0].timeToGo * 1000) -
+                    (Date.now() - user.val().search.start);
+                if (timer <= 0) {
+                    timer = 0;
+                    changeAsteroid(message.user, user.val().search.result[0]);
+                }
+                defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
+            }
         }
     });
 }
@@ -72,15 +71,15 @@ export function travelFinished(message) {
  */
 export function rejectResults(message) {
     defaultDatabase.ref("users/" + message.user + "/search/result").set(0);
-    defaultDatabase.ref("users/" + message.user + "/search/timer").set(0);
+    defaultDatabase.ref("users/" + message.user + "/search/start").set(0);
 }
 
-function changeAsteroid(userId,newAsteroid){
+function changeAsteroid(userId, newAsteroid) {
     delete newAsteroid.timeToGo;
-    newAsteroid.currentCapacity=newAsteroid.capacity;
+    newAsteroid.currentCapacity = newAsteroid.capacity;
     defaultDatabase.ref("users/" + userId + "/asteroid").set(newAsteroid);
     defaultDatabase.ref("users/" + userId + "/search/result").set(0);
-    defaultDatabase.ref("users/" + userId + "/search/timer").set(0);
+    defaultDatabase.ref("users/" + userId + "/search/start").set(0);
 }
 
 function fillSearchResult(userId) {
@@ -90,9 +89,9 @@ function fillSearchResult(userId) {
         json["capacity"] = 2000;
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         json["ore"] = oreNames[Math.floor(Math.random() * oreNames.length)];
-        const purityRand=Math.random();
+        const purityRand = Math.random();
         json["purity"] = 80 + Math.floor(purityRand * 40);
-        json["timeToGo"] = Math.floor((purityRand*20)+10);
+        json["timeToGo"] = Math.floor((purityRand * 20) + 10);
 
         defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
     }

@@ -14,15 +14,6 @@ export function toFixed2(number) {
 }
 
 
-/**
- * 
- * @param start Starting time of the timer in timestamp form
- * @param duration Duration in miliseconds
- */
-export function isTimerFinished(start: number, duration: number) : boolean{
-    return (Date.now() - start) >= duration;
-}
-
 export function getOreAmountFromString(oreName: string, currentUser) {
     switch (oreName) {
         case 'carbon':

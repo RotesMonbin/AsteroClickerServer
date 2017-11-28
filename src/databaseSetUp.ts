@@ -62,6 +62,7 @@ export function resetUsers() {
         json["search"]={};
         json["search"]["result"]=0;
         json["search"]["timer"]=0;
+        json["search"]["start"]=0;
 
         json["credit"]=0;
 
