@@ -43,7 +43,7 @@ export function updateAsteroidTimer(message) {
         if (user.val().search.start != 0) {
             //Searching
             if (user.val().search.result == 0) {
-                let timer = (researchUpgrade[user.val().upgrade.researchLvl].time * 1000) -
+                let timer = (researchUpgrade[user.val().upgrade.researchLvl].searchTime * 1000) -
                     (Date.now() - user.val().search.start);
                 if (timer <= 0) {
                     timer = 0;
