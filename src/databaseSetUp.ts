@@ -68,7 +68,7 @@ export function resetUsers() {
 
         for (let i = 0; i < usersId.length; i++) {
             json["profile"]["email"]=allUsers[usersId[i]].profile.email;
-            json["profile"]["name"]=allUsers[usersId[i]].profile.email;
+            json["profile"]["name"]=allUsers[usersId[i]].profile.name;
             defaultDatabase.ref("users/"+usersId[i]).set(json);
         }
 
