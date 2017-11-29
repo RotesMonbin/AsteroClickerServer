@@ -51,7 +51,10 @@ function updateCostsMarket() {
             environment_1.defaultDatabase.ref('oreInfo').once('value').then(function (oreSnapshot) {
                 computeNewRate('carbon', tradSnapshot.val().carbon, trendSnapshot.val().carbon, oreSnapshot.val().carbon.maxValue, oreSnapshot.val().carbon.minValue, oreSnapshot.val().carbon.meanValue);
                 computeNewRate('titanium', tradSnapshot.val().titanium, trendSnapshot.val().titanium, oreSnapshot.val().titanium.maxValue, oreSnapshot.val().titanium.minValue, oreSnapshot.val().titanium.meanValue);
+<<<<<<< HEAD
                 computeNewRate('fer', tradSnapshot.val().fer, trendSnapshot.val().fer, oreSnapshot.val().fer.maxValue, oreSnapshot.val().fer.minValue, oreSnapshot.val().fer.meanValue);
+=======
+>>>>>>> questNew
             });
         });
     });

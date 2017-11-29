@@ -5,8 +5,14 @@ import * as cors from 'cors';
 import { upgradeShip, updateUpgradeTimer } from './upgrade';
 import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch } from './resources';
 import { incrementOre } from './mining';
+<<<<<<< HEAD
 import { sellOre, buyOre, updateCostsMarket, updateMeanCosts } from './market';
+=======
+
+import { sellOre, buyOre, updateCostsMarket } from './market';
+>>>>>>> questNew
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
+
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup } from './quest';
 //import { generateMineRateUpgrade, generateStorageUpgrade } from './databaseSetUp';
@@ -31,7 +37,7 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
             }, 1000*10 );
             setInterval(() => {
                 updateQuestUser();
-            }, 1000 * 60 * 60 * 3);
+            }, 1000 * 10);
             setInterval(() => {
                 calculRanking();
             }, 1000 * 60);
