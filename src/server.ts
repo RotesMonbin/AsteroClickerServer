@@ -5,17 +5,11 @@ import * as cors from 'cors';
 import { upgradeShip, updateUpgradeTimer } from './upgrade';
 import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch } from './resources';
 import { incrementOre } from './mining';
-<<<<<<< HEAD
 import { sellOre, buyOre, updateCostsMarket, updateMeanCosts } from './market';
-=======
-
-import { sellOre, buyOre, updateCostsMarket } from './market';
->>>>>>> questNew
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
 
 import { calculRanking } from './ranking';
-import { updateQuestUser, initQuestGroup } from './quest';
-//import { generateMineRateUpgrade, generateStorageUpgrade } from './databaseSetUp';
+import { updateQuestUser, initQuestGroup, giveGainUser } from './quest';
 //import { resetUsers } from './databaseSetUp';
 
 
@@ -90,5 +84,9 @@ io.on("connection", (socket: SocketIO.Socket) => {
         updateUpgradeTimer(message);
     });
     
+    socket.on('removeChest', (message)=>{
+        giveGainUser(message);
+    })
+
 })
 

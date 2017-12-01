@@ -68,6 +68,12 @@ io.on("connection", (socket) => {
     socket.on('updateAsteroidTimer', (message) => {
         asteroid_1.updateAsteroidTimer(message);
     });
+<<<<<<< HEAD
+=======
+    socket.on('removeChest', (message) => {
+        quest_1.giveGainUser(message);
+    });
+>>>>>>> chest2.0
 });
 function verifyTimers(message) {
     asteroid_1.updateAsteroidTimer(message);

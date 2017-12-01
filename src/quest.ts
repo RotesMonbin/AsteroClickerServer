@@ -5,9 +5,6 @@ import { toFixed2, getOreAmountFromString } from "./utils";
 
 export function checkQuest(missionName: string, values: number, currentUser, userID) {
     if (currentUser.quest.values === 0) {
-        if (currentUser.quest.gain === 0) {
-            giveGainUser(userID);
-        }
         return;
     }
     if (missionName === currentUser.quest.type) {
@@ -22,8 +19,15 @@ export function checkQuest(missionName: string, values: number, currentUser, use
     }
 }
 
-
-function giveGainUser(userID){
+/*
+numberOfChest: numberOfChest,
+userID: userID
+*/
+export function giveGainUser(message){
+    defaultDatabase.ref("users/" + message.user + "/chest/numberOfChest").set(message.numberOfChest);
+    defaultDatabase.ref("users/" + message.user + "/chest/chest" + message.numberOfChest).remove();
+    /*
+    
     defaultDatabase.ref("user/" + userID + "/quest/chest").once('value').then((chest) => {
         const chestID = Object.keys(chest.val());
         console.log(chestID);
@@ -31,14 +35,14 @@ function giveGainUser(userID){
         for (let i = 0; i < chestID.length; i++) {
             const currentChest = chest.val()[chestID[i]];
             console.log(currentChest);
-        }*/
+        }
     });
-
+*/
 }
 
 export function openChest(userID, currentUser) {
-    defaultDatabase.ref("users/" + userID + "/chest/").remove('chest' + currentUser.chest.number);               
-    defaultDatabase.ref("users/" + userID + "/chest/number").set(currentUser.chest.number - 1);              
+    defaultDatabase.ref("users/" + userID + "/chest/").remove('chest' + currentUser.chest.numberOfChest);               
+    defaultDatabase.ref("users/" + userID + "/chest/numberOfChest").set(currentUser.chest.numberOfChest - 1);              
 }
 
 export function checkQuestGroup(oreName: string, values: number, currentUser, userID) {
@@ -129,10 +133,8 @@ function initQuestUser(i, userID, currentUser) {
 
 function initChestRandom(userID, currentUser, questCurrent, mineRate, oreInfo) {
     let json = {};
-    console.log(currentUser);
     const chest1 = stringRandomChest(currentUser, questCurrent, mineRate, oreInfo);
-    const stringChest = 'chest' + (currentUser.chest.numberOfChest + 1);
-    defaultDatabase.ref("users/"+ userID + '/chest/numberOfChest').set(currentUser.chest.numberOfChest + 1);
+    const stringChest = 'chest' + (currentUser.chest.numberOfChest);
     
     json = {};
     json["0"] = {};
@@ -147,6 +149,8 @@ function initChestRandom(userID, currentUser, questCurrent, mineRate, oreInfo) {
     json["2"][chest3.type]=toFixed2(chest3.number);
 
     defaultDatabase.ref("users/"+ userID + '/chest/' + stringChest).set(json);
+    defaultDatabase.ref("users/"+ userID + '/chest/numberOfChest').set(currentUser.chest.numberOfChest + 1);
+    
 }
 
 function stringRandomChest(currentUser, questCurrent, mineRate, oreInfo) {
