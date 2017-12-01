@@ -58,7 +58,7 @@ function initQuestUser(i, userID, currentUser) {
         + questCurrent.gain;
     environment_1.defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
         environment_1.defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
-            let type = (Math.floor(Math.random() * 10)) % 2 === 0 ? "carbon" : "titanium";
+            let type = randomOre();
             let values;
             const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()[type].miningSpeed;
             let typeFinal;
@@ -111,4 +111,17 @@ function initQuestGroup() {
     });
 }
 exports.initQuestGroup = initQuestGroup;
+function randomOre() {
+    const type = (Math.floor(Math.random() * 3));
+    if (type === 0) {
+        return 'carbon';
+    }
+    else if (type === 1) {
+        return 'titanium';
+    }
+    else if (type === 2) {
+        return 'fer';
+    }
+    return 'carbon';
+}
 //# sourceMappingURL=quest.js.map
