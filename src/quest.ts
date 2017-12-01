@@ -58,7 +58,7 @@ function initQuestUser(i, userID, currentUser) {
     + questCurrent.gain;
     defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
         defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
-            let type = (Math.floor(Math.random()* 10)) % 2 === 0 ? "carbon" : "titanium";
+            let type = randomOre();
             let values;
             const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()[type].miningSpeed;
             let typeFinal; 
@@ -117,6 +117,20 @@ export function initQuestGroup() {
         defaultDatabase.ref("questGroup/valuesFinal").set(values);
         defaultDatabase.ref("questGroup/name").set('Retrieve ' + values + ' carbon with other Captains !');
     });
+}
+
+function randomOre() {
+    const type = (Math.floor(Math.random()* 3));
+    if (type === 0) {
+        return 'carbon';
+    }
+    else if (type ===1) {
+        return 'titanium';
+    } 
+    else if (type === 2) {
+        return 'fer';
+    }
+    return 'carbon';
 }
 
 

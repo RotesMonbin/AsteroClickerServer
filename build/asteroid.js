@@ -1,26 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const environment_1 = require("./environment");
-const utils_1 = require("./utils");
 const resources_1 = require("./resources");
 function searchAster(data) {
     environment_1.defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
-        if (user.val().search.timer == 0) {
-            environment_1.defaultDatabase.ref("users/" + data.user + "/search/timer").set(Date.now());
+        if (user.val().search.start == 0) {
+            environment_1.defaultDatabase.ref("users/" + data.user + "/search/start").set(Date.now());
         }
     });
 }
 exports.searchAster = searchAster;
-function researchFinished(message) {
-    environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
-        if (user.val().search.result == 0 &&
-            user.val().search.timer != 0 &&
-            utils_1.isTimerFinished(user.val().search.timer, resources_1.researchUpgrade[user.val().upgrade.researchLvl].time * 1000)) {
-            fillSearchResult(message.user);
-        }
-    });
-}
-exports.researchFinished = researchFinished;
 function chooseAsteroid(message) {
     environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (user.val().search.result != 0 && Object.keys(user.val().search.result).length == 3
@@ -29,26 +18,40 @@ function chooseAsteroid(message) {
             json[0] = user.val().search.result[message.ind];
             environment_1.defaultDatabase.ref("users/" + message.user + "/search/result")
                 .set(json);
-            environment_1.defaultDatabase.ref("users/" + message.user + "/search/timer").set(Date.now());
+            environment_1.defaultDatabase.ref("users/" + message.user + "/search/start").set(Date.now());
             environment_1.defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
         }
     });
 }
 exports.chooseAsteroid = chooseAsteroid;
-function travelFinished(message) {
+function updateAsteroidTimer(message) {
     environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
-        if (user.val().search.result != 0 &&
-            user.val().search.timer != 0 &&
-            Object.keys(user.val().search.result).length == 1 &&
-            utils_1.isTimerFinished(user.val().search.timer, user.val().search.result[0].timeToGo * 1000)) {
-            changeAsteroid(message.user, user.val().search.result[0]);
+        if (user.val().search.start != 0) {
+            if (user.val().search.result == 0) {
+                let timer = (resources_1.researchUpgrade[user.val().upgrade.researchLvl].searchTime * 1000) -
+                    (Date.now() - user.val().search.start);
+                if (timer <= 0) {
+                    timer = 0;
+                    fillSearchResult(message.user);
+                }
+                environment_1.defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
+            }
+            else if (user.val().search.result.length == 1) {
+                let timer = (user.val().search.result[0].timeToGo * 1000) -
+                    (Date.now() - user.val().search.start);
+                if (timer <= 0) {
+                    timer = 0;
+                    changeAsteroid(message.user, user.val().search.result[0]);
+                }
+                environment_1.defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
+            }
         }
     });
 }
-exports.travelFinished = travelFinished;
+exports.updateAsteroidTimer = updateAsteroidTimer;
 function rejectResults(message) {
     environment_1.defaultDatabase.ref("users/" + message.user + "/search/result").set(0);
-    environment_1.defaultDatabase.ref("users/" + message.user + "/search/timer").set(0);
+    environment_1.defaultDatabase.ref("users/" + message.user + "/search/start").set(0);
 }
 exports.rejectResults = rejectResults;
 function changeAsteroid(userId, newAsteroid) {
@@ -56,7 +59,7 @@ function changeAsteroid(userId, newAsteroid) {
     newAsteroid.currentCapacity = newAsteroid.capacity;
     environment_1.defaultDatabase.ref("users/" + userId + "/asteroid").set(newAsteroid);
     environment_1.defaultDatabase.ref("users/" + userId + "/search/result").set(0);
-    environment_1.defaultDatabase.ref("users/" + userId + "/search/timer").set(0);
+    environment_1.defaultDatabase.ref("users/" + userId + "/search/start").set(0);
 }
 function fillSearchResult(userId) {
     const oreNames = Object.keys(resources_1.oreInfo);
