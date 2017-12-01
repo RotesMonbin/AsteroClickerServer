@@ -16,10 +16,14 @@ data = {
 export function sellOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const currentOreAmount = user.val().ore[data.ore];
-        if (currentOreAmount >= data.amount) {
+        if (currentOreAmount > 0) {
             defaultDatabase.ref("trading/" + data.ore).once('value').then((oreValue) => {
                 var keys = Object.keys(oreValue.val());
                 const currentValue = oreValue.val()[keys[29]];
+
+                if (currentOreAmount < data.amount) {
+                    data.amount=currentOreAmount;
+                }
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit + currentValue * data.amount));
                 defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
                 checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
