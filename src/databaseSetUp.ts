@@ -45,6 +45,7 @@ export function resetUsers() {
         json["ore"]={};
         json["ore"]["carbon"]=0;
         json["ore"]["titanium"]=0;
+        json["ore"]["fer"]=0;
 
         json["profile"]={};
 

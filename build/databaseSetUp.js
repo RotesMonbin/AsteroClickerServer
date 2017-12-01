@@ -5,10 +5,10 @@ const utils_1 = require("./utils");
 function generateMineRateUpgrade(range) {
     let json = [];
     for (let i = 0; i < range; i++) {
-        const rate = utils_1.toFixed2(Math.round(Math.pow(i + 1, 1.05) * 10) / 10);
+        const rate = utils_1.toFixed2(Math.round(Math.pow(i + 1, 1.5) * 10) / 10);
         json[i] = {
             baseRate: rate,
-            cost: Math.floor(2500 / 1000 * Math.pow(i, 1.04)) * 1000,
+            cost: Math.floor(((500 * Math.pow(i, 1.7)) + 1500) / 1000) * 1000,
             maxRate: utils_1.toFixed2(Math.round(rate * 3 * 10) / 10)
         };
     }
@@ -53,10 +53,11 @@ function resetUsers() {
         json["search"] = {};
         json["search"]["result"] = 0;
         json["search"]["timer"] = 0;
+        json["search"]["start"] = 0;
         json["credit"] = 0;
         for (let i = 0; i < usersId.length; i++) {
             json["profile"]["email"] = allUsers[usersId[i]].profile.email;
-            json["profile"]["name"] = allUsers[usersId[i]].profile.email;
+            json["profile"]["name"] = allUsers[usersId[i]].profile.name;
             environment_1.defaultDatabase.ref("users/" + usersId[i]).set(json);
         }
     });

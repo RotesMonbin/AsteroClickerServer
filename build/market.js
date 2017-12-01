@@ -7,10 +7,13 @@ const resources_1 = require("./resources");
 function sellOre(data) {
     environment_1.defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const currentOreAmount = user.val().ore[data.ore];
-        if (currentOreAmount >= data.amount) {
+        if (currentOreAmount > 0) {
             environment_1.defaultDatabase.ref("trading/" + data.ore).once('value').then((oreValue) => {
                 var keys = Object.keys(oreValue.val());
                 const currentValue = oreValue.val()[keys[29]];
+                if (currentOreAmount < data.amount) {
+                    data.amount = currentOreAmount;
+                }
                 environment_1.defaultDatabase.ref("users/" + data.user + "/credit").set(utils_1.toFixed2(user.val().credit + currentValue * data.amount));
                 environment_1.defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(utils_1.toFixed2(currentOreAmount - data.amount));
                 quest_1.checkQuest('sell' + data.ore, data.amount, user.val(), data.user);

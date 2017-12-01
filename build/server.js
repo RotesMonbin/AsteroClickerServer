@@ -54,21 +54,17 @@ io.on("connection", (socket) => {
     socket.on('searchAster', (message) => {
         asteroid_1.searchAster(message);
     });
-    socket.on('researchFinished', (message) => {
-        asteroid_1.researchFinished(message);
-    });
     socket.on('chooseAsteroid', (message) => {
         asteroid_1.chooseAsteroid(message);
-    });
-    socket.on('arrivedToAsteroid', (message) => {
-        asteroid_1.travelFinished(message);
     });
     socket.on('rejectResults', (message) => {
         asteroid_1.rejectResults(message);
     });
+    socket.on('updateAsteroidTimer', (message) => {
+        asteroid_1.updateAsteroidTimer(message);
+    });
 });
 function verifyTimers(message) {
-    asteroid_1.researchFinished(message);
-    asteroid_1.travelFinished(message);
+    asteroid_1.updateAsteroidTimer(message);
 }
 //# sourceMappingURL=server.js.map
