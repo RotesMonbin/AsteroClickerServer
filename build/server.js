@@ -26,6 +26,9 @@ Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(),
             databaseSetUp_1.resetUsers();
             console.log("Server listen on 4000");
             setInterval(() => {
+                market_1.updateCostsMarket();
+            }, 1000 * 10);
+            setInterval(() => {
                 quest_1.updateQuestUser();
             }, 1000 * 60 * 60 * 3);
             setInterval(() => {

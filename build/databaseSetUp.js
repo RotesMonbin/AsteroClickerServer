@@ -41,6 +41,11 @@ function resetUsers() {
         json["ore"]["carbon"] = 0;
         json["ore"]["titanium"] = 0;
         json["ore"]["fer"] = 0;
+<<<<<<< HEAD
+=======
+        json["chest"] = {};
+        json["chest"]["numberOfChest"] = 0;
+>>>>>>> added: change maket
         json["profile"] = {};
         json["quest"] = {};
         json["quest"]["gain"] = 0;
