@@ -5,7 +5,7 @@ import * as cors from 'cors';
 import { upgradeShip } from './upgrade';
 import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch } from './resources';
 import { incrementOre } from './mining';
-import { sellOre, buyOre } from './market';
+import { sellOre, buyOre, updateCostsMarket } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup } from './quest';
@@ -25,6 +25,9 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
             console.log(err);
         } else {
             console.log("Server listen on 4000");
+            setInterval(() => {
+                updateCostsMarket();
+            }, 1000 * 10);
             setInterval(() => {
                 updateQuestUser();
             }, 1000 * 60 * 60 * 3);
