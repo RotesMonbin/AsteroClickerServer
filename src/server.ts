@@ -2,13 +2,14 @@ import * as express from 'express';
 import * as http from 'http';
 import * as socketIO from 'socket.io';
 import * as cors from 'cors';
-import { upgradeShip } from './upgrade';
+import { upgradeShip, updateUpgradeTimer } from './upgrade';
 import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch } from './resources';
 import { incrementOre } from './mining';
 import { sellOre, buyOre, updateCostsMarket } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup } from './quest';
+//import { generateMineRateUpgrade, generateStorageUpgrade } from './databaseSetUp';
 //import { resetUsers } from './databaseSetUp';
 
 
@@ -44,10 +45,6 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
 
 io.on("connection", (socket: SocketIO.Socket) => {
 
-    socket.on('userLogged', (message) => {
-        verifyTimers(message);
-    });
-
     socket.on('incrementOre', (message) => {
         incrementOre(message);
     });
@@ -80,9 +77,9 @@ io.on("connection", (socket: SocketIO.Socket) => {
         updateAsteroidTimer(message);
     });
 
+    socket.on('updateUpgradeTimer',(message)=>{
+        updateUpgradeTimer(message);
+    });
+    
 })
 
-
-function verifyTimers(message) {
-    updateAsteroidTimer(message);
-}

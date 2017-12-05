@@ -1,5 +1,5 @@
 import { defaultDatabase } from "./environment";
-import { researchUpgrade, oreInfo } from "./resources";
+import { researchUpgrade, oreInfo, mineRateUpgrade } from "./resources";
 //import { asteroidTypes } from "./resources";
 
 
@@ -43,11 +43,11 @@ export function updateAsteroidTimer(message) {
         if (user.val().search.start != 0) {
             //Searching
             if (user.val().search.result == 0) {
-                let timer = (researchUpgrade[user.val().upgrade.researchLvl].searchTime * 1000) -
+                let timer = (researchUpgrade[user.val().upgrade.research.lvl].searchTime * 1000) -
                     (Date.now() - user.val().search.start);
                 if (timer <= 0) {
                     timer = 0;
-                    fillSearchResult(message.user);
+                    fillSearchResult(message.user,user);
                 }
                 defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
             }
@@ -82,13 +82,15 @@ function changeAsteroid(userId, newAsteroid) {
     defaultDatabase.ref("users/" + userId + "/search/start").set(0);
 }
 
-function fillSearchResult(userId) {
+function fillSearchResult(userId,user) {
     const oreNames = Object.keys(oreInfo);
+    const researchLvl=user.val().upgrade.research.lvl;
+    const miningRate=mineRateUpgrade[user.val().upgrade.mineRate.lvl].baseRate;
     for (let i = 0; i < 3; i++) {
         let json = {};
-        json["capacity"] = 2000;
-        json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         json["ore"] = oreNames[Math.floor(Math.random() * oreNames.length)];
+        json["capacity"] = 1000*(1+(0.01*researchLvl))*miningRate*oreInfo[json["ore"]].miningSpeed;
+        json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         const purityRand = Math.random();
         json["purity"] = 80 + Math.floor(purityRand * 40);
         json["timeToGo"] = Math.floor((purityRand * 20) + 10);

@@ -60,7 +60,7 @@ function initQuestUser(i, userID, currentUser) {
         defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
             let type = randomOre();
             let values;
-            const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()[type].miningSpeed;
+            const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()[type].miningSpeed;
             let typeFinal; 
             switch (questCurrent.type) {
                 case 'Buy':

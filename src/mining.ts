@@ -15,10 +15,10 @@ export function incrementOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
 
         const asteroidCapacity = user.val().asteroid.currentCapacity;
-        const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRateLvl].maxRate *
+        const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
             oreInfo[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
-        const maxAmount = storageUpgrade[user.val().upgrade.storageLvl].capacity;
+        const maxAmount = storageUpgrade[user.val().upgrade.storage.lvl].capacity;
         const currentAmount = user.val().ore[data.ore];
 
         if (data.amount <= maxMinerate && asteroidCapacity > 0 && currentAmount < maxAmount) {
@@ -32,7 +32,7 @@ export function incrementOre(data) {
                 newCapacity = asteroidCapacity - data.amount;
             }
             if (asteroidCapacity - data.amount < 0) {
-                newAmount = currentAmount + data.amount;
+                newAmount = currentAmount + asteroidCapacity;
                 newCapacity = 0;
             }
 
