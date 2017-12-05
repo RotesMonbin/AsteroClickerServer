@@ -45,4 +45,40 @@ function buyOre(data) {
     });
 }
 exports.buyOre = buyOre;
+function updateCostsMarket() {
+    environment_1.defaultDatabase.ref('trend').once('value').then(function (trendSnapshot) {
+        environment_1.defaultDatabase.ref('trading').once('value').then(function (tradSnapshot) {
+            environment_1.defaultDatabase.ref('oreInfo').once('value').then(function (oreSnapshot) {
+                computeNewRate('carbon', tradSnapshot.val().carbon, trendSnapshot.val().carbon, oreSnapshot.val().carbon.maxValue, oreSnapshot.val().carbon.minValue, oreSnapshot.val().carbon.meanValue);
+                computeNewRate('titanium', tradSnapshot.val().titanium, trendSnapshot.val().titanium, oreSnapshot.val().titanium.maxValue, oreSnapshot.val().titanium.minValue, oreSnapshot.val().titanium.meanValue);
+                computeNewRate('fer', tradSnapshot.val().fer, trendSnapshot.val().fer, oreSnapshot.val().fer.maxValue, oreSnapshot.val().fer.minValue, oreSnapshot.val().fer.meanValue);
+            });
+        });
+    });
+}
+exports.updateCostsMarket = updateCostsMarket;
+function computeNewRate(oreName, oreCosts, oreTrend, maxValue, minValue, meanValue) {
+    var jsonStr = oreCosts;
+    var val = jsonStr[Object.keys(jsonStr)[Object.keys(jsonStr).length - 1]];
+    var delta = (((Math.random() * ((meanValue / 2) - (meanValue / 10))) + (meanValue / 10)) / 100);
+    if (oreTrend < 0) {
+        delta = -delta;
+    }
+    else if (oreTrend == 0) {
+        delta = (((Math.random() * ((meanValue / 2) - (meanValue / 10))) - (meanValue / 5)) / 100);
+        if (val + delta <= minValue || val + delta > maxValue) {
+            delta = -delta;
+        }
+    }
+    if (val + delta > minValue && val + delta <= maxValue) {
+        val += delta;
+    }
+    val = parseFloat(parseFloat(val).toFixed(2));
+    if (Object.keys(jsonStr).length >= 40) {
+        delete jsonStr[Object.keys(jsonStr)[0]];
+    }
+    jsonStr[Date.now()] = val;
+    environment_1.defaultDatabase.ref('trading/' + oreName).set(jsonStr);
+    environment_1.defaultDatabase.ref('trend/' + oreName).set(0);
+}
 //# sourceMappingURL=market.js.map
