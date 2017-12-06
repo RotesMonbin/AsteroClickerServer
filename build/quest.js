@@ -22,9 +22,37 @@ function checkQuest(missionName, values, currentUser, userID) {
 exports.checkQuest = checkQuest;
 function giveGainUser(message) {
     environment_1.defaultDatabase.ref("users/" + message.user + "/chest/numberOfChest").set(message.numberOfChest);
-    environment_1.defaultDatabase.ref("users/" + message.user + "/chest/chest" + message.numberOfChest).remove();
+    const stringTempChest = 'chest' + message.numberOfChest;
+    environment_1.defaultDatabase.ref("users/" + message.user + "/chest/" + stringTempChest).once('value').then((chest) => {
+        const chestTemp = chest.val();
+        environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((currentUser) => {
+            let json = {};
+            json['carbon'] = currentUser.val().ore.carbon;
+            json['fer'] = currentUser.val().ore.fer;
+            json['titanium'] = currentUser.val().ore.titanium;
+            let creditTemp = currentUser.val().credit;
+            for (let i = 0; i < 3; i++) {
+                if (Object.keys(chestTemp[i])[0] === 'credit') {
+                    creditTemp += chestTemp[i][Object.keys(chestTemp[i])[0]];
+                }
+                else {
+                    regroupGainChest(Object.keys(chestTemp[i])[0], chestTemp[i][Object.keys(chestTemp[i])[0]], json);
+                }
+            }
+            addChestToBase(json, message.user, creditTemp);
+        });
+    }).then(() => {
+        environment_1.defaultDatabase.ref("users/" + message.user + "/chest/chest" + message.numberOfChest).remove();
+    });
 }
 exports.giveGainUser = giveGainUser;
+function regroupGainChest(type, number, json) {
+    json[type] = utils_1.toFixed2(json[type] + number);
+}
+function addChestToBase(json, userID, creditTemp) {
+    environment_1.defaultDatabase.ref("users/" + userID + "/ore").set(json);
+    environment_1.defaultDatabase.ref("users/" + userID + "/credit").set(utils_1.toFixed2(creditTemp));
+}
 function openChest(userID, currentUser) {
     environment_1.defaultDatabase.ref("users/" + userID + "/chest/").remove('chest' + currentUser.chest.numberOfChest);
     environment_1.defaultDatabase.ref("users/" + userID + "/chest/numberOfChest").set(currentUser.chest.numberOfChest - 1);
@@ -126,8 +154,9 @@ function initChestRandom(userID, currentUser, questCurrent, mineRate, oreInfo) {
 }
 function stringRandomChest(currentUser, questCurrent, mineRate, oreInfo) {
     let tab = {
-        'carbon': 30,
-        'titanium': 60,
+        'carbon': 23,
+        'titanium': 46,
+        'fer': 69,
         'credit': 100
     };
     const rand = Math.floor((Math.random() * 100) + 1);
@@ -140,6 +169,11 @@ function stringRandomChest(currentUser, questCurrent, mineRate, oreInfo) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()['titanium'].miningSpeed;
         const valuesTitanium = mineRateCurrent * 60;
         return { type: 'titanium', number: valuesTitanium };
+    }
+    if (rand < tab.fer) {
+        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()['fer'].miningSpeed;
+        const valuesFer = mineRateCurrent * 60;
+        return { type: 'fer', number: valuesFer };
     }
     if (rand <= tab.credit) {
         const gainCredit = currentUser.upgrade.score *
