@@ -139,7 +139,7 @@ function initQuestUser(i, userID, currentUser) {
                 break;
             }
             const text = questCurrent.type + ' ' + toFixed2(values)  + ' ' + type; 
-            initChestRandom(userID, currentUser, questCurrent, mineRate, oreInfo);
+            initChestRandom(userID, currentUser, questCurrent.gainMin, questCurrent.gainMax, questCurrent.gain, mineRate, oreInfo);
             defaultDatabase.ref("users/" + userID + "/quest/gain").set(1);
             defaultDatabase.ref("users/" + userID + "/quest/values").set(toFixed2(values));   
             defaultDatabase.ref("users/" + userID + "/quest/valuesFinal").set(toFixed2(values));            
@@ -151,20 +151,35 @@ function initQuestUser(i, userID, currentUser) {
     });  
 }
 
-function initChestRandom(userID, currentUser, questCurrent, mineRate, oreInfo) {
+/*
+userID, currentUser
+*/
+export function newChest(message) {
+    defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
+        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {            
+            const gainMin = 0.01;
+            const gainMax = 0.02;
+            const gain = 1000;
+            initChestRandom(message.userID, message.currentUser, gainMin, gainMax, gain, mineRate, oreInfo);
+        });
+    });
+
+
+}
+function initChestRandom(userID, currentUser, gainMin, gainMax, gain, mineRate, oreInfo) {
     let json = {};
-    const chest1 = stringRandomChest(currentUser, questCurrent, mineRate, oreInfo);
+    const chest1 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);
     const stringChest = 'chest' + (currentUser.chest.numberOfChest);
     
     json = {};
     json["0"] = {};
     json["0"][chest1.type]=toFixed2(chest1.number);
 
-    const chest2 = stringRandomChest(currentUser, questCurrent, mineRate, oreInfo);    
+    const chest2 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);    
     json["1"] = {};
     json["1"][chest2.type]=toFixed2(chest2.number);
 
-    const chest3 = stringRandomChest(currentUser, questCurrent, mineRate, oreInfo);      
+    const chest3 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);      
     json["2"] = {};  
     json["2"][chest3.type]=toFixed2(chest3.number);
 
@@ -173,7 +188,7 @@ function initChestRandom(userID, currentUser, questCurrent, mineRate, oreInfo) {
     
 }
 
-function stringRandomChest(currentUser, questCurrent, mineRate, oreInfo) {
+function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain) {
     let tab = {
         'carbon': 23,
         'titanium': 46,
@@ -183,24 +198,24 @@ function stringRandomChest(currentUser, questCurrent, mineRate, oreInfo) {
 
     const rand = Math.floor((Math.random() * 100) + 1);
     if (rand < tab.carbon) {
-        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()['carbon'].miningSpeed;
+        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['carbon'].miningSpeed;
         const valuesCarbon =  mineRateCurrent * 60; 
         return {type: 'carbon',number: valuesCarbon};
     }
     if (rand < tab.titanium) {
-        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()['titanium'].miningSpeed;
+        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['titanium'].miningSpeed;
         const valuesTitanium =  mineRateCurrent * 60; 
         return {type: 'titanium',number: valuesTitanium};
     }
     if (rand < tab.fer) {
-        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRateLvl].maxRate * oreInfo.val()['fer'].miningSpeed;
+        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['fer'].miningSpeed;
         const valuesFer =  mineRateCurrent * 60; 
         return {type: 'fer',number: valuesFer};
     }
     if (rand <= tab.credit) {
         const gainCredit = currentUser.upgrade.score * 
-        toFixed2((Math.random() * questCurrent.gainMax) + questCurrent.gainMin) 
-        + questCurrent.gain;
+        toFixed2((Math.random() * gainMax) + gainMin) 
+        + gain;
         return {type: 'credit',number: gainCredit/3};
     }
     return undefined;
