@@ -8,8 +8,9 @@ function generateMineRateUpgrade(range) {
         const rate = utils_1.toFixed2(Math.round(Math.pow(i + 1, 1.5) * 10) / 10);
         json[i] = {
             baseRate: rate,
+            maxRate: utils_1.toFixed2(Math.round(rate * 3 * 10) / 10),
             cost: Math.floor(((500 * Math.pow(i, 1.7)) + 1500) / 1000) * 1000,
-            maxRate: utils_1.toFixed2(Math.round(rate * 3 * 10) / 10)
+            time: (i * (i + 1) / 10) + 10
         };
     }
     environment_1.defaultDatabase.ref("mineRate/").set(json);
@@ -20,7 +21,8 @@ function generateStorageUpgrade(range) {
     for (let i = 0; i < range; i++) {
         json[i] = {
             capacity: Math.floor(5000 / 1000 * Math.pow(i + 1, 1.5)) * 1000,
-            cost: Math.floor(3000 / 1000 * Math.pow(i, 1.07)) * 1000
+            cost: Math.floor(3000 / 1000 * Math.pow(i, 1.07)) * 1000,
+            time: (i * (i + 1) / 10) + 10
         };
     }
     environment_1.defaultDatabase.ref("storage/").set(json);
@@ -41,20 +43,21 @@ function resetUsers() {
         json["ore"]["carbon"] = 0;
         json["ore"]["titanium"] = 0;
         json["ore"]["fer"] = 0;
-<<<<<<< HEAD
-=======
         json["chest"] = {};
         json["chest"]["numberOfChest"] = 0;
->>>>>>> added: change maket
         json["profile"] = {};
         json["quest"] = {};
         json["quest"]["gain"] = 0;
         json["upgrade"] = {};
-        json["upgrade"]["mineRateLvl"] = 0;
-        json["upgrade"]["storageLvl"] = 0;
-        json["upgrade"]["researchLvl"] = 0;
-        json["upgrade"]["timerStock"] = 0;
-        json["upgrade"]["timerRate"] = 0;
+        json["upgrade"]["mineRate"] = {};
+        json["upgrade"]["mineRate"]["lvl"] = 0;
+        json["upgrade"]["mineRate"]["timer"] = 0;
+        json["upgrade"]["storage"] = {};
+        json["upgrade"]["storage"]["lvl"] = 0;
+        json["upgrade"]["storage"]["timer"] = 0;
+        json["upgrade"]["research"] = {};
+        json["upgrade"]["research"]["lvl"] = 0;
+        json["upgrade"]["research"]["timer"] = 0;
         json["upgrade"]["score"] = 0;
         json["search"] = {};
         json["search"]["result"] = 0;

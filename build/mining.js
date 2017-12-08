@@ -7,9 +7,9 @@ const quest_1 = require("./quest");
 function incrementOre(data) {
     environment_1.defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const asteroidCapacity = user.val().asteroid.currentCapacity;
-        const maxMinerate = (resources_1.mineRateUpgrade[user.val().upgrade.mineRateLvl].maxRate *
+        const maxMinerate = (resources_1.mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
             resources_1.oreInfo[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1;
-        const maxAmount = resources_1.storageUpgrade[user.val().upgrade.storageLvl].capacity;
+        const maxAmount = resources_1.storageUpgrade[user.val().upgrade.storage.lvl].capacity;
         const currentAmount = user.val().ore[data.ore];
         if (data.amount <= maxMinerate && asteroidCapacity > 0 && currentAmount < maxAmount) {
             let newAmount = currentAmount + data.amount;
@@ -20,7 +20,7 @@ function incrementOre(data) {
                 newCapacity = asteroidCapacity - data.amount;
             }
             if (asteroidCapacity - data.amount < 0) {
-                newAmount = currentAmount + data.amount;
+                newAmount = currentAmount + asteroidCapacity;
                 newCapacity = 0;
             }
             quest_1.checkQuest(data.ore, data.amount, user.val(), data.user);

@@ -7,9 +7,11 @@ import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch } from 
 import { incrementOre } from './mining';
 import { sellOre, buyOre, updateCostsMarket, updateMeanCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
+
 import { calculRanking } from './ranking';
-import { updateQuestUser, initQuestGroup } from './quest';
-import { resetUsers } from './databaseSetUp';
+import { updateQuestUser, initQuestGroup, giveGainUser, newChest } from './quest';
+//import { resetUsers } from './databaseSetUp';
+
 
 
 const app = express();
@@ -23,14 +25,13 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
         if (err) {
             console.log(err);
         } else {
-            resetUsers();
-            console.log("Server listen on 4000");
+            console.log("Server listen on 4000");            
             setInterval(() => {
                 updateCostsMarket();
             }, 1000*10 );
             setInterval(() => {
                 updateQuestUser();
-            }, 1000 * 60 * 60 * 3);
+            }, 1000 * 30);
             setInterval(() => {
                 calculRanking();
             }, 1000 * 60);
@@ -83,5 +84,13 @@ io.on("connection", (socket: SocketIO.Socket) => {
         updateUpgradeTimer(message);
     });
     
+    socket.on('removeChest', (message)=>{
+        giveGainUser(message);
+    })
+
+    socket.on('newChest', (message)=>{
+        newChest(message);
+    })
+
 })
 

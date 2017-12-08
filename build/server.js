@@ -11,7 +11,6 @@ const market_1 = require("./market");
 const asteroid_1 = require("./asteroid");
 const ranking_1 = require("./ranking");
 const quest_1 = require("./quest");
-const databaseSetUp_1 = require("./databaseSetUp");
 const app = express();
 const server = new http.Server(app);
 const io = socketIO(server);
@@ -23,27 +22,26 @@ Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(),
             console.log(err);
         }
         else {
-            databaseSetUp_1.resetUsers();
             console.log("Server listen on 4000");
             setInterval(() => {
                 market_1.updateCostsMarket();
             }, 1000 * 10);
             setInterval(() => {
                 quest_1.updateQuestUser();
-            }, 1000 * 60 * 60 * 3);
+            }, 1000 * 30);
             setInterval(() => {
                 ranking_1.calculRanking();
             }, 1000 * 60);
             setInterval(() => {
                 quest_1.initQuestGroup();
             }, 1000 * 60 * 60 * 24);
+            setInterval(() => {
+                market_1.updateMeanCosts();
+            }, 1000 * 60 * 60);
         }
     });
 });
 io.on("connection", (socket) => {
-    socket.on('userLogged', (message) => {
-        verifyTimers(message);
-    });
     socket.on('incrementOre', (message) => {
         mining_1.incrementOre(message);
     });
@@ -68,8 +66,14 @@ io.on("connection", (socket) => {
     socket.on('updateAsteroidTimer', (message) => {
         asteroid_1.updateAsteroidTimer(message);
     });
+    socket.on('updateUpgradeTimer', (message) => {
+        upgrade_1.updateUpgradeTimer(message);
+    });
+    socket.on('removeChest', (message) => {
+        quest_1.giveGainUser(message);
+    });
+    socket.on('newChest', (message) => {
+        quest_1.newChest(message);
+    });
 });
-function verifyTimers(message) {
-    asteroid_1.updateAsteroidTimer(message);
-}
 //# sourceMappingURL=server.js.map
