@@ -11,6 +11,7 @@ const market_1 = require("./market");
 const asteroid_1 = require("./asteroid");
 const ranking_1 = require("./ranking");
 const quest_1 = require("./quest");
+const databaseSetUp_1 = require("./databaseSetUp");
 const app = express();
 const server = new http.Server(app);
 const io = socketIO(server);
@@ -23,12 +24,13 @@ Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(),
         }
         else {
             console.log("Server listen on 4000");
+            databaseSetUp_1.resetUsers();
             setInterval(() => {
                 market_1.updateCostsMarket();
             }, 1000 * 10);
             setInterval(() => {
                 quest_1.updateQuestUser();
-            }, 1000 * 10);
+            }, 1000 * 60 * 60);
             setInterval(() => {
                 ranking_1.calculRanking();
             }, 1000 * 60);

@@ -10,6 +10,7 @@ import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from 
 
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest } from './quest';
+import { resetUsers } from './databaseSetUp';
 //import { resetUsers } from './databaseSetUp';
 
 
@@ -31,7 +32,7 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
             }, 1000*10 );
             setInterval(() => {
                 updateQuestUser();
-            }, 1000 * 10);
+            }, 1000 * 60 * 60);
             setInterval(() => {
                 calculRanking();
             }, 1000 * 60);
