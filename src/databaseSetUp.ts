@@ -7,7 +7,7 @@ export function generateMineRateUpgrade(range: number) {
         const rate = toFixed2(Math.round(Math.pow(i + 1, 1.5) * 10) / 10);
         json[i] = {
             baseRate: rate,
-            maxRate: toFixed2(Math.round(rate * 3 * 10) / 10),
+            maxRate: toFixed2(Math.round(rate * 1.5 * 10) / 10),
             cost: Math.floor(((500 * Math.pow(i, 1.7)) + 1500) / 1000) * 1000, //Prix = (500 * x^1.7) + 1500
             time: (i * (i + 1) / 10) + 10 //(level*(level+1)/10)+10
         }
@@ -61,14 +61,17 @@ export function resetUsers() {
         json["upgrade"]["mineRate"] = {};
         json["upgrade"]["mineRate"]["lvl"] = 0;
         json["upgrade"]["mineRate"]["timer"] = 0;
+        json["upgrade"]["mineRate"]["start"] = 0;
 
         json["upgrade"]["storage"] = {};
         json["upgrade"]["storage"]["lvl"] = 0;
         json["upgrade"]["storage"]["timer"] = 0;
+        json["upgrade"]["storage"]["start"] = 0;
 
         json["upgrade"]["research"] = {};
         json["upgrade"]["research"]["lvl"] = 0;
         json["upgrade"]["research"]["timer"] = 0;
+        json["upgrade"]["research"]["start"] = 0;
 
         json["upgrade"]["score"] = 0;
 

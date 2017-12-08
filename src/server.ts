@@ -9,9 +9,7 @@ import { sellOre, buyOre, updateCostsMarket, updateMeanCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup } from './quest';
-//import { generateMineRateUpgrade, generateStorageUpgrade } from './databaseSetUp';
-//import { resetUsers } from './databaseSetUp';
-
+import { resetUsers } from './databaseSetUp';
 
 
 const app = express();
@@ -25,6 +23,7 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
         if (err) {
             console.log(err);
         } else {
+            resetUsers();
             console.log("Server listen on 4000");
             setInterval(() => {
                 updateCostsMarket();

@@ -113,7 +113,7 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos) {
     }
 
     val = parseFloat(parseFloat(val).toFixed(2));
-    if (Object.keys(jsonStr).length >= 40) {
+    if (Object.keys(jsonStr).length >= 60) {
         delete jsonStr[Object.keys(jsonStr)[0]];
     }
     jsonStr[Date.now()] = val;
