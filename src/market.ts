@@ -48,7 +48,7 @@ export function buyOre(data) {
         const currentCredit = user.val().credit;
         defaultDatabase.ref("trading/" + data.ore+"/recent").once('value').then((oreValue) => {
             var keys = Object.keys(oreValue.val());
-            const currentValue = oreValue.val()[keys[29]];
+            const currentValue = oreValue.val()[keys[29]]*1.025;
             const cost = data.amount * currentValue;
             if (currentCredit >= cost && toFixed2(user.val().ore[data.ore] + data.amount) <= storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
