@@ -23,27 +23,27 @@ Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(),
             console.log(err);
         }
         else {
-            databaseSetUp_1.resetUsers();
             console.log("Server listen on 4000");
+            databaseSetUp_1.resetUsers();
             setInterval(() => {
                 market_1.updateCostsMarket();
             }, 1000 * 10);
             setInterval(() => {
                 quest_1.updateQuestUser();
-            }, 1000 * 60 * 60 * 3);
+            }, 1000 * 60 * 60);
             setInterval(() => {
                 ranking_1.calculRanking();
             }, 1000 * 60);
             setInterval(() => {
                 quest_1.initQuestGroup();
             }, 1000 * 60 * 60 * 24);
+            setInterval(() => {
+                market_1.updateMeanCosts();
+            }, 1000 * 60 * 60);
         }
     });
 });
 io.on("connection", (socket) => {
-    socket.on('userLogged', (message) => {
-        verifyTimers(message);
-    });
     socket.on('incrementOre', (message) => {
         mining_1.incrementOre(message);
     });
@@ -68,8 +68,14 @@ io.on("connection", (socket) => {
     socket.on('updateAsteroidTimer', (message) => {
         asteroid_1.updateAsteroidTimer(message);
     });
+    socket.on('updateUpgradeTimer', (message) => {
+        upgrade_1.updateUpgradeTimer(message);
+    });
+    socket.on('removeChest', (message) => {
+        quest_1.giveGainUser(message);
+    });
+    socket.on('newChest', (message) => {
+        quest_1.newChest(message);
+    });
 });
-function verifyTimers(message) {
-    asteroid_1.updateAsteroidTimer(message);
-}
 //# sourceMappingURL=server.js.map
