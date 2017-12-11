@@ -28,7 +28,7 @@ Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(),
             }, 1000 * 10);
             setInterval(() => {
                 quest_1.updateQuestUser();
-            }, 1000 * 10);
+            }, 1000 * 60 * 60);
             setInterval(() => {
                 ranking_1.calculRanking();
                 quest_1.checkQuestForAddChest();

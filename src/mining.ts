@@ -2,7 +2,7 @@
 import { defaultDatabase } from "./environment"
 import { mineRateUpgrade, storageUpgrade, oreInfo } from "./resources";
 import { toFixed2 } from "./utils";
-import { checkQuest, checkQuestGroup } from "./quest";
+import { checkQuest, checkQuestGroup, newChest } from "./quest";
 
 /*
 data = {
@@ -32,6 +32,15 @@ export function incrementOre(data) {
                 newCapacity = asteroidCapacity - data.amount;
             }
             if (asteroidCapacity - data.amount < 0) {
+                const message = {
+                    'userID': data.user,
+                    'currentUser': user.val()
+                };
+
+                const random = Math.floor((Math.random() * 2) + 1); 
+                if (random === 2) {
+                    newChest(message);                    
+                }
                 newAmount = currentAmount + asteroidCapacity;
                 newCapacity = 0;
             }
