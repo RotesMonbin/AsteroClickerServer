@@ -28,7 +28,7 @@ function giveGainUser(message) {
         environment_1.defaultDatabase.ref("users/" + message.user).once('value').then((currentUser) => {
             let json = {};
             json['carbon'] = currentUser.val().ore.carbon;
-            json['fer'] = currentUser.val().ore.fer;
+            json['iron'] = currentUser.val().ore.iron;
             json['titanium'] = currentUser.val().ore.titanium;
             let creditTemp = currentUser.val().credit;
             for (let i = 0; i < 3; i++) {
@@ -167,7 +167,7 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
     let tab = {
         'carbon': 23,
         'titanium': 46,
-        'fer': 69,
+        'iron': 69,
         'credit': 100
     };
     const rand = Math.floor((Math.random() * 100) + 1);
@@ -181,10 +181,10 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
         const valuesTitanium = mineRateCurrent * 60;
         return { type: 'titanium', number: valuesTitanium };
     }
-    if (rand < tab.fer) {
-        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['fer'].miningSpeed;
-        const valuesFer = mineRateCurrent * 60;
-        return { type: 'fer', number: valuesFer };
+    if (rand < tab.iron) {
+        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['iron'].miningSpeed;
+        const valuesIron = mineRateCurrent * 60;
+        return { type: 'iron', number: valuesIron };
     }
     if (rand <= tab.credit) {
         const gainCredit = currentUser.upgrade.score *
@@ -214,7 +214,7 @@ function randomOre() {
         return 'titanium';
     }
     else if (type === 2) {
-        return 'fer';
+        return 'iron';
     }
     return 'carbon';
 }

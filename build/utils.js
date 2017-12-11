@@ -17,8 +17,8 @@ function getOreAmountFromString(oreName, currentUser) {
             return currentUser.ore.carbon;
         case 'titanium':
             return currentUser.ore.titanium;
-        case 'fer':
-            return currentUser.ore.fer;
+        case 'iron':
+            return currentUser.ore.iron;
         default:
             console.log('unknown material (user)' + oreName);
             break;
