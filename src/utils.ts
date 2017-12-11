@@ -13,15 +13,14 @@ export function toFixed2(number) {
     return parseFloat(number.toFixed(2));
 }
 
-
 export function getOreAmountFromString(oreName: string, currentUser) {
     switch (oreName) {
         case 'carbon':
             return currentUser.ore.carbon;
         case 'titanium':
              return currentUser.ore.titanium;
-        case 'fer':
-            return currentUser.ore.fer;
+        case 'iron':
+            return currentUser.ore.iron;
         default:
             console.log('unknown material (user)' + oreName);
             break;
