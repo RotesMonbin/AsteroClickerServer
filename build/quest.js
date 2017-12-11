@@ -77,7 +77,7 @@ function updateQuestUser() {
         const userUis = Object.keys(user.val());
         for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]];
-            if (currentUser.quest.gain != 0) {
+            if (currentUser.quest.gain != -1) {
                 continue;
             }
             const randomQuest = Math.floor((Math.random() * resources_1.quest.length));
@@ -86,6 +86,23 @@ function updateQuestUser() {
     });
 }
 exports.updateQuestUser = updateQuestUser;
+function checkQuestForAddChest() {
+    environment_1.defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
+        environment_1.defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
+            environment_1.defaultDatabase.ref("users/").once('value').then((user) => {
+                const userUis = Object.keys(user.val());
+                for (let i = 0; i < userUis.length; i++) {
+                    const currentUser = user.val()[userUis[i]];
+                    if (currentUser.quest.gain === 0) {
+                        initChestRandom(userUis[i], currentUser, 0.01, 0.03, 3000, mineRate, oreInfo);
+                        environment_1.defaultDatabase.ref("users/" + userUis[i] + "/quest/gain").set(-1);
+                    }
+                }
+            });
+        });
+    });
+}
+exports.checkQuestForAddChest = checkQuestForAddChest;
 function initQuestUser(i, userID, currentUser) {
     if (i === 1) {
         i = 4;
@@ -125,7 +142,6 @@ function initQuestUser(i, userID, currentUser) {
                     break;
             }
             const text = questCurrent.type + ' ' + utils_1.toFixed2(values) + ' ' + type;
-            initChestRandom(userID, currentUser, questCurrent.gainMin, questCurrent.gainMax, questCurrent.gain, mineRate, oreInfo);
             environment_1.defaultDatabase.ref("users/" + userID + "/quest/gain").set(1);
             environment_1.defaultDatabase.ref("users/" + userID + "/quest/values").set(utils_1.toFixed2(values));
             environment_1.defaultDatabase.ref("users/" + userID + "/quest/valuesFinal").set(utils_1.toFixed2(values));

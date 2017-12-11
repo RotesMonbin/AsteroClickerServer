@@ -85,12 +85,31 @@ export function updateQuestUser() {
 
         for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]]
-            if (currentUser.quest.gain != 0) {  
+            if (currentUser.quest.gain != -1) {  
                 continue;
             }
             const randomQuest = Math.floor((Math.random() * quest.length));
             initQuestUser(randomQuest, userUis[i], currentUser);
         }
+    });
+}
+
+
+export function checkQuestForAddChest() {
+    defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
+        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
+            defaultDatabase.ref("users/").once('value').then((user) => {
+                const userUis = Object.keys(user.val());
+                for (let i = 0; i < userUis.length; i++) {
+                    const currentUser = user.val()[userUis[i]]  
+                    if (currentUser.quest.gain === 0) {
+                        initChestRandom(userUis[i], currentUser, 0.01, 0.03, 3000, mineRate, oreInfo); 
+                        defaultDatabase.ref("users/" + userUis[i] + "/quest/gain").set(-1);
+                    }                  
+                }
+            });
+
+        });
     });
 }
 
@@ -139,7 +158,6 @@ function initQuestUser(i, userID, currentUser) {
                 break;
             }
             const text = questCurrent.type + ' ' + toFixed2(values)  + ' ' + type; 
-            initChestRandom(userID, currentUser, questCurrent.gainMin, questCurrent.gainMax, questCurrent.gain, mineRate, oreInfo);
             defaultDatabase.ref("users/" + userID + "/quest/gain").set(1);
             defaultDatabase.ref("users/" + userID + "/quest/values").set(toFixed2(values));   
             defaultDatabase.ref("users/" + userID + "/quest/valuesFinal").set(toFixed2(values));            
