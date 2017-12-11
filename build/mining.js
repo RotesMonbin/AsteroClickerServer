@@ -20,6 +20,11 @@ function incrementOre(data) {
                 newCapacity = asteroidCapacity - data.amount;
             }
             if (asteroidCapacity - data.amount < 0) {
+                const message = {
+                    'userID': data.user,
+                    'currentUser': user.val()
+                };
+                quest_1.newChest(message);
                 newAmount = currentAmount + asteroidCapacity;
                 newCapacity = 0;
             }
