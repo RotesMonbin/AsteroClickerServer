@@ -174,14 +174,17 @@ userID, currentUser
 */
 export function newChest(message) {
     defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
-        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {            
-            const gainMin = 0.01;
-            const gainMax = 0.02;
-            const gain = 1000;
-            initChestRandom(message.userID, message.currentUser, gainMin, gainMax, gain, mineRate, oreInfo);
+        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => { 
+            defaultDatabase.ref("users/" + message.userID).once('value').then((currentUser) => {  
+                const gainMin = 0.01;
+                const gainMax = 0.02;
+                const gain = 1000;
+                initChestRandom(message.userID, currentUser.val(), gainMin, gainMax, gain, mineRate, oreInfo);
+            });
         });
     });
 }
+
 function initChestRandom(userID, currentUser, gainMin, gainMax, gain, mineRate, oreInfo) {
     let json = {};
     const chest1 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);

@@ -24,7 +24,10 @@ function incrementOre(data) {
                     'userID': data.user,
                     'currentUser': user.val()
                 };
-                quest_1.newChest(message);
+                const random = Math.floor((Math.random() * 2) + 1);
+                if (random === 2) {
+                    quest_1.newChest(message);
+                }
                 newAmount = currentAmount + asteroidCapacity;
                 newCapacity = 0;
             }
