@@ -165,6 +165,10 @@ function newChest(message) {
     });
 }
 exports.newChest = newChest;
+function deleteEvent(message) {
+    environment_1.defaultDatabase.ref("users/" + message.userID + '/event').set(0);
+}
+exports.deleteEvent = deleteEvent;
 function initChestRandom(userID, currentUser, gainMin, gainMax, gain, mineRate, oreInfo) {
     let json = {};
     const chest1 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);
@@ -189,8 +193,6 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
         'credit': 100
     };
     const rand = Math.floor((Math.random() * 100) + 1);
-    console.log(rand);
-    console.log(currentUser.upgrade);
     if (rand < tab.carbon) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['carbon'].miningSpeed;
         const valuesCarbon = mineRateCurrent * 60 * Math.floor((Math.random() * 10) + 5);

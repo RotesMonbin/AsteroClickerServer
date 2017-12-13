@@ -9,7 +9,7 @@ import { sellOre, buyOre, updateCostsMarket, updateMeanCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
 
 import { calculRanking } from './ranking';
-import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest } from './quest';
+import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
 //import { resetUsers } from './databaseSetUp';
 
 
@@ -91,6 +91,10 @@ io.on("connection", (socket: SocketIO.Socket) => {
 
     socket.on('newChest', (message)=>{
         newChest(message);
+    })
+
+    socket.on('deleteEvent', (message)=>{
+        deleteEvent(message);
     })
 
 })

@@ -24,8 +24,8 @@ function incrementOre(data) {
                     'userID': data.user,
                     'currentUser': user.val()
                 };
-                const random = Math.floor((Math.random() * 2) + 1);
-                if (random === 2) {
+                const chestOrNotRandom = Math.floor((Math.random() * 2) + 1);
+                if (chestOrNotRandom === 2) {
                     quest_1.newChest(message);
                 }
                 newAmount = currentAmount + asteroidCapacity;
@@ -35,6 +35,10 @@ function incrementOre(data) {
             quest_1.checkQuestGroup(data.ore, data.amount, user.val(), data.user);
             environment_1.defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(utils_1.toFixed2(newCapacity));
             environment_1.defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(utils_1.toFixed2(newAmount));
+            const eventOrNot = Math.floor((Math.random() * 100) + 1);
+            if (eventOrNot < 80) {
+                environment_1.defaultDatabase.ref("users/" + data.user + "/event").set(1);
+            }
         }
     });
 }

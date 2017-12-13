@@ -82,7 +82,6 @@ export function checkQuestGroup(oreName: string, values: number, currentUser, us
 export function updateQuestUser() {
     defaultDatabase.ref("users/").once('value').then((user) => {
         const userUis = Object.keys(user.val());
-
         for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]]
             if (currentUser.quest.gain != -1) {  
@@ -183,6 +182,13 @@ export function newChest(message) {
             });
         });
     });
+}
+
+/*
+userID
+*/
+export function deleteEvent(message) {
+    defaultDatabase.ref("users/"+ message.userID + '/event').set(0);    
 }
 
 function initChestRandom(userID, currentUser, gainMin, gainMax, gain, mineRate, oreInfo) {
