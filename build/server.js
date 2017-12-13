@@ -76,5 +76,8 @@ io.on("connection", (socket) => {
     socket.on('newChest', (message) => {
         quest_1.newChest(message);
     });
+    socket.on('deleteEvent', (message) => {
+        quest_1.deleteEvent(message);
+    });
 });
 //# sourceMappingURL=server.js.map

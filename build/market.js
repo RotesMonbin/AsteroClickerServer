@@ -19,9 +19,7 @@ function sellOre(data) {
                 quest_1.checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
                 quest_1.checkQuest('credit', currentValue * data.amount, user.val(), data.user);
             });
-            environment_1.defaultDatabase.ref("trend/" + data.ore).once('value').then((trend) => {
-                environment_1.defaultDatabase.ref("trend/" + data.ore).set(trend.val() - data.amount);
-            });
+            updateTrend(data.amount, data.ore);
         }
     });
 }
@@ -39,19 +37,37 @@ function buyOre(data) {
                 quest_1.checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
             }
         });
-        environment_1.defaultDatabase.ref("trend/" + data.ore).once('value').then((trend) => {
-            environment_1.defaultDatabase.ref("trend/" + data.ore).set(trend.val() + data.amount);
-        });
+        updateTrend(-data.amount, data.ore);
     });
 }
 exports.buyOre = buyOre;
+function updateTrend(amount, oreName) {
+    environment_1.defaultDatabase.ref("trend/" + oreName).once('value').then((trend) => {
+        let newTrend = trend.val() + amount;
+        if (newTrend < 0) {
+            newTrend = 0;
+        }
+        environment_1.defaultDatabase.ref("trend/" + oreName).set(newTrend);
+    });
+}
 function updateCostsMarket() {
     environment_1.defaultDatabase.ref('trend').once('value').then(function (trendSnapshot) {
         environment_1.defaultDatabase.ref('trading').once('value').then(function (tradSnapshot) {
             environment_1.defaultDatabase.ref('oreInfo').once('value').then(function (oreSnapshot) {
+                let trendSum = 0;
+                let trendTab = trendSnapshot.val();
                 const oreKeys = Object.keys(oreSnapshot.val());
                 for (let i = 0; i < oreKeys.length; i++) {
-                    computeNewRate(oreKeys[i], tradSnapshot.val()[oreKeys[i]], trendSnapshot.val()[oreKeys[i]], oreSnapshot.val()[oreKeys[i]]);
+                    if (trendTab[oreKeys[i]] == 0) {
+                        trendTab[oreKeys[i]] = Math.random() * 100;
+                    }
+                    else {
+                        trendTab[oreKeys[i]] / oreSnapshot.val()[oreKeys[i]].miningSpeed;
+                    }
+                    trendSum += trendTab[oreKeys[i]];
+                }
+                for (let i = 0; i < oreKeys.length; i++) {
+                    computeNewRate(oreKeys[i], tradSnapshot.val()[oreKeys[i]], trendTab[oreKeys[i]], oreSnapshot.val()[oreKeys[i]], trendSum, oreKeys.length);
                 }
             });
         });
@@ -67,27 +83,34 @@ function updateMeanCosts() {
     });
 }
 exports.updateMeanCosts = updateMeanCosts;
-function computeNewRate(oreName, oreCosts, oreTrend, oreInfos) {
-    var jsonStr = oreCosts.recent;
-    var val = jsonStr[Object.keys(jsonStr)[Object.keys(jsonStr).length - 1]];
-    var delta = (((Math.random() * ((oreInfos.meanValue / 2) - (oreInfos.meanValue / 10))) + (oreInfos.meanValue / 10)) / 100);
-    if (oreTrend < 0) {
-        delta = -delta;
+function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberOfOre) {
+    const jsonStr = oreCosts.recent;
+    const currentVal = jsonStr[Object.keys(jsonStr)[Object.keys(jsonStr).length - 1]];
+    let oreWeight = oreTrend / trendSum;
+    let deltaInd;
+    if (oreWeight <= (1 / numberOfOre)) {
+        deltaInd = -numberOfOre * oreWeight + 1;
     }
-    else if (oreTrend == 0) {
-        delta = (((Math.random() * ((oreInfos.meanValue / 2) - (oreInfos.meanValue / 10))) - (oreInfos.meanValue / 5)) / 100);
-        if (val + delta <= oreInfos.minValue || val + delta > oreInfos.maxValue) {
-            delta = -delta;
-        }
+    else {
+        deltaInd = ((numberOfOre / (numberOfOre - 1)) * oreWeight)
+            - (numberOfOre / (Math.pow(numberOfOre, 2) - numberOfOre));
     }
-    if (val + delta > oreInfos.minValue && val + delta <= oreInfos.maxValue) {
-        val += delta;
+    deltaInd = Math.pow(deltaInd, 1.8) / (Math.pow(deltaInd, 1.8) + Math.pow(1 - deltaInd, 1.8));
+    if (oreWeight <= (1 / numberOfOre)) {
+        deltaInd = -deltaInd;
     }
-    val = parseFloat(parseFloat(val).toFixed(2));
+    let newVal = currentVal + (oreInfos.meanValue * deltaInd * oreInfos.variationRate);
+    if (newVal < oreInfos.minValue) {
+        newVal = oreInfos.minValue;
+    }
+    if (newVal > oreInfos.maxValue) {
+        newVal = oreInfos.maxValue;
+    }
+    newVal = utils_1.toFixed2(newVal);
     if (Object.keys(jsonStr).length >= 60) {
         delete jsonStr[Object.keys(jsonStr)[0]];
     }
-    jsonStr[Date.now()] = val;
+    jsonStr[Date.now()] = newVal;
     environment_1.defaultDatabase.ref('trading/' + oreName + "/recent").set(jsonStr);
     environment_1.defaultDatabase.ref('trend/' + oreName).set(0);
 }
@@ -99,7 +122,7 @@ function computeMean(oreName, oreCosts) {
         mean += oreCosts.recent[keys[i]];
     }
     mean = utils_1.toFixed2(mean / keys.length);
-    if (Object.keys(history).length >= 40) {
+    if (Object.keys(history).length >= 24) {
         delete history[Object.keys(history)[0]];
     }
     history[Date.now()] = mean;

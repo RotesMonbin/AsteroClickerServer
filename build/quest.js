@@ -155,14 +155,20 @@ function initQuestUser(i, userID, currentUser) {
 function newChest(message) {
     environment_1.defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
         environment_1.defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
-            const gainMin = 0.01;
-            const gainMax = 0.02;
-            const gain = 1000;
-            initChestRandom(message.userID, message.currentUser, gainMin, gainMax, gain, mineRate, oreInfo);
+            environment_1.defaultDatabase.ref("users/" + message.userID).once('value').then((currentUser) => {
+                const gainMin = 0.01;
+                const gainMax = 0.02;
+                const gain = 1000;
+                initChestRandom(message.userID, currentUser.val(), gainMin, gainMax, gain, mineRate, oreInfo);
+            });
         });
     });
 }
 exports.newChest = newChest;
+function deleteEvent(message) {
+    environment_1.defaultDatabase.ref("users/" + message.userID + '/event').set(0);
+}
+exports.deleteEvent = deleteEvent;
 function initChestRandom(userID, currentUser, gainMin, gainMax, gain, mineRate, oreInfo) {
     let json = {};
     const chest1 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);
@@ -190,19 +196,16 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
     if (rand < tab.carbon) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['carbon'].miningSpeed;
         const valuesCarbon = mineRateCurrent * 60 * Math.floor((Math.random() * 10) + 5);
-        ;
         return { type: 'carbon', number: valuesCarbon };
     }
     if (rand < tab.titanium) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['titanium'].miningSpeed;
         const valuesTitanium = mineRateCurrent * 60 * Math.floor((Math.random() * 10) + 5);
-        ;
         return { type: 'titanium', number: valuesTitanium };
     }
     if (rand < tab.iron) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['iron'].miningSpeed;
         const valuesIron = mineRateCurrent * 60 * Math.floor((Math.random() * 10) + 5);
-        ;
         return { type: 'iron', number: valuesIron };
     }
     if (rand <= tab.credit) {
