@@ -181,8 +181,6 @@ function computeRange(start: number, end: number): number[] {
         range[i] = toFixed2(range[i - 1] + dist * coef[i]);
     }
 
-    console.log("start " + start + "end "+end);
-    console.log(range);
     return range;
 }
 
