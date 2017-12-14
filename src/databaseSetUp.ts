@@ -54,6 +54,8 @@ export function resetUsers() {
 
         json["profile"] = {};
 
+        json["event"] = 0;
+        
         json["quest"] = {};
         json["quest"]["gain"] = 0;
 

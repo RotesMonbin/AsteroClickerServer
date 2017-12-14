@@ -28,10 +28,11 @@ Promise.all([resources_1.loadMineRate(), resources_1.loadStorage(),
             }, 1000 * 10);
             setInterval(() => {
                 quest_1.updateQuestUser();
-            }, 1000 * 30);
+            }, 1000 * 60 * 60);
             setInterval(() => {
                 ranking_1.calculRanking();
-            }, 1000 * 60);
+                quest_1.checkQuestForAddChest();
+            }, 1000 * 10);
             setInterval(() => {
                 quest_1.initQuestGroup();
             }, 1000 * 60 * 60 * 24);
@@ -74,6 +75,9 @@ io.on("connection", (socket) => {
     });
     socket.on('newChest', (message) => {
         quest_1.newChest(message);
+    });
+    socket.on('deleteEvent', (message) => {
+        quest_1.deleteEvent(message);
     });
 });
 //# sourceMappingURL=server.js.map

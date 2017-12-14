@@ -2,7 +2,7 @@
 import { defaultDatabase } from "./environment"
 import { mineRateUpgrade, storageUpgrade, oreInfo } from "./resources";
 import { toFixed2 } from "./utils";
-import { checkQuest, checkQuestGroup } from "./quest";
+import { checkQuest, checkQuestGroup, newChest } from "./quest";
 
 /*
 data = {
@@ -32,14 +32,31 @@ export function incrementOre(data) {
                 newCapacity = asteroidCapacity - data.amount;
             }
             if (asteroidCapacity - data.amount < 0) {
+                const message = {
+                    'userID': data.user,
+                    'currentUser': user.val()
+                };
+
+                // new chest when you destroy the asteroid
+                const chestOrNotRandom = Math.floor((Math.random() * 2) + 1); 
+                if (chestOrNotRandom === 2) {
+                    newChest(message);                    
+                }
+                
                 newAmount = currentAmount + asteroidCapacity;
                 newCapacity = 0;
             }
 
             checkQuest(data.ore, data.amount, user.val(), data.user);
-            checkQuestGroup(data.ore, data.amount, user.val(), data.user);
+            checkQuestGroup(data.ore, data.amount);
             defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(toFixed2(newCapacity));
             defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(newAmount));
+
+            const eventOrNot = Math.floor((Math.random() * 100) + 1); 
+            if (eventOrNot < 3) {
+                defaultDatabase.ref("users/" + data.user + "/event").set(1);
+            }
+            
         }
 
     });

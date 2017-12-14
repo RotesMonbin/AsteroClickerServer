@@ -2,7 +2,7 @@ import { defaultDatabase } from "./environment";
 import { quest } from "./resources";
 import { toFixed2, getOreAmountFromString } from "./utils";
 
-
+// Check if the quest is finish 
 export function checkQuest(missionName: string, values: number, currentUser, userID) {
     if (currentUser.quest.values === 0) {
         return;
@@ -50,42 +50,12 @@ export function giveGainUser(message){
     
 }
 
-function regroupGainChest(type, number, json) {
-    json[type] = toFixed2(json[type] + number);
-}
-
-
-function addChestToBase(json, userID, creditTemp) {
-    defaultDatabase.ref("users/" + userID + "/ore" ).set(json);     
-    defaultDatabase.ref("users/" + userID + "/credit").set(toFixed2(creditTemp));         
-}
-
-export function openChest(userID, currentUser) {
-    defaultDatabase.ref("users/" + userID + "/chest/").remove('chest' + currentUser.chest.numberOfChest);               
-    defaultDatabase.ref("users/" + userID + "/chest/numberOfChest").set(currentUser.chest.numberOfChest - 1);              
-}
-
-export function checkQuestGroup(oreName: string, values: number, currentUser, userID) {
-    if (oreName === 'carbon') {
-        defaultDatabase.ref("questGroup/").once('value').then((questGroup) => {
-            const finalValues = questGroup.val().values - values;
-            if (finalValues <= 0) {
-                defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.credit + questGroup.val().gain + currentUser.score * 0.2);
-            } else {
-                defaultDatabase.ref("questGroup/values").set(toFixed2(finalValues));
-            }
-        });
-
-    }
-}
-
 export function updateQuestUser() {
     defaultDatabase.ref("users/").once('value').then((user) => {
         const userUis = Object.keys(user.val());
-
         for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]]
-            if (currentUser.quest.gain != 0) {  
+            if (currentUser.quest.gain != -1) {  
                 continue;
             }
             const randomQuest = Math.floor((Math.random() * quest.length));
@@ -93,6 +63,7 @@ export function updateQuestUser() {
         }
     });
 }
+
 
 function initQuestUser(i, userID, currentUser) {
     if(i === 1) {
@@ -139,7 +110,6 @@ function initQuestUser(i, userID, currentUser) {
                 break;
             }
             const text = questCurrent.type + ' ' + toFixed2(values)  + ' ' + type; 
-            initChestRandom(userID, currentUser, questCurrent.gainMin, questCurrent.gainMax, questCurrent.gain, mineRate, oreInfo);
             defaultDatabase.ref("users/" + userID + "/quest/gain").set(1);
             defaultDatabase.ref("users/" + userID + "/quest/values").set(toFixed2(values));   
             defaultDatabase.ref("users/" + userID + "/quest/valuesFinal").set(toFixed2(values));            
@@ -151,21 +121,107 @@ function initQuestUser(i, userID, currentUser) {
     });  
 }
 
+function randomOre() {
+    const type = (Math.floor(Math.random()* 3));
+    if (type === 0) {
+        return 'carbon';
+    }
+    else if (type ===1) {
+        return 'titanium';
+    } 
+    else if (type === 2) {
+        return 'iron';
+    }
+    return 'carbon';
+}
+
+
+// Glory quest - - - - - - - - - - - - - - -- - - - - - - -- - - - - - -- - - - - - - -- 
+export function checkQuestGroup(oreName: string, values: number) {
+    if (oreName === 'carbon') {
+        defaultDatabase.ref("questGroup/").once('value').then((questGroup) => {
+            const finalValues = questGroup.val().values - values;
+            if (finalValues <= 0) {
+                defaultDatabase.ref("users/").once('value').then((user) => {
+                    const userUis = Object.keys(user.val());
+                    for (let i = 0; i < userUis.length; i++) {
+                        const currentUser = user.val()[userUis[i]]
+                        const creditWin = currentUser.credit + questGroup.val().gain + currentUser.upgrade.score * 0.2;
+                        defaultDatabase.ref("users/" + userUis[i] + "/credit").set(creditWin);
+                    }
+                });
+                initQuestGroup();
+            } else {
+                defaultDatabase.ref("questGroup/values").set(toFixed2(finalValues));
+            }
+        });
+
+    }
+}
+
+export function initQuestGroup() {
+    defaultDatabase.ref("users/").once('value').then((user) => {
+        const values = Object.keys(user.val()).length * 100000;
+        defaultDatabase.ref("questGroup/values").set(values);
+        defaultDatabase.ref("questGroup/gain").set(10000);
+        defaultDatabase.ref("questGroup/type").set('carbon');
+        defaultDatabase.ref("questGroup/valuesFinal").set(values);
+        defaultDatabase.ref("questGroup/name").set('Retrieve ' + values + ' carbon with other Captains !');
+    });
+}
+
+
+
+// MANAGED CHest - - - - - - - - - - - - - - -- - - - - - - -- - - - - - -- - - - - - - -- 
 /*
 userID, currentUser
 */
 export function newChest(message) {
     defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
-        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {            
-            const gainMin = 0.01;
-            const gainMax = 0.02;
-            const gain = 1000;
-            initChestRandom(message.userID, message.currentUser, gainMin, gainMax, gain, mineRate, oreInfo);
+        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => { 
+            defaultDatabase.ref("users/" + message.userID).once('value').then((currentUser) => {  
+                const gainMin = 0.01;
+                const gainMax = 0.02;
+                const gain = 1000;
+                initChestRandom(message.userID, currentUser.val(), gainMin, gainMax, gain, mineRate, oreInfo);
+            });
         });
     });
-
-
 }
+
+function regroupGainChest(type, number, json) {
+    json[type] = toFixed2(json[type] + number);
+}
+
+
+function addChestToBase(json, userID, creditTemp) {
+    defaultDatabase.ref("users/" + userID + "/ore" ).set(json);     
+    defaultDatabase.ref("users/" + userID + "/credit").set(toFixed2(creditTemp));         
+}
+
+export function openChest(userID, currentUser) {
+    defaultDatabase.ref("users/" + userID + "/chest/").remove('chest' + currentUser.chest.numberOfChest);               
+    defaultDatabase.ref("users/" + userID + "/chest/numberOfChest").set(currentUser.chest.numberOfChest - 1);              
+}
+
+export function checkQuestForAddChest() {
+    defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
+        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
+            defaultDatabase.ref("users/").once('value').then((user) => {
+                const userUis = Object.keys(user.val());
+                for (let i = 0; i < userUis.length; i++) {
+                    const currentUser = user.val()[userUis[i]]  
+                    if (currentUser.quest.gain === 0) {
+                        initChestRandom(userUis[i], currentUser, 0.01, 0.03, 3000, mineRate, oreInfo); 
+                        defaultDatabase.ref("users/" + userUis[i] + "/quest/gain").set(-1);
+                    }                  
+                }
+            });
+
+        });
+    });
+}
+
 function initChestRandom(userID, currentUser, gainMin, gainMax, gain, mineRate, oreInfo) {
     let json = {};
     const chest1 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);
@@ -199,17 +255,17 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
     const rand = Math.floor((Math.random() * 100) + 1);
     if (rand < tab.carbon) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['carbon'].miningSpeed;
-        const valuesCarbon =  mineRateCurrent * 60; 
+        const valuesCarbon =  mineRateCurrent * 60 * Math.floor((Math.random() * 10) + 5); 
         return {type: 'carbon',number: valuesCarbon};
     }
     if (rand < tab.titanium) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['titanium'].miningSpeed;
-        const valuesTitanium =  mineRateCurrent * 60; 
+        const valuesTitanium =  mineRateCurrent * 60 * Math.floor((Math.random() * 10) + 5);
         return {type: 'titanium',number: valuesTitanium};
     }
     if (rand < tab.iron) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['iron'].miningSpeed;
-        const valuesIron =  mineRateCurrent * 60; 
+        const valuesIron =  mineRateCurrent * 60 * Math.floor((Math.random() * 10) +5); 
         return {type: 'iron',number: valuesIron};
     }
     if (rand <= tab.credit) {
@@ -221,29 +277,13 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
     return undefined;
 }
 
-export function initQuestGroup() {
-    defaultDatabase.ref("users/").once('value').then((user) => {
-        const values = Object.keys(user.val()).length * 100000;
-        defaultDatabase.ref("questGroup/values").set(values);
-        defaultDatabase.ref("questGroup/gain").set(10000);
-        defaultDatabase.ref("questGroup/type").set('carbon');
-        defaultDatabase.ref("questGroup/valuesFinal").set(values);
-        defaultDatabase.ref("questGroup/name").set('Retrieve ' + values + ' carbon with other Captains !');
-    });
-}
 
-function randomOre() {
-    const type = (Math.floor(Math.random()* 3));
-    if (type === 0) {
-        return 'carbon';
-    }
-    else if (type ===1) {
-        return 'titanium';
-    } 
-    else if (type === 2) {
-        return 'iron';
-    }
-    return 'carbon';
-}
+// EVENT 
 
+/*
+userID
+*/
+export function deleteEvent(message) {
+    defaultDatabase.ref("users/"+ message.userID + '/event').set(0);    
+}
 

@@ -46,6 +46,7 @@ function resetUsers() {
         json["chest"] = {};
         json["chest"]["numberOfChest"] = 0;
         json["profile"] = {};
+        json["event"] = 0;
         json["quest"] = {};
         json["quest"]["gain"] = 0;
         json["upgrade"] = {};
