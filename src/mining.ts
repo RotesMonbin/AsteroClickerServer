@@ -48,7 +48,7 @@ export function incrementOre(data) {
             }
 
             checkQuest(data.ore, data.amount, user.val(), data.user);
-            checkQuestGroup(data.ore, data.amount, user.val(), data.user);
+            checkQuestGroup(data.ore, data.amount);
             defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(toFixed2(newCapacity));
             defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(newAmount));
 
