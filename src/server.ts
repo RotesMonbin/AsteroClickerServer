@@ -10,6 +10,7 @@ import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from 
 
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
+
 //import { resetUsers } from './databaseSetUp';
 
 
@@ -25,7 +26,7 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
         if (err) {
             console.log(err);
         } else {
-            console.log("Server listen on 4000");            
+            console.log("Server listen on 4000");  
             setInterval(() => {
                 updateCostsMarket();
             }, 1000*10 );

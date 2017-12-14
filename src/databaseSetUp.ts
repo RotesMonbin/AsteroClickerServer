@@ -29,6 +29,19 @@ export function generateStorageUpgrade(range: number) {
     defaultDatabase.ref("storage/").set(json);
 }
 
+export function generateResearchUpgrade(range: number) {
+    let json = [];
+    for (let i = 0; i < range; i++) {
+        json[i] = {
+            searchTime: i == 0 ? 60 : toFixed2(json[i - 1].searchTime * 0.95),
+            cost: Math.floor(5000 / 1000 * Math.pow(i, 1.3)) * 1000,
+            time: (i * (i + 1) / 10) + 10
+        }
+    }
+
+    defaultDatabase.ref("research/").set(json);
+}
+
 export function resetUsers() {
     defaultDatabase.ref("users/").once('value').then((user) => {
 
@@ -49,13 +62,13 @@ export function resetUsers() {
         json["ore"]["titanium"] = 0;
         json["ore"]["iron"] = 0;
 
-        json["chest"]={};
-        json["chest"]["numberOfChest"]=0;
+        json["chest"] = {};
+        json["chest"]["numberOfChest"] = 0;
 
         json["profile"] = {};
 
         json["event"] = 0;
-        
+
         json["quest"] = {};
         json["quest"]["gain"] = 0;
 
