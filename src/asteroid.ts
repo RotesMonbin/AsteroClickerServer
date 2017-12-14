@@ -89,7 +89,7 @@ function fillSearchResult(userId,user) {
     for (let i = 0; i < 3; i++) {
         let json = {};
         json["ore"] = oreNames[Math.floor(Math.random() * oreNames.length)];
-        json["capacity"] = 1000*(1+(0.01*researchLvl))*miningRate*oreInfo[json["ore"]].miningSpeed;
+        json["capacity"] = Math.floor(1000*(1+(0.01*researchLvl))*miningRate*oreInfo[json["ore"]].miningSpeed);
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         const purityRand = Math.random();
         json["purity"] = 80 + Math.floor(purityRand * 40);

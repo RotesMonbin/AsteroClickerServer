@@ -19,7 +19,7 @@ export function sellOre(data) {
         if (currentOreAmount > 0) {
             defaultDatabase.ref("trading/" + data.ore + "/recent").once('value').then((oreValue) => {
                 var keys = Object.keys(oreValue.val());
-                const currentValue = oreValue.val()[keys[29]];
+                const currentValue = oreValue.val()[keys[keys.length-1]];
 
                 if (currentOreAmount < data.amount) {
                     data.amount = currentOreAmount;
@@ -46,7 +46,7 @@ export function buyOre(data) {
         const currentCredit = user.val().credit;
         defaultDatabase.ref("trading/" + data.ore + "/recent").once('value').then((oreValue) => {
             var keys = Object.keys(oreValue.val());
-            const currentValue = oreValue.val()[keys[29]] * 1.025;
+            const currentValue = oreValue.val()[keys[keys.length-1]] * 1.025;
             const cost = data.amount * currentValue;
             if (currentCredit >= cost && toFixed2(user.val().ore[data.ore] + data.amount) <= storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
@@ -81,8 +81,8 @@ export function updateCostsMarket() {
                     if (trendTab[oreKeys[i]] == 0) {
                         trendTab[oreKeys[i]] = Math.random() * 100/**oreSnapshot.val()[oreKeys[i]].miningSpeed*/;
                     }
-                    else{
-                        trendTab[oreKeys[i]]/oreSnapshot.val()[oreKeys[i]].miningSpeed;
+                    else {
+                        trendTab[oreKeys[i]] / oreSnapshot.val()[oreKeys[i]].miningSpeed;
                     }
                     trendSum += trendTab[oreKeys[i]];
                 }
@@ -109,48 +109,79 @@ export function updateMeanCosts() {
 
 
 function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberOfOre) {
+    let recentCostsJson = oreCosts.recent;
+    let nextValuesJson = oreCosts.nextValues;
 
-    const jsonStr = oreCosts.recent;
-    const currentVal = jsonStr[Object.keys(jsonStr)[Object.keys(jsonStr).length - 1]];
+    if (nextValuesJson == null) {
 
-    let oreWeight = oreTrend / trendSum;
+        const currentVal = recentCostsJson[Object.keys(recentCostsJson)[Object.keys(recentCostsJson).length - 1]];
 
-    let deltaInd;
-    if (oreWeight <= (1 / numberOfOre)) { //      f = (-r) * x + 1
-        deltaInd = -numberOfOre * oreWeight + 1;
+        let oreWeight = oreTrend / trendSum;
+
+        let deltaInd;
+        if (oreWeight <= (1 / numberOfOre)) { //      f = (-r) * x + 1
+            deltaInd = -numberOfOre * oreWeight + 1;
+        }
+        else {//   f = (r/(r-1)) * x - (r/((r^2) - r ))
+            deltaInd = ((numberOfOre / (numberOfOre - 1)) * oreWeight)
+                - (numberOfOre / (Math.pow(numberOfOre, 2) - numberOfOre));
+        }
+
+        //easing g = f^1.8 /( f^1.8 + (1-f)^1.8) [easing]
+        deltaInd = Math.pow(deltaInd, 1.8) / (Math.pow(deltaInd, 1.8) + Math.pow(1 - deltaInd, 1.8));
+
+        if (oreWeight <= (1 / numberOfOre)) {
+            deltaInd = -deltaInd;
+        }
+
+
+        let newVal = currentVal + (oreInfos.meanValue * deltaInd * oreInfos.variationRate);
+
+        if (newVal < oreInfos.minValue) {
+            newVal = oreInfos.minValue;
+        }
+        if (newVal > oreInfos.maxValue) {
+            newVal = oreInfos.maxValue;
+        }
+
+        newVal = toFixed2(newVal);
+
+        nextValuesJson=computeRange(currentVal, newVal);
     }
-    else {//   f = (r/(r-1)) * x - (r/((r^2) - r ))
-        deltaInd = ((numberOfOre / (numberOfOre - 1)) * oreWeight)
-            - (numberOfOre / (Math.pow(numberOfOre, 2) - numberOfOre));
+
+    if (Object.keys(recentCostsJson).length >= 60) {
+        delete recentCostsJson[Object.keys(recentCostsJson)[0]];
     }
 
-    //easing g = f^1.8 /( f^1.8 + (1-f)^1.8) [easing]
-    deltaInd = Math.pow(deltaInd, 1.8) / (Math.pow(deltaInd, 1.8) + Math.pow(1 - deltaInd, 1.8));
-
-    if (oreWeight <= (1 / numberOfOre)) {
-        deltaInd = -deltaInd;
-    }
-
-
-    let newVal = currentVal + (oreInfos.meanValue * deltaInd * oreInfos.variationRate);
-
-    if (newVal < oreInfos.minValue) {
-       newVal=oreInfos.minValue;
-    }
-    if(newVal > oreInfos.maxValue){
-        newVal=oreInfos.maxValue;
-    }
-
-    newVal = toFixed2(newVal);
-
-    if (Object.keys(jsonStr).length >= 60) {
-        delete jsonStr[Object.keys(jsonStr)[0]];
-    }
-
-    jsonStr[Date.now()] = newVal;
-    defaultDatabase.ref('trading/' + oreName + "/recent").set(jsonStr);
+    recentCostsJson[Date.now()] = nextValuesJson[Object.keys(nextValuesJson)[0]];
+    delete nextValuesJson[Object.keys(nextValuesJson)[0]];
+    defaultDatabase.ref('trading/' + oreName + "/recent").set(recentCostsJson);
+    defaultDatabase.ref('trading/' + oreName + "/nextValues").set(nextValuesJson);
     defaultDatabase.ref('trend/' + oreName).set(0);
+}
 
+function computeRange(start: number, end: number): number[] {
+
+    let coefBase: number[] = [0.05, 0.1, 0.1, 0.1, 0.15, 0.15, 0.2, 0.3, -0.1, -0.05];
+    let coef: number[] = new Array();
+    let range: number[] = new Array();
+    const dist: number = end - start;
+
+    let i = coefBase.length;
+    let j = 0;
+
+    while (i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        coef.push(coefBase[j]);
+        coefBase.splice(j, 1);
+    }
+
+    range[0] = toFixed2(start + dist * coef[0]);
+    for (i = 1; i < 10; i++) {
+        range[i] = toFixed2(range[i - 1] + dist * coef[i]);
+    }
+
+    return range;
 }
 
 function computeMean(oreName, oreCosts) {
