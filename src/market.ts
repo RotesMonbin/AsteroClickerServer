@@ -134,7 +134,6 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
         if (oreTrend == 0) {
             delta = (Math.random() * 10) + 5;
             delta = (Math.random()*100 >= 50) ? delta : -delta
-            console.log(delta);
             delta = currentVal < oreInfos.meanValue ? -delta : delta;
         }
         else {
