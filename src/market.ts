@@ -77,15 +77,15 @@ export function updateCostsMarket() {
                 let trendTab = trendSnapshot.val();
                 const oreKeys = Object.keys(oreSnapshot.val());
 
-                for (let i = 0; i < oreKeys.length; i++) {
+                /*for (let i = 0; i < oreKeys.length; i++) {
                     if (trendTab[oreKeys[i]] == 0) {
-                        trendTab[oreKeys[i]] = Math.random() * 100/**oreSnapshot.val()[oreKeys[i]].miningSpeed*/;
+                        trendTab[oreKeys[i]] = Math.random() * 100;
                     }
                     else {
                         trendTab[oreKeys[i]] / oreSnapshot.val()[oreKeys[i]].miningSpeed;
                     }
                     trendSum += trendTab[oreKeys[i]];
-                }
+                }*/
 
                 for (let i = 0; i < oreKeys.length; i++) {
                     computeNewRate(oreKeys[i], tradSnapshot.val()[oreKeys[i]]
@@ -133,14 +133,15 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
         let delta = 0;
         if (oreTrend == 0) {
             delta = (Math.random() * 10) + 5;
-            delta = (Math.random() >= 0.5) ? delta : -delta
+            delta = (Math.random()*100 >= 50) ? delta : -delta
+            console.log(delta);
             delta = currentVal < oreInfos.meanValue ? -delta : delta;
         }
         else {
             delta = (Math.random() * 30) + 10;
             delta = oreTrend > 0 ? -delta : delta;
         }
-        console.log(oreName + " " + (meanDelta + toFixed2((delta/100)*oreInfos.meanValue)));
+        //console.log(oreName + " " + meanDelta + toFixed2((delta/100)*oreInfos.meanValue));
         newVal = currentVal + meanDelta + toFixed2((delta/100)*oreInfos.meanValue);
 
         /*let oreWeight = oreTrend / trendSum;
