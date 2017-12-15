@@ -22,7 +22,7 @@ app.use(cors());
 
 Promise.all([loadMineRate(), loadStorage(),
 loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
-    server.listen(4000, (err: Error) => {
+    server.listen(process.env.PORT || 4000, (err: Error) => {
         if (err) {
             console.log(err);
         } else {
