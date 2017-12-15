@@ -125,7 +125,7 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
         if (currentVal != oreInfos.meanValue) {
             meanDist = currentVal < oreInfos.meanValue ?
                 (oreInfos.meanValue - currentVal) / (oreInfos.meanValue - oreInfos.minValue) :
-                (oreInfos.meanValue - currentVal) / (oreInfos.meanValue - oreInfos.maxValue);
+                (oreInfos.meanValue - currentVal) / (oreInfos.maxValue-oreInfos.meanValue);
         }
 
         const meanDelta = 0.20 * oreInfos.meanValue * meanDist;
@@ -140,7 +140,7 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
             delta = (Math.random() * 30) + 10;
             delta = oreTrend > 0 ? -delta : delta;
         }
-        //console.log(oreName + " " + meanDelta + toFixed2((delta/100)*oreInfos.meanValue));
+
         newVal = currentVal + meanDelta + toFixed2((delta/100)*oreInfos.meanValue);
 
         /*let oreWeight = oreTrend / trendSum;
