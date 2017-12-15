@@ -19,7 +19,7 @@ export function sellOre(data) {
         if (currentOreAmount > 0) {
             defaultDatabase.ref("trading/" + data.ore + "/recent").once('value').then((oreValue) => {
                 var keys = Object.keys(oreValue.val());
-                const currentValue = oreValue.val()[keys[keys.length-1]];
+                const currentValue = oreValue.val()[keys[keys.length - 1]];
 
                 if (currentOreAmount < data.amount) {
                     data.amount = currentOreAmount;
@@ -46,7 +46,7 @@ export function buyOre(data) {
         const currentCredit = user.val().credit;
         defaultDatabase.ref("trading/" + data.ore + "/recent").once('value').then((oreValue) => {
             var keys = Object.keys(oreValue.val());
-            const currentValue = oreValue.val()[keys[keys.length-1]] * 1.025;
+            const currentValue = oreValue.val()[keys[keys.length - 1]] * 1.025;
             const cost = data.amount * currentValue;
             if (currentCredit >= cost && toFixed2(user.val().ore[data.ore] + data.amount) <= storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
@@ -61,9 +61,9 @@ export function buyOre(data) {
 function updateTrend(amount: number, oreName: string) {
     defaultDatabase.ref("trend/" + oreName).once('value').then((trend) => {
         let newTrend = trend.val() + amount;
-        if (newTrend < 0) {
+       /* if (newTrend < 0) {
             newTrend = 0;
-        }
+        }*/
         defaultDatabase.ref("trend/" + oreName).set(newTrend);
     });
 }
@@ -77,15 +77,15 @@ export function updateCostsMarket() {
                 let trendTab = trendSnapshot.val();
                 const oreKeys = Object.keys(oreSnapshot.val());
 
-                for (let i = 0; i < oreKeys.length; i++) {
+                /*for (let i = 0; i < oreKeys.length; i++) {
                     if (trendTab[oreKeys[i]] == 0) {
-                        trendTab[oreKeys[i]] = Math.random() * 100/**oreSnapshot.val()[oreKeys[i]].miningSpeed*/;
+                        trendTab[oreKeys[i]] = Math.random() * 100;
                     }
                     else {
                         trendTab[oreKeys[i]] / oreSnapshot.val()[oreKeys[i]].miningSpeed;
                     }
                     trendSum += trendTab[oreKeys[i]];
-                }
+                }*/
 
                 for (let i = 0; i < oreKeys.length; i++) {
                     computeNewRate(oreKeys[i], tradSnapshot.val()[oreKeys[i]]
@@ -111,12 +111,39 @@ export function updateMeanCosts() {
 function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberOfOre) {
     let recentCostsJson = oreCosts.recent;
     let nextValuesJson = oreCosts.nextValues;
+    let newVal;
+
+    numberOfOre = numberOfOre;
+    trendSum = trendSum;
 
     if (nextValuesJson == null) {
 
         const currentVal = recentCostsJson[Object.keys(recentCostsJson)[Object.keys(recentCostsJson).length - 1]];
 
-        let oreWeight = oreTrend / trendSum;
+        //Rapprochement de la moyenne
+        let meanDist = 0;
+        if (currentVal != oreInfos.meanValue) {
+            meanDist = currentVal < oreInfos.meanValue ?
+                (oreInfos.meanValue - currentVal) / (oreInfos.meanValue - oreInfos.minValue) :
+                (oreInfos.meanValue - currentVal) / (oreInfos.meanValue - oreInfos.maxValue);
+        }
+
+        const meanDelta = 0.20 * oreInfos.meanValue * meanDist;
+
+        let delta = 0;
+        if (oreTrend == 0) {
+            delta = (Math.random() * 10) + 5;
+            delta = (Math.random()*100 >= 50) ? delta : -delta
+            delta = currentVal < oreInfos.meanValue ? -delta : delta;
+        }
+        else {
+            delta = (Math.random() * 30) + 10;
+            delta = oreTrend > 0 ? -delta : delta;
+        }
+        //console.log(oreName + " " + meanDelta + toFixed2((delta/100)*oreInfos.meanValue));
+        newVal = currentVal + meanDelta + toFixed2((delta/100)*oreInfos.meanValue);
+
+        /*let oreWeight = oreTrend / trendSum;
 
         let deltaInd;
         if (oreWeight <= (1 / numberOfOre)) { //      f = (-r) * x + 1
@@ -135,21 +162,22 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
         }
 
 
-        let newVal = currentVal + (oreInfos.meanValue * deltaInd * oreInfos.variationRate);
+        newVal = currentVal + (oreInfos.meanValue * deltaInd * oreInfos.variationRate);
 
         if (newVal < oreInfos.minValue) {
             newVal = oreInfos.minValue;
         }
         if (newVal > oreInfos.maxValue) {
             newVal = oreInfos.maxValue;
-        }
+        }*/
+
 
         newVal = toFixed2(newVal);
 
-        nextValuesJson=computeRange(currentVal, newVal);
+        nextValuesJson = computeRange(currentVal, newVal);
     }
 
-    if (Object.keys(recentCostsJson).length >= 60) {
+    if (Object.keys(recentCostsJson).length >= 360) {
         delete recentCostsJson[Object.keys(recentCostsJson)[0]];
     }
 
