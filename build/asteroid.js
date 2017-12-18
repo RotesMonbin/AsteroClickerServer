@@ -32,7 +32,7 @@ function updateAsteroidTimer(message) {
                     (Date.now() - user.val().search.start);
                 if (timer <= 0) {
                     timer = 0;
-                    fillSearchResult(message.user, user);
+                    fillSearchResult(message.user, user, message.distance);
                 }
                 environment_1.defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
             }
@@ -61,18 +61,18 @@ function changeAsteroid(userId, newAsteroid) {
     environment_1.defaultDatabase.ref("users/" + userId + "/search/result").set(0);
     environment_1.defaultDatabase.ref("users/" + userId + "/search/start").set(0);
 }
-function fillSearchResult(userId, user) {
+function fillSearchResult(userId, user, distance) {
     const oreNames = Object.keys(resources_1.oreInfo);
     const researchLvl = user.val().upgrade.research.lvl;
     const miningRate = resources_1.mineRateUpgrade[user.val().upgrade.mineRate.lvl].baseRate;
     for (let i = 0; i < 3; i++) {
         let json = {};
         json["ore"] = oreNames[Math.floor(Math.random() * oreNames.length)];
-        json["capacity"] = 1000 * (1 + (0.01 * researchLvl)) * miningRate * resources_1.oreInfo[json["ore"]].miningSpeed;
+        json["capacity"] = Math.floor(1000 * (1 + (0.01 * researchLvl)) * miningRate * resources_1.oreInfo[json["ore"]].miningSpeed);
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         const purityRand = Math.random();
         json["purity"] = 80 + Math.floor(purityRand * 40);
-        json["timeToGo"] = Math.floor((purityRand * 20) + 10);
+        json["timeToGo"] = Math.floor((purityRand * 20) + 10 + distance / 100);
         environment_1.defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
     }
 }
