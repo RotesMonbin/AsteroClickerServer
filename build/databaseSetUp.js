@@ -28,6 +28,18 @@ function generateStorageUpgrade(range) {
     environment_1.defaultDatabase.ref("storage/").set(json);
 }
 exports.generateStorageUpgrade = generateStorageUpgrade;
+function generateResearchUpgrade(range) {
+    let json = [];
+    for (let i = 0; i < range; i++) {
+        json[i] = {
+            searchTime: i == 0 ? 60 : utils_1.toFixed2(json[i - 1].searchTime * 0.95),
+            cost: Math.floor(5000 / 1000 * Math.pow(i, 1.3)) * 1000,
+            time: (i * (i + 1) / 10) + 10
+        };
+    }
+    environment_1.defaultDatabase.ref("research/").set(json);
+}
+exports.generateResearchUpgrade = generateResearchUpgrade;
 function resetUsers() {
     environment_1.defaultDatabase.ref("users/").once('value').then((user) => {
         let allUsers = user.val();
