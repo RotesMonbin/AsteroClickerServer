@@ -26,7 +26,7 @@ loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
         if (err) {
             console.log(err);
         } else {
-            console.log("Server listen on 4000");  
+            console.log(`Server listen on ${process.env.PORT || 4000}`);  
             setInterval(() => {
                 updateCostsMarket();
             }, 1000*10 );
