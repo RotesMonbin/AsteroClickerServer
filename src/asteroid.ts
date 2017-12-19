@@ -1,5 +1,6 @@
 import { defaultDatabase } from "./environment";
 import { researchUpgrade, oreInfo, mineRateUpgrade } from "./resources";
+import { toFixed2 } from './utils';
 //import { asteroidTypes } from "./resources";
 
 
@@ -88,16 +89,34 @@ function fillSearchResult(userId, user, distance) {
     const researchLvl = user.val().upgrade.research.lvl;
     const miningRate = mineRateUpgrade[user.val().upgrade.mineRate.lvl].baseRate;
     for (let i = 0; i < 3; i++) {
+        const maxDist = researchUpgrade[researchLvl].maxDist;
+        const minDist = researchUpgrade[researchLvl].minDist;
         let json = {};
         json["ore"] = oreNames[Math.floor(Math.random() * oreNames.length)];
-        json["capacity"] = Math.floor(1000 * (1 + (0.01 * researchLvl)) * miningRate * oreInfo[json["ore"]].miningSpeed);
+        const distCapacityCoef = (((maxDist - distance) * 0.4) / (maxDist - minDist)) + 0.8;
+        json["capacity"] = Math.floor((1000 * (1 + (0.01 * researchLvl)) * miningRate * oreInfo[json["ore"]].miningSpeed) * distCapacityCoef);
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
-        const purityRand = Math.random();
-        json["purity"] = 80 + Math.floor(purityRand * 40);
-        json["timeToGo"] = Math.floor((purityRand * 20) + 10 + distance / 100);
+        let purity = generatePurity(researchLvl, distance, maxDist, minDist);
+        json["purity"] = purity;
+        json["timeToGo"] = Math.floor((purity) + 10 + distance / 100);
 
         defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
     }
+}
+
+function generatePurity(researchLvl: number, distance: number, maxDistance: number, minDistance: number): number {
+    const f = Math.pow(1 / researchLvl, 0.4) * 2;
+    const v = Math.random();
+    const w = Math.random();
+    const x = Math.random();
+    const y = Math.random();
+    const z = Math.random();
+
+    const g = Math.pow((v + w + x + y + z) / 5, f) + 0.5;
+    const deltaD = (maxDistance - distance);
+    const d = ((deltaD * 0.3) / (maxDistance - minDistance)) - 0.15;
+
+    return toFixed2((g + d) * 100);
 }
 
 

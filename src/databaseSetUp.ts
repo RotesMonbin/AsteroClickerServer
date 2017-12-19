@@ -33,8 +33,10 @@ export function generateResearchUpgrade(range: number) {
     let json = [];
     for (let i = 0; i < range; i++) {
         json[i] = {
-            searchTime: i == 0 ? 60 : toFixed2(json[i - 1].searchTime * 0.95),
-            cost: Math.floor(5000 / 1000 * Math.pow(i, 1.3)) * 1000,
+            searchTime: i == 0 ? 120 : toFixed2(json[i - 1].searchTime * 0.92),
+            minDist: 100,
+            maxDist: 10000,
+            cost: Math.floor(5000 / 1000 * Math.pow(i, 1.09)) * 1000,
             time: (i * (i + 1) / 10) + 10
         }
     }
