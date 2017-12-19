@@ -175,6 +175,7 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
         newVal = toFixed2(newVal);
 
         nextValuesJson = computeRange(currentVal, newVal);
+        defaultDatabase.ref('trend/' + oreName).set(0);
     }
 
     if (Object.keys(recentCostsJson).length >= 360) {
@@ -185,7 +186,6 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
     delete nextValuesJson[Object.keys(nextValuesJson)[0]];
     defaultDatabase.ref('trading/' + oreName + "/recent").set(recentCostsJson);
     defaultDatabase.ref('trading/' + oreName + "/nextValues").set(nextValuesJson);
-    defaultDatabase.ref('trend/' + oreName).set(0);
 }
 
 function computeRange(start: number, end: number): number[] {
