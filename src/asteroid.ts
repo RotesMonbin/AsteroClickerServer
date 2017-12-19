@@ -45,7 +45,12 @@ export function updateAsteroidTimer(message) {
         if (user.val().search.start != 0) {
             //Searching
             if (user.val().search.result == 0) {
-                let timer = (researchUpgrade[user.val().upgrade.research.lvl].searchTime * 1000) -
+                const researchLvl = user.val().upgrade.research.lvl;
+                const maxDist = researchUpgrade[researchLvl].maxDist;
+                const minDist = researchUpgrade[researchLvl].minDist;
+
+                const coefDist = (((message.distance - minDist) / (maxDist - minDist)) * 5) + 1;
+                let timer = ((researchUpgrade[user.val().upgrade.research.lvl].searchTime) * coefDist * 1000) -
                     (Date.now() - user.val().search.start);
                 if (timer <= 0) {
                     timer = 0;
