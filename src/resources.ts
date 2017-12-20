@@ -3,6 +3,7 @@ import { defaultDatabase } from "./environment"
 export let mineRateUpgrade;
 export let storageUpgrade;
 export let researchUpgrade;
+export let engineUpgrade;
 export let oreInfo;
 
 export let quest;
@@ -15,6 +16,8 @@ export function getUpgradeFromString(name) {
             return storageUpgrade;
         case "research":
             return researchUpgrade;
+        case "engine":
+            return engineUpgrade;
         default:
             console.log("Upgrade unknown");
             return null;
@@ -43,6 +46,15 @@ export function loadResearch() {
     return new Promise(function (resolve) {
         defaultDatabase.ref("research").once('value').then((snapshot) => {
             researchUpgrade = snapshot.val();
+            resolve(1);
+        });
+    });
+}
+
+export function loadEngine() {
+    return new Promise(function (resolve) {
+        defaultDatabase.ref("engine").once('value').then((snapshot) => {
+            engineUpgrade = snapshot.val();
             resolve(1);
         });
     });
