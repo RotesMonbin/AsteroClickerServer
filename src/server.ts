@@ -3,7 +3,7 @@ import * as http from 'http';
 import * as socketIO from 'socket.io';
 import * as cors from 'cors';
 import { upgradeShip, updateUpgradeTimer } from './upgrade';
-import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch } from './resources';
+import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch, loadEngine } from './resources';
 import { incrementOre } from './mining';
 import { sellOre, buyOre, updateCostsMarket, updateMeanCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
@@ -19,7 +19,7 @@ const io = socketIO(server);
 app.use(cors());
 
 Promise.all([loadMineRate(), loadStorage(),
-loadQuest(), loadResearch(), loadOreInfo()]).then(() => {
+loadQuest(), loadResearch(), loadEngine(), loadOreInfo()]).then(() => {
     server.listen(process.env.PORT || 4000, (err: Error) => {
         if (err) {
             console.log(err);

@@ -29,6 +29,19 @@ export function generateStorageUpgrade(range: number) {
     defaultDatabase.ref("storage/").set(json);
 }
 
+export function generateEngineUpgrade(range: number) {
+    let json = [];
+    for (let i = 0; i < range; i++) {
+        json[i] = {
+            speed: 10 * i,
+            cost: Math.floor(3000 / 1000 * Math.pow(i, 1.07)) * 1000,
+            time: (i * (i + 1) / 10) + 10
+        }
+    }
+
+    defaultDatabase.ref("engine/").set(json);
+}
+
 export function generateResearchUpgrade(range: number) {
     let json = [];
     for (let i = 0; i < range; i++) {

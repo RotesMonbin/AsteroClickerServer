@@ -52,7 +52,7 @@ export function incrementOre(data) {
             defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(toFixed2(newCapacity));
             defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(newAmount));
 
-            const eventOrNot = Math.floor((Math.random() * 1000) + 1); 
+            const eventOrNot = Math.floor((Math.random() * 100000) + 1); 
             if (eventOrNot < 3) {
                 defaultDatabase.ref("users/" + data.user + "/event").set(1);
             }
