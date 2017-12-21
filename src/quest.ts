@@ -138,7 +138,7 @@ function randomOre() {
 
 // Glory quest - - - - - - - - - - - - - - -- - - - - - - -- - - - - - -- - - - - - - -- 
 export function checkQuestGroup(oreName: string, values: number) {
-    if (oreName === 'carbon') {
+    if (oreName === 'carbon' || oreName === 'titanium' || oreName === 'iron') {
         defaultDatabase.ref("questGroup/").once('value').then((questGroup) => {
             const finalValues = questGroup.val().values - values;
             if (finalValues <= 0) {
@@ -161,12 +161,19 @@ export function checkQuestGroup(oreName: string, values: number) {
 
 export function initQuestGroup() {
     defaultDatabase.ref("users/").once('value').then((user) => {
-        const values = Object.keys(user.val()).length * 100000;
+        const randOreName = randomOre();
+        let valuesRecover = 100000;
+        if (randOreName === 'titanium') {
+            valuesRecover = 1000;
+        } else if (randOreName === 'iron') {
+            valuesRecover = 10000;
+        }
+        const values = Object.keys(user.val()).length * valuesRecover;
         defaultDatabase.ref("questGroup/values").set(values);
         defaultDatabase.ref("questGroup/gain").set(10000);
-        defaultDatabase.ref("questGroup/type").set('carbon');
+        defaultDatabase.ref("questGroup/type").set(randOreName);
         defaultDatabase.ref("questGroup/valuesFinal").set(values);
-        defaultDatabase.ref("questGroup/name").set('Retrieve ' + values + ' carbon with other Captains !');
+        defaultDatabase.ref("questGroup/name").set('Retrieve ' + values + ' ' + randOreName + ' with other Captains !');
     });
 }
 
