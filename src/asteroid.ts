@@ -1,5 +1,5 @@
 import { defaultDatabase } from "./environment";
-import { researchUpgrade, oreInfo, mineRateUpgrade, engineUpgrade } from "./resources";
+import { researchUpgrade, oreInfo, engineUpgrade } from "./resources";
 import { toFixed2 } from './utils';
 //import { asteroidTypes } from "./resources";
 
@@ -92,14 +92,14 @@ function changeAsteroid(userId, newAsteroid) {
 function fillSearchResult(userId, user, distance) {
     const oreNames = Object.keys(oreInfo);
     const researchLvl = user.val().upgrade.research.lvl;
-    const miningRate = mineRateUpgrade[user.val().upgrade.mineRate.lvl].baseRate;
     for (let i = 0; i < 3; i++) {
         const maxDist = researchUpgrade[researchLvl].maxDist;
         const minDist = researchUpgrade[researchLvl].minDist;
         let json = {};
         json["ore"] = oreNameRandomWithDistance(oreNames, distance, maxDist);
         const distCapacityCoef = (((maxDist - distance) * 0.4) / (maxDist - minDist)) + 0.8;
-        json["capacity"] = Math.floor((1000 * (1 + (0.01 * researchLvl)) * miningRate * oreInfo[json["ore"]].miningSpeed) * distCapacityCoef);
+        //1000×(1+(0.10×ScanLevel))×ResourceMiningRate
+        json["capacity"] = Math.floor((1000 * (1 + (0.1 * researchLvl)) * oreInfo[json["ore"]].miningSpeed) * distCapacityCoef);
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         let purity = generatePurity(researchLvl, distance, maxDist, minDist);
         json["purity"] = purity;

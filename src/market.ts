@@ -61,9 +61,9 @@ export function buyOre(data) {
 function updateTrend(amount: number, oreName: string) {
     defaultDatabase.ref("trend/" + oreName).once('value').then((trend) => {
         let newTrend = trend.val() + amount;
-       /* if (newTrend < 0) {
-            newTrend = 0;
-        }*/
+        /* if (newTrend < 0) {
+             newTrend = 0;
+         }*/
         defaultDatabase.ref("trend/" + oreName).set(newTrend);
     });
 }
@@ -125,7 +125,7 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
         if (currentVal != oreInfos.meanValue) {
             meanDist = currentVal < oreInfos.meanValue ?
                 (oreInfos.meanValue - currentVal) / (oreInfos.meanValue - oreInfos.minValue) :
-                (oreInfos.meanValue - currentVal) / (oreInfos.maxValue-oreInfos.meanValue);
+                (oreInfos.meanValue - currentVal) / (oreInfos.maxValue - oreInfos.meanValue);
         }
 
         const meanDelta = 0.20 * oreInfos.meanValue * meanDist;
@@ -133,7 +133,7 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
         let delta = 0;
         if (oreTrend == 0) {
             delta = (Math.random() * 10) + 5;
-            delta = (Math.random()*100 >= 50) ? delta : -delta
+            delta = (Math.random() * 100 >= 50) ? delta : -delta
             delta = currentVal < oreInfos.meanValue ? -delta : delta;
         }
         else {
@@ -141,7 +141,7 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
             delta = oreTrend > 0 ? -delta : delta;
         }
 
-        newVal = currentVal + meanDelta + toFixed2((delta/100)*oreInfos.meanValue);
+        newVal = currentVal + meanDelta + toFixed2((delta / 100) * oreInfos.meanValue);
 
         /*let oreWeight = oreTrend / trendSum;
 
