@@ -255,17 +255,17 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
     const rand = Math.floor((Math.random() * 100) + 1);
     if (rand < tab.carbon) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['carbon'].miningSpeed;
-        const valuesCarbon =  mineRateCurrent * 60 * Math.floor((Math.random() * 10) + 5); 
+        const valuesCarbon =  mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5); 
         return {type: 'carbon',number: valuesCarbon};
     }
     if (rand < tab.titanium) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['titanium'].miningSpeed;
-        const valuesTitanium =  mineRateCurrent * 60 * Math.floor((Math.random() * 10) + 5);
+        const valuesTitanium =  mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5);
         return {type: 'titanium',number: valuesTitanium};
     }
     if (rand < tab.iron) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['iron'].miningSpeed;
-        const valuesIron =  mineRateCurrent * 60 * Math.floor((Math.random() * 10) +5); 
+        const valuesIron =  mineRateCurrent * 10 * Math.floor((Math.random() * 10) +5); 
         return {type: 'iron',number: valuesIron};
     }
     if (rand <= tab.credit) {
