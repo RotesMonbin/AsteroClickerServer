@@ -118,7 +118,7 @@ function oreNameRandomWithDistance(oreNames, distance: number, maxDist: number){
 }
 
 function generatePurity(researchLvl: number, distance: number, maxDistance: number, minDistance: number): number {
-    const f = Math.pow(1 / researchLvl, 0.4) * 2;o
+    const f = Math.pow(1 / researchLvl, 0.4) * 2;
     
     const v = Math.random();
     const w = Math.random();
