@@ -3,8 +3,16 @@ import { toFixed2 } from "./utils";
 
 export function generateMineRateUpgrade(range: number) {
     let json = [];
-    for (let i = 0; i < range; i++) {
-        const rate = toFixed2(Math.round(Math.pow(i + 1, 1.5) * 10) / 10);
+
+    json[0] = {
+        baseRate: 1,
+        maxRate: 1.5,
+        cost: 1000, //Prix = (500 * x^1.7) + 1500
+        time: 10 //(level*(level+1)/10)+10
+    }
+
+    for (let i = 1; i < range; i++) {
+        const rate = toFixed2(json[i - 1].baseRate + ( 0.2 * (Math.floor((i-1) / 10) + 1)));
         json[i] = {
             baseRate: rate,
             maxRate: toFixed2(Math.round(rate * 1.5 * 10) / 10),
