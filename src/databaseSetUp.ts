@@ -93,26 +93,26 @@ export function resetUsers() {
         json["event"] = 0;
 
         json["quest"] = {};
-        json["quest"]["gain"] = 0;
+        json["quest"]["gain"] = -1;
 
         json["upgrade"] = {};
         json["upgrade"]["mineRate"] = {};
-        json["upgrade"]["mineRate"]["lvl"] = 0;
+        json["upgrade"]["mineRate"]["lvl"] = 1;
         json["upgrade"]["mineRate"]["timer"] = 0;
         json["upgrade"]["mineRate"]["start"] = 0;
 
         json["upgrade"]["storage"] = {};
-        json["upgrade"]["storage"]["lvl"] = 0;
+        json["upgrade"]["storage"]["lvl"] = 1;
         json["upgrade"]["storage"]["timer"] = 0;
         json["upgrade"]["storage"]["start"] = 0;
 
         json["upgrade"]["research"] = {};
-        json["upgrade"]["research"]["lvl"] = 0;
+        json["upgrade"]["research"]["lvl"] = 1;
         json["upgrade"]["research"]["timer"] = 0;
         json["upgrade"]["research"]["start"] = 0;
 
         json["upgrade"]["engine"] = {};
-        json["upgrade"]["engine"]["lvl"] = 0;
+        json["upgrade"]["engine"]["lvl"] = 1;
         json["upgrade"]["engine"]["timer"] = 0;
         json["upgrade"]["engine"]["start"] = 0;
 
