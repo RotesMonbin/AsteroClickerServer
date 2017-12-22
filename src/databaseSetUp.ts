@@ -111,6 +111,11 @@ export function resetUsers() {
         json["upgrade"]["research"]["timer"] = 0;
         json["upgrade"]["research"]["start"] = 0;
 
+        json["upgrade"]["engine"] = {};
+        json["upgrade"]["engine"]["lvl"] = 0;
+        json["upgrade"]["engine"]["timer"] = 0;
+        json["upgrade"]["engine"]["start"] = 0;
+
         json["upgrade"]["score"] = 0;
 
         json["search"] = {};

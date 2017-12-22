@@ -5,11 +5,12 @@ import * as cors from 'cors';
 import { upgradeShip, updateUpgradeTimer } from './upgrade';
 import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch, loadEngine } from './resources';
 import { incrementOre } from './mining';
-import { sellOre, buyOre, updateCostsMarket, updateMeanCosts } from './market';
+import { sellOre, buyOre, updateCostsMarket, updateLastDayCosts, updateLastHourCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
 
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
+import { resetUsers } from './databaseSetUp';
 
 
 
@@ -24,10 +25,11 @@ loadQuest(), loadResearch(), loadEngine(), loadOreInfo()]).then(() => {
         if (err) {
             console.log(err);
         } else {
+            resetUsers();
             console.log(`Server listen on ${process.env.PORT || 4000}`);
             setInterval(() => {
                 updateCostsMarket();
-            }, 1000 * 10);
+            }, 1000 * 2);
             setInterval(() => {
                 updateQuestUser();
             }, 1000 * 60 * 60);
@@ -39,8 +41,11 @@ loadQuest(), loadResearch(), loadEngine(), loadOreInfo()]).then(() => {
                 initQuestGroup();
             }, 1000 * 60 * 60 * 24);
             setInterval(() => {
-                updateMeanCosts();
+                updateLastDayCosts();
             }, 1000 * 60 * 60);
+            setInterval(() => {
+                updateLastHourCosts();
+            }, 1000 * 60);
         }
     });
 });
