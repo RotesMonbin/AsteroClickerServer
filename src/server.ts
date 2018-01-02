@@ -10,8 +10,7 @@ import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from 
 
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
-
-
+import { resetUsers } from './databaseSetUp';
 
 const app = express();
 const server = new http.Server(app);

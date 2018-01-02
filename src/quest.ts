@@ -11,8 +11,8 @@ export function checkQuest(missionName: string, values: number, currentUser, use
         const finalValues = currentUser.quest.values - values;
         if (finalValues <= 0) {
             defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.quest.gain + currentUser.credit);
-            defaultDatabase.ref("users/" + userID + "/quest/values").set(0);  
-            defaultDatabase.ref("users/" + userID + "/quest/gain").set(0);            
+            defaultDatabase.ref("users/" + userID + "/quest/values").set(0);
+            defaultDatabase.ref("users/" + userID + "/quest/gain").set(0);
         } else {
             defaultDatabase.ref("users/" + userID + "/quest/values").set(toFixed2(finalValues));
         }
@@ -23,31 +23,28 @@ export function checkQuest(missionName: string, values: number, currentUser, use
 numberOfChest: numberOfChest,
 userID: userID
 */
-export function giveGainUser(message){
+export function giveGainUser(message) {
     defaultDatabase.ref("users/" + message.user + "/chest/numberOfChest").set(message.numberOfChest);
     const stringTempChest = 'chest' + message.numberOfChest;
     defaultDatabase.ref("users/" + message.user + "/chest/" + stringTempChest).once('value').then((chest) => {
-        const chestTemp =  chest.val();
+        const chestTemp = chest.val();
         defaultDatabase.ref("users/" + message.user).once('value').then((currentUser) => {
-            let json = {};    
-            json['carbon'] = currentUser.val().ore.carbon;  
-            json['iron'] = currentUser.val().ore.iron;            
-            json['titanium'] = currentUser.val().ore.titanium;
+            let json = currentUser.val().ore;
 
-            let creditTemp = currentUser.val().credit; 
-            for (let i = 0 ; i < 3; i++) {
+            let creditTemp = currentUser.val().credit;
+            for (let i = 0; i < 3; i++) {
                 if (Object.keys(chestTemp[i])[0] === 'credit') {
                     creditTemp += chestTemp[i][Object.keys(chestTemp[i])[0]];
                 } else {
                     regroupGainChest(Object.keys(chestTemp[i])[0], chestTemp[i][Object.keys(chestTemp[i])[0]], json);
                 }
-            }           
+            }
             addChestToBase(json, message.user, creditTemp);
         });
     }).then(() => {
         defaultDatabase.ref("users/" + message.user + "/chest/chest" + message.numberOfChest).remove();
     });
-    
+
 }
 
 export function updateQuestUser() {
@@ -55,7 +52,7 @@ export function updateQuestUser() {
         const userUis = Object.keys(user.val());
         for (let i = 0; i < userUis.length; i++) {
             const currentUser = user.val()[userUis[i]]
-            if (currentUser.quest.gain != -1) {  
+            if (currentUser.quest.gain != -1) {
                 continue;
             }
             const randomQuest = Math.floor((Math.random() * quest.length));
@@ -66,73 +63,66 @@ export function updateQuestUser() {
 
 
 function initQuestUser(i, userID, currentUser) {
-    if(i === 1) {
+    if (i === 1) {
         i = 4;
     }
     const questCurrent = quest[i];
 
     defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
         defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
-            let type = randomOre();
+            let type = randomOre(oreInfo.val());
             let values;
             const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()[type].miningSpeed;
-            let typeFinal; 
+            let typeFinal;
             switch (questCurrent.type) {
                 case 'Buy':
                     values = getOreAmountFromString(type, currentUser); // * oreInfo.val()[type].meanValue;
-                    typeFinal = 'buy' + type; 
-                break;
+                    typeFinal = 'buy' + type;
+                    break;
 
                 case 'Sell':
                     values = mineRateCurrent * 60 * 10;  // * oreInfo.val()[type].meanValue;
-                    typeFinal = 'sell' + type; 
-                break;
+                    typeFinal = 'sell' + type;
+                    break;
 
                 case 'Retrieve':
-                    values = mineRateCurrent * 60 * 20; 
+                    values = mineRateCurrent * 60 * 20;
                     typeFinal = type;
-                break;
+                    break;
 
                 case 'Upgrade':
-                    values = 3; 
-                    const temp = (Math.floor(Math.random()* 10)) % 2 === 0 ? "storage" : "mineRate";
+                    values = 3;
+                    const temp = (Math.floor(Math.random() * 10)) % 2 === 0 ? "storage" : "mineRate";
                     typeFinal = 'upgrade' + temp;
                     type = temp;
-                break;
+                    break;
 
                 case 'Win': // credit
-                    values = mineRateCurrent * 60 * 20 * oreInfo.val()[type].meanValue; 
+                    values = mineRateCurrent * 60 * 20 * oreInfo.val()[type].meanValue;
                     type = 'Credit';
                     typeFinal = 'credit';
-                break;
-                
+                    break;
+
                 case 'Click':
-                break;
+                    break;
             }
-            const text = questCurrent.type + ' ' + toFixed2(values)  + ' ' + type; 
+            const text = questCurrent.type + ' ' + toFixed2(values) + ' ' + type;
             defaultDatabase.ref("users/" + userID + "/quest/gain").set(1);
-            defaultDatabase.ref("users/" + userID + "/quest/values").set(toFixed2(values));   
-            defaultDatabase.ref("users/" + userID + "/quest/valuesFinal").set(toFixed2(values));            
+            defaultDatabase.ref("users/" + userID + "/quest/values").set(toFixed2(values));
+            defaultDatabase.ref("users/" + userID + "/quest/valuesFinal").set(toFixed2(values));
             defaultDatabase.ref("users/" + userID + "/quest/name").set(text);
             defaultDatabase.ref("users/" + userID + "/quest/text").set(questCurrent.text);
             defaultDatabase.ref("users/" + userID + "/quest/type").set(typeFinal);
             defaultDatabase.ref("users/" + userID + "/quest/num").set(i);
         });
-    });  
+    });
 }
 
-function randomOre() {
-    const type = (Math.floor(Math.random()* 3));
-    if (type === 0) {
-        return 'carbon';
-    }
-    else if (type ===1) {
-        return 'titanium';
-    } 
-    else if (type === 2) {
-        return 'iron';
-    }
-    return 'carbon';
+function randomOre(oreName) {
+    const keys = Object.keys(oreName);
+    const type = (Math.floor(Math.random() * keys.length));
+
+    return (keys[type]);
 }
 
 
@@ -161,19 +151,17 @@ export function checkQuestGroup(oreName: string, values: number) {
 
 export function initQuestGroup() {
     defaultDatabase.ref("users/").once('value').then((user) => {
-        const randOreName = randomOre();
-        let valuesRecover = 100000;
-        if (randOreName === 'titanium') {
-            valuesRecover = 1000;
-        } else if (randOreName === 'iron') {
-            valuesRecover = 10000;
-        }
-        const values = Object.keys(user.val()).length * valuesRecover;
-        defaultDatabase.ref("questGroup/values").set(values);
-        defaultDatabase.ref("questGroup/gain").set(10000);
-        defaultDatabase.ref("questGroup/type").set(randOreName);
-        defaultDatabase.ref("questGroup/valuesFinal").set(values);
-        defaultDatabase.ref("questGroup/name").set('Retrieve ' + values + ' ' + randOreName + ' with other Captains !');
+        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
+            const randOreName = randomOre(oreInfo.val());
+            let valuesRecover = 50000 * oreInfo.val()[randOreName].miningSpeed;
+            const values = Object.keys(user.val()).length * valuesRecover;
+            defaultDatabase.ref("questGroup/values").set(values);
+            defaultDatabase.ref("questGroup/gain").set(10000);
+            defaultDatabase.ref("questGroup/type").set(randOreName);
+            defaultDatabase.ref("questGroup/valuesFinal").set(values);
+            defaultDatabase.ref("questGroup/name").set('Retrieve ' + values + ' ' + randOreName + ' with other Captains !');
+
+        });
     });
 }
 
@@ -185,8 +173,8 @@ userID, currentUser
 */
 export function newChest(message) {
     defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
-        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => { 
-            defaultDatabase.ref("users/" + message.userID).once('value').then((currentUser) => {  
+        defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
+            defaultDatabase.ref("users/" + message.userID).once('value').then((currentUser) => {
                 const gainMin = 0.01;
                 const gainMax = 0.02;
                 const gain = 1000;
@@ -202,13 +190,13 @@ function regroupGainChest(type, number, json) {
 
 
 function addChestToBase(json, userID, creditTemp) {
-    defaultDatabase.ref("users/" + userID + "/ore" ).set(json);     
-    defaultDatabase.ref("users/" + userID + "/credit").set(toFixed2(creditTemp));         
+    defaultDatabase.ref("users/" + userID + "/ore").set(json);
+    defaultDatabase.ref("users/" + userID + "/credit").set(toFixed2(creditTemp));
 }
 
 export function openChest(userID, currentUser) {
-    defaultDatabase.ref("users/" + userID + "/chest/").remove('chest' + currentUser.chest.numberOfChest);               
-    defaultDatabase.ref("users/" + userID + "/chest/numberOfChest").set(currentUser.chest.numberOfChest - 1);              
+    defaultDatabase.ref("users/" + userID + "/chest/").remove('chest' + currentUser.chest.numberOfChest);
+    defaultDatabase.ref("users/" + userID + "/chest/numberOfChest").set(currentUser.chest.numberOfChest - 1);
 }
 
 export function checkQuestForAddChest() {
@@ -217,11 +205,11 @@ export function checkQuestForAddChest() {
             defaultDatabase.ref("users/").once('value').then((user) => {
                 const userUis = Object.keys(user.val());
                 for (let i = 0; i < userUis.length; i++) {
-                    const currentUser = user.val()[userUis[i]]  
+                    const currentUser = user.val()[userUis[i]]
                     if (currentUser.quest.gain === 0) {
-                        initChestRandom(userUis[i], currentUser, 0.01, 0.03, 3000, mineRate, oreInfo); 
+                        initChestRandom(userUis[i], currentUser, 0.01, 0.03, 3000, mineRate, oreInfo);
                         defaultDatabase.ref("users/" + userUis[i] + "/quest/gain").set(-1);
-                    }                  
+                    }
                 }
             });
 
@@ -233,22 +221,22 @@ function initChestRandom(userID, currentUser, gainMin, gainMax, gain, mineRate, 
     let json = {};
     const chest1 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);
     const stringChest = 'chest' + (currentUser.chest.numberOfChest);
-    
+
     json = {};
     json["0"] = {};
-    json["0"][chest1.type]=toFixed2(chest1.number);
+    json["0"][chest1.type] = toFixed2(chest1.number);
 
-    const chest2 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);    
+    const chest2 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);
     json["1"] = {};
-    json["1"][chest2.type]=toFixed2(chest2.number);
+    json["1"][chest2.type] = toFixed2(chest2.number);
 
-    const chest3 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);      
-    json["2"] = {};  
-    json["2"][chest3.type]=toFixed2(chest3.number);
+    const chest3 = stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain);
+    json["2"] = {};
+    json["2"][chest3.type] = toFixed2(chest3.number);
 
-    defaultDatabase.ref("users/"+ userID + '/chest/' + stringChest).set(json);
-    defaultDatabase.ref("users/"+ userID + '/chest/numberOfChest').set(currentUser.chest.numberOfChest + 1);
-    
+    defaultDatabase.ref("users/" + userID + '/chest/' + stringChest).set(json);
+    defaultDatabase.ref("users/" + userID + '/chest/numberOfChest').set(currentUser.chest.numberOfChest + 1);
+
 }
 
 function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain) {
@@ -262,24 +250,24 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
     const rand = Math.floor((Math.random() * 100) + 1);
     if (rand < tab.carbon) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['carbon'].miningSpeed;
-        const valuesCarbon =  mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5); 
-        return {type: 'carbon',number: valuesCarbon};
+        const valuesCarbon = mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5);
+        return { type: 'carbon', number: valuesCarbon };
     }
     if (rand < tab.titanium) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['titanium'].miningSpeed;
-        const valuesTitanium =  mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5);
-        return {type: 'titanium',number: valuesTitanium};
+        const valuesTitanium = mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5);
+        return { type: 'titanium', number: valuesTitanium };
     }
     if (rand < tab.iron) {
         const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['iron'].miningSpeed;
-        const valuesIron =  mineRateCurrent * 10 * Math.floor((Math.random() * 10) +5); 
-        return {type: 'iron',number: valuesIron};
+        const valuesIron = mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5);
+        return { type: 'iron', number: valuesIron };
     }
     if (rand <= tab.credit) {
-        const gainCredit = currentUser.upgrade.score * 
-        toFixed2((Math.random() * gainMax) + gainMin) 
-        + gain;
-        return {type: 'credit',number: gainCredit/3};
+        const gainCredit = currentUser.upgrade.score *
+            toFixed2((Math.random() * gainMax) + gainMin)
+            + gain;
+        return { type: 'credit', number: gainCredit / 3 };
     }
     return undefined;
 }
@@ -291,6 +279,6 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
 userID
 */
 export function deleteEvent(message) {
-    defaultDatabase.ref("users/"+ message.userID + '/event').set(0);    
+    defaultDatabase.ref("users/" + message.userID + '/event').set(0);
 }
 
