@@ -96,7 +96,7 @@ function fillSearchResult(userId, user, distance) {
         const maxDist = researchUpgrade[researchLvl].maxDist;
         const minDist = researchUpgrade[researchLvl].minDist;
         let json = {};
-        json["ore"] = oreNameRandomWithDistance(oreNames, distance, maxDist);
+        json["ore"] = oreNameRandomWithDistance(oreNames, researchLvl);
         const distCapacityCoef = (((maxDist - distance) * 0.4) / (maxDist - minDist)) + 0.8;
         //1000×(1+(0.10×ScanLevel))×ResourceMiningRate
         json["capacity"] = Math.floor((1000 * (1 + (0.1 * researchLvl)) * oreInfo[json["ore"]].miningSpeed) * distCapacityCoef);
@@ -110,11 +110,16 @@ function fillSearchResult(userId, user, distance) {
     }
 }
 
-function oreNameRandomWithDistance(oreNames, distance: number, maxDist: number){
-    if( distance > maxDist / 2) {
-        return oreNames[Math.floor(Math.random() * oreNames.length)];
+function oreNameRandomWithDistance(oreNames, researchLvl){
+
+    const tabName = new Array<string>();
+    
+    for(let i = 0; i < oreNames.length ; i++) {
+        if(researchLvl >= oreInfo[oreNames[i]].searchNewOre) {
+            tabName.push(oreNames[i]);
+        }
     }
-    return oreNames[Math.floor(Math.random() * (oreNames.length - 1))];
+    return tabName[Math.floor(Math.random() * (tabName.length))];
 }
 
 function generatePurity(researchLvl: number, distance: number, maxDistance: number, minDistance: number): number {
