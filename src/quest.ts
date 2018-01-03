@@ -1,5 +1,5 @@
 import { defaultDatabase } from "./environment";
-import { quest } from "./resources";
+import { quest, oreInfo } from "./resources";
 import { toFixed2, getOreAmountFromString } from "./utils";
 
 // Check if the quest is finish 
@@ -125,7 +125,7 @@ function randomOre(oreName) {
 
 // Glory quest - - - - - - - - - - - - - - -- - - - - - - -- - - - - - -- - - - - - - -- 
 export function checkQuestGroup(oreName: string, values: number) {
-    if (oreName === 'carbon' || oreName === 'titanium' || oreName === 'iron') {
+    if (oreName === 'carbon' || oreName === 'titanium' || oreName === 'iron' || oreName === 'hyperium' || oreName === 'gold') {
         defaultDatabase.ref("questGroup/").once('value').then((questGroup) => {
             const finalValues = questGroup.val().values - values;
             if (finalValues <= 0) {
@@ -237,38 +237,43 @@ function initChestRandom(userID, currentUser, gainMin, gainMax, gain, mineRate, 
 }
 
 function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gain) {
-    let tab = {
-        'carbon': 23,
-        'titanium': 46,
-        'iron': 69,
-        'credit': 100
-    };
+    const name = definePourcentageOre(currentUser.upgrade.research.lvl);
 
-    const rand = Math.floor((Math.random() * 100) + 1);
-    if (rand < tab.carbon) {
-        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['carbon'].miningSpeed;
-        const valuesCarbon = mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5);
-        return { type: 'carbon', number: valuesCarbon };
-    }
-    if (rand < tab.titanium) {
-        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['titanium'].miningSpeed;
-        const valuesTitanium = mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5);
-        return { type: 'titanium', number: valuesTitanium };
-    }
-    if (rand < tab.iron) {
-        const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()['iron'].miningSpeed;
-        const valuesIron = mineRateCurrent * 10 * Math.floor((Math.random() * 10) + 5);
-        return { type: 'iron', number: valuesIron };
-    }
-    if (rand <= tab.credit) {
+    if (name === 'credit') {
         const gainCredit = currentUser.upgrade.score *
-            toFixed2((Math.random() * gainMax) + gainMin)
-            + gain;
+        toFixed2((Math.random() * gainMax) + gainMin)
+        + gain;
         return { type: 'credit', number: gainCredit / 3 };
     }
-    return undefined;
+    const values = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()[name].miningSpeed;
+    const valuesTotal = values * 10 * Math.floor((Math.random() * 10) + 5);
+    
+    return {type: name, number: valuesTotal};
 }
 
+// Random for chest
+function definePourcentageOre(researchLvl: number) {
+    const tabName = new Array<string>();
+    const tabPource = new Array<number>();
+    const oreName = Object.keys(oreInfo);
+
+    for (let i = 0; i < oreName.length; i++) {
+        if (researchLvl >= oreInfo[oreName[i]].searchNewOre) {
+            tabName.push(oreName[i]);
+        }
+    }
+    for (let j = 1; j <= tabName.length; j++) {
+        tabPource.push( Math.round(j * (70 / tabName.length)));
+    }
+    const rand = Math.floor((Math.random() * 100) + 1);
+    
+    for (let i = 0 ; i < tabName.length; i++) {
+        if (rand < tabPource[i]) {
+            return tabName[i];
+        }
+    }
+    return 'credit'; 
+}
 
 // EVENT 
 
