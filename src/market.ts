@@ -53,6 +53,13 @@ export function buyOre(data) {
                 defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(user.val().ore[data.ore] + data.amount));
                 checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
             }
+            else if (currentCredit < cost && currentCredit > 0) {
+                const amountMax = currentCredit / currentValue;
+                defaultDatabase.ref("users/" + data.user + "/credit").set(0);
+                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(user.val().ore[data.ore] + amountMax));
+                checkQuest('buy' + data.ore, amountMax, user.val(), data.user);
+
+            }
         });
         updateTrend(-data.amount, data.ore);
     });
@@ -143,13 +150,13 @@ export function updateLastHourCosts() {
         const oreKeys = Object.keys(tradSnapshot.val());
 
         for (let i = 0; i < oreKeys.length; i++) {
-            const mean=computeMeanForLastPeriod("lastMinute", tradSnapshot.val()[oreKeys[i]]);
-            let currentValue=tradSnapshot.val()[oreKeys[i]]["lastHour"];
+            const mean = computeMeanForLastPeriod("lastMinute", tradSnapshot.val()[oreKeys[i]]);
+            let currentValue = tradSnapshot.val()[oreKeys[i]]["lastHour"];
             if (Object.keys(currentValue).length >= 60) {
                 delete currentValue[Object.keys(currentValue)[0]];
             }
             currentValue[Date.now()] = mean;
-        
+
             defaultDatabase.ref('trading/' + oreKeys[i] + "/lastHour").set(currentValue);
         }
     });
@@ -160,19 +167,19 @@ export function updateLastDayCosts() {
         const oreKeys = Object.keys(tradSnapshot.val());
 
         for (let i = 0; i < oreKeys.length; i++) {
-            const mean=computeMeanForLastPeriod("lastHour", tradSnapshot.val()[oreKeys[i]]);
-            let currentValue=tradSnapshot.val()[oreKeys[i]]["lastDay"];
+            const mean = computeMeanForLastPeriod("lastHour", tradSnapshot.val()[oreKeys[i]]);
+            let currentValue = tradSnapshot.val()[oreKeys[i]]["lastDay"];
             if (Object.keys(currentValue).length >= 24) {
                 delete currentValue[Object.keys(currentValue)[0]];
             }
             currentValue[Date.now()] = mean;
-        
+
             defaultDatabase.ref('trading/' + oreKeys[i] + "/lastDay").set(currentValue);
         }
     });
 }
 
-function computeMeanForLastPeriod(periodName: string, oreCosts) :number {
+function computeMeanForLastPeriod(periodName: string, oreCosts): number {
     const keys = Object.keys(oreCosts[periodName]);
     let mean = 0;
 

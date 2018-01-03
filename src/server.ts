@@ -10,9 +10,6 @@ import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from 
 
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
-import { resetUsers } from './databaseSetUp';
-
-
 
 const app = express();
 const server = new http.Server(app);
@@ -25,7 +22,6 @@ loadQuest(), loadResearch(), loadEngine(), loadOreInfo()]).then(() => {
         if (err) {
             console.log(err);
         } else {
-            resetUsers();
             console.log(`Server listen on ${process.env.PORT || 4000}`);
             setInterval(() => {
                 updateCostsMarket();
