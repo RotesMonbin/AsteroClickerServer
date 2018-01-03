@@ -63,9 +63,6 @@ export function updateQuestUser() {
 
 
 function initQuestUser(i, userID, currentUser) {
-    if (i === 1) {
-        i = 4;
-    }
     const questCurrent = quest[i];
 
     defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
