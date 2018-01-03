@@ -111,7 +111,6 @@ function fillSearchResult(userId, user, distance) {
 }
 
 function oreNameRandomWithDistance(oreNames, researchLvl){
-
     const tabName = new Array<string>();
     
     for(let i = 0; i < oreNames.length ; i++) {
