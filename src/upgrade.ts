@@ -49,7 +49,7 @@ export function upgradeShipOre(data) {
 }
 
 function costOreUpgrade(costCredit: number, nameUpgrade: string) {
-    return [ costOreForCredit(valuesOreForUpgrade(nameUpgrade)[0], costCredit/2) , costOreForCredit(valuesOreForUpgrade(nameUpgrade)[1], costCredit/2) ];
+    return [costOreForCredit(valuesOreForUpgrade(nameUpgrade)[0], costCredit / 2), costOreForCredit(valuesOreForUpgrade(nameUpgrade)[1], costCredit / 2)];
 }
 
 function costOreForCredit(nameOre: string, costCredit: number) {
@@ -59,15 +59,15 @@ function costOreForCredit(nameOre: string, costCredit: number) {
 function valuesOreForUpgrade(nameUpgrade: string) {
     switch (nameUpgrade) {
         case 'engine':
-            return ['titanium', 'hyperium'];
+            return ['gold', 'titanium'];
         case 'storage':
-            return ['carbon', 'titanium'];
+            return ['carbon', 'hyperium'];
         case 'research':
             return ['carbon', 'iron'];
         case 'mineRate':
-            return ['titanium', 'iron'];
+            return ['iron', 'titanium'];
         default:
-         return 0;
+            return 0;
     }
 }
 /**
