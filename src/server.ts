@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as http from 'http';
 import * as socketIO from 'socket.io';
 import * as cors from 'cors';
-import { upgradeShip, updateUpgradeTimer } from './upgrade';
+import { upgradeShipCredit, upgradeShipOre, updateUpgradeTimer } from './upgrade';
 import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch, loadEngine } from './resources';
 import { incrementOre } from './mining';
 import { sellOre, buyOre, updateCostsMarket, updateLastDayCosts, updateLastHourCosts } from './market';
@@ -53,8 +53,12 @@ io.on("connection", (socket: SocketIO.Socket) => {
         incrementOre(message);
     });
 
-    socket.on('upgradeShip', (message) => {
-        upgradeShip(message);
+    socket.on('upgradeShipCredit', (message) => {
+        upgradeShipCredit(message);
+    });
+
+    socket.on('upgradeShipOre', (message) => {
+        upgradeShipOre(message);
     });
 
     socket.on('sellOre', (message) => {
