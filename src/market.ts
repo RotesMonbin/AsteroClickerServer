@@ -44,23 +44,32 @@ data = {
 export function buyOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const currentCredit = user.val().credit;
-        defaultDatabase.ref("trading/" + data.ore + "/lastMinute").once('value').then((oreValue) => {
-            var keys = Object.keys(oreValue.val());
-            const currentValue = oreValue.val()[keys[keys.length - 1]] * 1.025;
-            const cost = data.amount * currentValue;
-            if (currentCredit >= cost && toFixed2(user.val().ore[data.ore] + data.amount) <= storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
-                defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
-                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(user.val().ore[data.ore] + data.amount));
-                checkQuest('buy' + data.ore, data.amount, user.val(), data.user);
-            }
-            else if (currentCredit < cost && currentCredit > 0) {
-                const amountMax = currentCredit / currentValue;
-                defaultDatabase.ref("users/" + data.user + "/credit").set(0);
-                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(user.val().ore[data.ore] + amountMax));
-                checkQuest('buy' + data.ore, amountMax, user.val(), data.user);
+        if (currentCredit > 0 && user.val().ore[data.ore] < storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
 
-            }
-        });
+            defaultDatabase.ref("trading/" + data.ore + "/lastMinute").once('value').then((oreValue) => {
+                var keys = Object.keys(oreValue.val());
+                const currentValue = oreValue.val()[keys[keys.length - 1]] * 1.025;
+                const cost = data.amount * currentValue;
+
+                let newCredit: number = toFixed2(user.val().credit - cost);
+                let newAmount: number = user.val().ore[data.ore] + data.amount;
+
+                if (currentCredit < cost && currentCredit > 0) {
+                    newAmount = user.val().ore[data.ore] + toFixed2(currentCredit / currentValue);
+                    newCredit = 0;
+                }
+                if (newAmount > storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
+                    newAmount = storageUpgrade[user.val().upgrade.storage.lvl].capacity;
+                    newCredit = currentCredit - (currentValue * (storageUpgrade[user.val().upgrade.storage.lvl].capacity - user.val().ore[data.ore]));
+                }
+
+                checkQuest('buy' + data.ore, newAmount -user.val().ore[data.ore], user.val(), data.user);
+                defaultDatabase.ref("users/" + data.user + "/credit").set(newCredit);
+                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2( newAmount));
+
+
+            });
+        }
         updateTrend(-data.amount, data.ore);
     });
 }

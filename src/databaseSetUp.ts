@@ -81,11 +81,7 @@ export function resetUsers() {
         json["asteroid"]["seed"] = "01230123";
 
         json["ore"] = {};
-        json["ore"]["carbon"] = 0;
-        json["ore"]["titanium"] = 0;
-        json["ore"]["iron"] = 0;
-        json["ore"]["hyperium"] = 0;
-        json["ore"]["gold"] = 0;
+
 
         json["chest"] = {};
         json["chest"]["numberOfChest"] = 0;
@@ -129,6 +125,12 @@ export function resetUsers() {
             json["upgrade"]["storage"]["lvl"] = allUsers[usersId[i]].upgrade.storage.lvl;
             json["upgrade"]["research"]["lvl"] = allUsers[usersId[i]].upgrade.research.lvl;
             json["upgrade"]["engine"]["lvl"] = allUsers[usersId[i]].upgrade.engine.lvl;
+
+            json["ore"]["carbon"] = allUsers[usersId[i]]["ore"]["carbon"];
+            json["ore"]["titanium"] = allUsers[usersId[i]]["ore"]["titanium"];
+            json["ore"]["iron"] = allUsers[usersId[i]]["ore"]["iron"];
+            json["ore"]["hyperium"] = 0;
+            json["ore"]["gold"] = 0;
 
             json["credit"] = allUsers[usersId[i]].credit;
 
