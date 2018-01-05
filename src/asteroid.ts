@@ -97,7 +97,7 @@ function fillSearchResult(userId, user, distance) {
         const minDist = researchUpgrade[researchLvl].minDist;
         let json = {};
         json["ore"] = oreNameRandomWithDistance(oreNames, researchLvl);
-        const distCapacityCoef = (((maxDist - distance) * 0.4) / (maxDist - minDist)) + 0.8;
+        const distCapacityCoef = (((distance - minDist) * 0.8) / (maxDist - minDist)) + 0.8;
         //1000×(1+(0.10×ScanLevel))×ResourceMiningRate
         json["capacity"] = Math.floor((1000 * (1 + (0.1 * researchLvl)) * oreInfo[json["ore"]].miningSpeed) * distCapacityCoef);
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
@@ -105,16 +105,16 @@ function fillSearchResult(userId, user, distance) {
         json["purity"] = purity;
         // json["timeToGo"] = Math.floor((purity) + 10 + distance / 100) * engineUpgrade[user.val().upgrade.engine.lvl].speed;
         // TO CHANGE
-        json['timeToGo'] =  Math.floor(distance / engineUpgrade[user.val().upgrade.engine.lvl].speed) + Math.floor(Math.random() * 50);
+        json['timeToGo'] = Math.floor(distance / engineUpgrade[user.val().upgrade.engine.lvl].speed) + Math.floor(Math.random() * 50);
         defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
     }
 }
 
-function oreNameRandomWithDistance(oreNames, researchLvl){
+function oreNameRandomWithDistance(oreNames, researchLvl) {
     const tabName = new Array<string>();
-    
-    for(let i = 0; i < oreNames.length ; i++) {
-        if(researchLvl >= oreInfo[oreNames[i]].searchNewOre) {
+
+    for (let i = 0; i < oreNames.length; i++) {
+        if (researchLvl >= oreInfo[oreNames[i]].searchNewOre) {
             tabName.push(oreNames[i]);
         }
     }
@@ -123,7 +123,7 @@ function oreNameRandomWithDistance(oreNames, researchLvl){
 
 function generatePurity(researchLvl: number, distance: number, maxDistance: number, minDistance: number): number {
     const f = Math.pow(1 / researchLvl, 0.4) * 2;
-    
+
     const v = Math.random();
     const w = Math.random();
     const x = Math.random();
@@ -131,7 +131,7 @@ function generatePurity(researchLvl: number, distance: number, maxDistance: numb
     const z = Math.random();
 
     const g = Math.pow((v + w + x + y + z) / 5, f) + 0.5;
-    const deltaD = (maxDistance - distance);
+    const deltaD = (distance - minDistance);
     const d = ((deltaD * 0.3) / (maxDistance - minDistance)) - 0.15;
 
     return toFixed2((g + d) * 100);

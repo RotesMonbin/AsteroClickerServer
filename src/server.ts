@@ -10,6 +10,7 @@ import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from 
 
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
+import { initializeUser } from './databaseSetUp';
 
 const app = express();
 const server = new http.Server(app);
@@ -101,8 +102,8 @@ io.on("connection", (socket: SocketIO.Socket) => {
         deleteEvent(message);
     })
 
-    socket.on('connect', () => {
-        console.log(io.clients.length);
+    socket.on('initializeUser', (message) => {
+        initializeUser(message);
     });
 
 })
