@@ -98,6 +98,12 @@ function updateFrenzyTimer(userId) {
 export function nextArrow(message) {
     defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (message.keyCode === user.val().frenzy.nextCombo && user.val().frenzy.state === 1) {
+            let rand = Math.floor(Math.random() * 4);
+            if (rand === message.keyCode) {
+                rand = (rand + 1)%4;
+            }
+            defaultDatabase.ref("users/" + message.user + "/frenzy/nextCombo").set(rand);
+
             const maxAmount = storageUpgrade[user.val().upgrade.storage.lvl].capacity;
             const currentAmount = user.val().ore[user.val().asteroid.ore];
             const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
@@ -105,9 +111,8 @@ export function nextArrow(message) {
             if (currentAmount + maxMinerate * 5 <= maxAmount) {
                 defaultDatabase.ref("users/" + message.user + "/ore/" + user.val().asteroid.ore).set(toFixed2(currentAmount + maxMinerate * 5));
             }
-            defaultDatabase.ref("users/" + message.user + "/frenzy/nextCombo").set(Math.floor(Math.random() * 4));
         } else {
-            defaultDatabase.ref("users/" + message.user + "/frenzy/start").set(user.val().frenzy.start + 1000);
+           // defaultDatabase.ref("users/" + message.user + "/frenzy/start").set(user.val().frenzy.start - 1000);
         }
     });
 }
