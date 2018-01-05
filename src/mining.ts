@@ -90,3 +90,29 @@ function updateFrenzyTimer(userId) {
         defaultDatabase.ref("users/" + userId + "/frenzy/timer").set(timer);
     });
 }
+
+/*
+    json['user'] = userId;
+    json['keyCode'] = keyCode;
+*/
+export function nextArrow(message) {
+    defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
+        if (message.keyCode === user.val().frenzy.nextCombo && user.val().frenzy.state === 1) {
+            let rand = Math.floor(Math.random() * 4);
+            if (rand === message.keyCode) {
+                rand = (rand + 1)%4;
+            }
+            defaultDatabase.ref("users/" + message.user + "/frenzy/nextCombo").set(rand);
+
+            const maxAmount = storageUpgrade[user.val().upgrade.storage.lvl].capacity;
+            const currentAmount = user.val().ore[user.val().asteroid.ore];
+            const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
+                oreInfo[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1;
+            if (currentAmount + maxMinerate * 5 <= maxAmount) {
+                defaultDatabase.ref("users/" + message.user + "/ore/" + user.val().asteroid.ore).set(toFixed2(currentAmount + maxMinerate * 5));
+            }
+        } else {
+           defaultDatabase.ref("users/" + message.user + "/frenzy/start").set(user.val().frenzy.start - 1000);
+        }
+    });
+}
