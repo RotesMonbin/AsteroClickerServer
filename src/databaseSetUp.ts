@@ -77,6 +77,11 @@ export function initializeUser(message) {
 
     let json = {};
 
+    json["frenzy"]["nextCombo"]=0;
+    json["frenzy"]["start"]=0;
+    json["frenzy"]["state"]=0;
+    json["frenzy"]["timer"]=0;
+
     json["asteroid"] = {};
     json["asteroid"]["capacity"] = 1000;
     json["asteroid"]["currentCapacity"] = 1000;
@@ -140,7 +145,7 @@ export function initializeUser(message) {
     defaultDatabase.ref("users/" + message.user).set(json);
 }
 
-export function resetUsers() {
+export function addField() {
     defaultDatabase.ref("users/").once('value').then((user) => {
 
         let allUsers = user.val();
@@ -148,51 +153,59 @@ export function resetUsers() {
 
         let json = {};
 
-        json["asteroid"] = {};
-        json["asteroid"]["capacity"] = 1000;
-        json["asteroid"]["currentCapacity"] = 1000;
-        json["asteroid"]["ore"] = "carbon";
-        json["asteroid"]["purity"] = 100;
-        json["asteroid"]["seed"] = "01230123";
-
-        json["ore"] = {};
-
-
-        json["chest"] = {};
-        json["chest"]["numberOfChest"] = 0;
-
-        json["profile"] = {};
-
-        json["event"] = 0;
-
-        json["quest"] = {};
-        json["quest"]["gain"] = -1;
-
-        json["upgrade"] = {};
-        json["upgrade"]["mineRate"] = {};
-        json["upgrade"]["mineRate"]["timer"] = 0;
-        json["upgrade"]["mineRate"]["start"] = 0;
-
-        json["upgrade"]["storage"] = {};
-        json["upgrade"]["storage"]["timer"] = 0;
-        json["upgrade"]["storage"]["start"] = 0;
-
-        json["upgrade"]["research"] = {};
-        json["upgrade"]["research"]["timer"] = 0;
-        json["upgrade"]["research"]["start"] = 0;
-
-        json["upgrade"]["engine"] = {};
-        json["upgrade"]["engine"]["timer"] = 0;
-        json["upgrade"]["engine"]["start"] = 0;
-
-        json["upgrade"]["score"] = 0;
-
-        json["search"] = {};
-        json["search"]["result"] = 0;
-        json["search"]["timer"] = 0;
-        json["search"]["start"] = 0;
-
         for (let i = 0; i < usersId.length; i++) {
+
+            json["frenzy"] = {};
+            json["frenzy"]["nextCombo"]=0;
+            json["frenzy"]["start"]=0;
+            json["frenzy"]["state"]=0;
+            json["frenzy"]["timer"]=0;
+
+
+            json["asteroid"] = {};
+            json["asteroid"]["capacity"] = allUsers[usersId[i]].asteroid.capacity;
+            json["asteroid"]["currentCapacity"] = allUsers[usersId[i]].asteroid.currentCapacity;
+            json["asteroid"]["ore"] = allUsers[usersId[i]].asteroid.ore;
+            json["asteroid"]["purity"] = allUsers[usersId[i]].asteroid.purity;
+            json["asteroid"]["seed"] = allUsers[usersId[i]].asteroid.seed;
+    
+            json["ore"] = {};
+    
+    
+            json["chest"] = {};
+            json["chest"]["numberOfChest"] = allUsers[usersId[i]].chest.numberOfChest;
+    
+            json["profile"] = {};
+    
+            json["event"] = allUsers[usersId[i]].event;
+    
+            json["quest"] = {};
+            json["quest"]["gain"] = allUsers[usersId[i]].quest.gain;
+    
+            json["upgrade"] = {};
+            json["upgrade"]["mineRate"] = {};
+            json["upgrade"]["mineRate"]["timer"] = allUsers[usersId[i]].upgrade.mineRate.timer;
+            json["upgrade"]["mineRate"]["start"] = allUsers[usersId[i]].upgrade.mineRate.start;
+    
+            json["upgrade"]["storage"] = {};
+            json["upgrade"]["storage"]["timer"] = allUsers[usersId[i]].upgrade.storage.start;
+            json["upgrade"]["storage"]["start"] = allUsers[usersId[i]].upgrade.storage.start;
+    
+            json["upgrade"]["research"] = {};
+            json["upgrade"]["research"]["timer"] = allUsers[usersId[i]].upgrade.research.start;
+            json["upgrade"]["research"]["start"] = allUsers[usersId[i]].upgrade.research.start;
+    
+            json["upgrade"]["engine"] = {};
+            json["upgrade"]["engine"]["timer"] = allUsers[usersId[i]].upgrade.engine.start;
+            json["upgrade"]["engine"]["start"] = allUsers[usersId[i]].upgrade.engine.start;
+    
+            json["upgrade"]["score"] = allUsers[usersId[i]].upgrade.score;
+    
+            json["search"] = {};
+            json["search"]["result"] = allUsers[usersId[i]].search.result;
+            json["search"]["timer"] = allUsers[usersId[i]].search.timer;
+            json["search"]["start"] = allUsers[usersId[i]].search.start;
+
             json["profile"]["email"] = allUsers[usersId[i]].profile.email;
             json["profile"]["name"] = allUsers[usersId[i]].profile.name;
 
@@ -204,8 +217,8 @@ export function resetUsers() {
             json["ore"]["carbon"] = allUsers[usersId[i]]["ore"]["carbon"];
             json["ore"]["titanium"] = allUsers[usersId[i]]["ore"]["titanium"];
             json["ore"]["iron"] = allUsers[usersId[i]]["ore"]["iron"];
-            json["ore"]["hyperium"] = 0;
-            json["ore"]["gold"] = 0;
+            json["ore"]["hyperium"] = allUsers[usersId[i]]["ore"]["hyperium"];
+            json["ore"]["gold"] = allUsers[usersId[i]]["ore"]["gold"];
 
             json["credit"] = allUsers[usersId[i]].credit;
 
