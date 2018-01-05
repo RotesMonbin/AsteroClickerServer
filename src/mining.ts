@@ -112,7 +112,7 @@ export function nextArrow(message) {
                 defaultDatabase.ref("users/" + message.user + "/ore/" + user.val().asteroid.ore).set(toFixed2(currentAmount + maxMinerate * 5));
             }
         } else {
-           // defaultDatabase.ref("users/" + message.user + "/frenzy/start").set(user.val().frenzy.start - 1000);
+           defaultDatabase.ref("users/" + message.user + "/frenzy/start").set(user.val().frenzy.start - 1000);
         }
     });
 }
