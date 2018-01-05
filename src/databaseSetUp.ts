@@ -7,6 +7,7 @@ export function generateMineRateUpgrade(range: number) {
     json[0] = {
         baseRate: 1,
         maxRate: 1.5,
+        frenzyTime: 10,
         cost: 1000, //Prix = (500 * x^1.7) + 1500
         time: 10 //(level*(level+1)/10)+10
     }
@@ -16,6 +17,7 @@ export function generateMineRateUpgrade(range: number) {
         json[i] = {
             baseRate: rate,
             maxRate: toFixed2(Math.round(rate * 1.5 * 10) / 10),
+            frenzyTime: 10+((i*10)/200),
             cost: Math.floor(((500 * Math.pow(i, 1.7)) + 1500) / 1000) * 1000, //Prix = (500 * x^1.7) + 1500
             time: (i * (i + 1) / 10) + 10 //(level*(level+1)/10)+10
         }
