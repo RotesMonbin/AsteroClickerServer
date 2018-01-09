@@ -17,7 +17,7 @@ export function generateMineRateUpgrade(range: number) {
         json[i] = {
             baseRate: rate,
             maxRate: toFixed2(Math.round(rate * 1.5 * 10) / 10),
-            frenzyTime: 10+((i*10)/200),
+            frenzyTime: 10 + ((i * 10) / 200),
             cost: Math.floor(((500 * Math.pow(i, 1.7)) + 1500) / 1000) * 1000, //Prix = (500 * x^1.7) + 1500
             time: (i * (i + 1) / 10) + 10 //(level*(level+1)/10)+10
         }
@@ -77,10 +77,15 @@ export function initializeUser(message) {
 
     let json = {};
 
-    json["frenzy"]["nextCombo"]=0;
-    json["frenzy"]["start"]=0;
-    json["frenzy"]["state"]=0;
-    json["frenzy"]["timer"]=0;
+    json["frenzy"] = {};
+
+    json["frenzy"]["info"] = {};
+    json["frenzy"]["info"]["nextCombos"] = 0;
+    json["frenzy"]["info"]["state"] = 0;
+
+    json["frenzy"]["time"] = {};
+    json["frenzy"]["time"]["start"] = 0;
+    json["frenzy"]["time"]["timer"] = 0;
 
     json["asteroid"] = {};
     json["asteroid"]["capacity"] = 1000;
@@ -156,10 +161,14 @@ export function addField() {
         for (let i = 0; i < usersId.length; i++) {
 
             json["frenzy"] = {};
-            json["frenzy"]["nextCombo"]=0;
-            json["frenzy"]["start"]=0;
-            json["frenzy"]["state"]=0;
-            json["frenzy"]["timer"]=0;
+
+            json["frenzy"]["info"] = {};
+            json["frenzy"]["info"]["nextCombos"] = 0;
+            json["frenzy"]["info"]["state"] = 0;
+
+            json["frenzy"]["time"] = {};
+            json["frenzy"]["time"]["start"] = 0;
+            json["frenzy"]["time"]["timer"] = 0;
 
 
             json["asteroid"] = {};
@@ -168,39 +177,39 @@ export function addField() {
             json["asteroid"]["ore"] = allUsers[usersId[i]].asteroid.ore;
             json["asteroid"]["purity"] = allUsers[usersId[i]].asteroid.purity;
             json["asteroid"]["seed"] = allUsers[usersId[i]].asteroid.seed;
-    
+
             json["ore"] = {};
-    
-    
+
+
             json["chest"] = {};
             json["chest"]["numberOfChest"] = allUsers[usersId[i]].chest.numberOfChest;
-    
+
             json["profile"] = {};
-    
+
             json["event"] = allUsers[usersId[i]].event;
-    
+
             json["quest"] = {};
             json["quest"]["gain"] = allUsers[usersId[i]].quest.gain;
-    
+
             json["upgrade"] = {};
             json["upgrade"]["mineRate"] = {};
             json["upgrade"]["mineRate"]["timer"] = allUsers[usersId[i]].upgrade.mineRate.timer;
             json["upgrade"]["mineRate"]["start"] = allUsers[usersId[i]].upgrade.mineRate.start;
-    
+
             json["upgrade"]["storage"] = {};
             json["upgrade"]["storage"]["timer"] = allUsers[usersId[i]].upgrade.storage.start;
             json["upgrade"]["storage"]["start"] = allUsers[usersId[i]].upgrade.storage.start;
-    
+
             json["upgrade"]["research"] = {};
             json["upgrade"]["research"]["timer"] = allUsers[usersId[i]].upgrade.research.start;
             json["upgrade"]["research"]["start"] = allUsers[usersId[i]].upgrade.research.start;
-    
+
             json["upgrade"]["engine"] = {};
             json["upgrade"]["engine"]["timer"] = allUsers[usersId[i]].upgrade.engine.start;
             json["upgrade"]["engine"]["start"] = allUsers[usersId[i]].upgrade.engine.start;
-    
+
             json["upgrade"]["score"] = allUsers[usersId[i]].upgrade.score;
-    
+
             json["search"] = {};
             json["search"]["result"] = allUsers[usersId[i]].search.result;
             json["search"]["timer"] = allUsers[usersId[i]].search.timer;
