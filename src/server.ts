@@ -4,7 +4,7 @@ import * as socketIO from 'socket.io';
 import * as cors from 'cors';
 import { upgradeShipCredit, upgradeShipOre, updateUpgradeTimer } from './upgrade';
 import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch, loadEngine } from './resources';
-import { incrementOre, reachFrenzy, nextArrow } from './mining';
+import { incrementOre, reachFrenzy, validArrow } from './mining';
 import { sellOre, buyOre, updateCostsMarket, updateLastDayCosts, updateLastHourCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
 
@@ -110,8 +110,8 @@ io.on("connection", (socket: SocketIO.Socket) => {
         reachFrenzy(message);
     });
     
-    socket.on('nextArrow', (message) => {
-        nextArrow(message);
+    socket.on('validArrow', (message) => {
+        validArrow(message);
     });
 
 })
