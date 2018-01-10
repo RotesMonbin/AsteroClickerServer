@@ -63,9 +63,9 @@ export function buyOre(data) {
                     newCredit = currentCredit - (currentValue * (storageUpgrade[user.val().upgrade.storage.lvl].capacity - user.val().ore[data.ore]));
                 }
 
-                checkQuest('buy' + data.ore, newAmount -user.val().ore[data.ore], user.val(), data.user);
+                checkQuest('buy' + data.ore, newAmount - user.val().ore[data.ore], user.val(), data.user);
                 defaultDatabase.ref("users/" + data.user + "/credit").set(newCredit);
-                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2( newAmount));
+                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(newAmount));
 
 
             });
@@ -121,30 +121,40 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
             meanDist = currentVal < oreInfos.meanValue ?
                 (oreInfos.meanValue - currentVal) / (oreInfos.meanValue - oreInfos.minValue) :
                 (oreInfos.meanValue - currentVal) / (oreInfos.maxValue - oreInfos.meanValue);
+                meanDist=Math.abs(meanDist);
         }
-
-        const meanDelta = 0.20 * oreInfos.meanValue * meanDist;
 
         let delta = 0;
         if (oreTrend == 0) {
-            delta = (Math.random() * 10) + 5;
-            delta = (Math.random() * 100 >= 50) ? delta : -delta
+            delta = (Math.random() * 0.05) - 0.025;
             delta = currentVal < oreInfos.meanValue ? -delta : delta;
+            newVal = currentVal + toFixed2((delta) * oreInfos.meanValue);
         }
         else {
-            delta = (Math.random() * 30) + 10;
+            delta = (Math.random() * (oreInfos.variationRate - (oreInfos.variationRate / 4))) + (oreInfos.variationRate / 4);
             delta = oreTrend > 0 ? -delta : delta;
+            console.log(oreName+" "+meanDist);
+            if (meanDist > 0.5) {
+                const meanCoef = Math.sign(oreTrend) == Math.sign(currentVal - oreInfos.meanValue) ? (meanDist +0.5) : 1 / (meanDist * 2);
+                //console.log(oreName+" "+meanCoef);
+                newVal = currentVal + (toFixed2((delta) * oreInfos.meanValue) *meanCoef);
+            }
+            else {
+                newVal = currentVal + toFixed2((delta) * oreInfos.meanValue);
+            }
+
         }
 
-        newVal = currentVal + meanDelta + toFixed2((delta / 100) * oreInfos.meanValue);
-
         newVal = toFixed2(newVal);
+        if (newVal < 0) {
+            newVal = 0.01;
+        }
 
         nextValuesJson = computeRange(currentVal, newVal);
-        defaultDatabase.ref('trend/' + oreName).set(0);
+        defaultDatabase.ref('trend/' + oreName).set(oreTrend >= 0 ? Math.floor(oreTrend * 0.5) : Math.floor(oreTrend * 0.5) + 1);
     }
 
-    if (Object.keys(lastMinuteCostsJson).length >= 30) {
+    if (Object.keys(lastMinuteCostsJson).length >= 500) {
         delete lastMinuteCostsJson[Object.keys(lastMinuteCostsJson)[0]];
     }
 
@@ -159,7 +169,7 @@ export function updateLastHourCosts() {
         const oreKeys = Object.keys(tradSnapshot.val());
 
         for (let i = 0; i < oreKeys.length; i++) {
-            const mean = computeMeanForLastPeriod("lastMinute", tradSnapshot.val()[oreKeys[i]]);
+            const mean = computeMeanForLastPeriod("lastMinute", 30, tradSnapshot.val()[oreKeys[i]]);
             let currentValue = tradSnapshot.val()[oreKeys[i]]["lastHour"];
             if (Object.keys(currentValue).length >= 60) {
                 delete currentValue[Object.keys(currentValue)[0]];
@@ -176,7 +186,7 @@ export function updateLastDayCosts() {
         const oreKeys = Object.keys(tradSnapshot.val());
 
         for (let i = 0; i < oreKeys.length; i++) {
-            const mean = computeMeanForLastPeriod("lastHour", tradSnapshot.val()[oreKeys[i]]);
+            const mean = computeMeanForLastPeriod("lastHour", 60, tradSnapshot.val()[oreKeys[i]]);
             let currentValue = tradSnapshot.val()[oreKeys[i]]["lastDay"];
             if (Object.keys(currentValue).length >= 24) {
                 delete currentValue[Object.keys(currentValue)[0]];
@@ -188,11 +198,11 @@ export function updateLastDayCosts() {
     });
 }
 
-function computeMeanForLastPeriod(periodName: string, oreCosts): number {
+function computeMeanForLastPeriod(periodName: string, numberOfValue: number, oreCosts): number {
     const keys = Object.keys(oreCosts[periodName]);
     let mean = 0;
 
-    for (let i = 0; i < keys.length; i++) {
+    for (let i = keys.length - numberOfValue - 1; i < keys.length; i++) {
         mean += oreCosts[periodName][keys[i]];
     }
     mean = toFixed2(mean / keys.length);

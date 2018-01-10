@@ -182,7 +182,7 @@ export function addField() {
 
 
             json["chest"] = {};
-            json["chest"]["numberOfChest"] = allUsers[usersId[i]].chest.numberOfChest;
+            json["chest"]["numberOfChest"] = 0;
 
             json["profile"] = {};
 
