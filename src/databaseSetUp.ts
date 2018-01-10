@@ -179,16 +179,16 @@ export function addField() {
             json["asteroid"]["seed"] = allUsers[usersId[i]].asteroid.seed;
 
             json["ore"] = {};
-    
-    
+
+
             json["chest"] = allUsers[usersId[i]].chest;
-    
+
             json["profile"] = {};
 
             json["event"] = allUsers[usersId[i]].event;
-    
+
             json["quest"] = allUsers[usersId[i]].quest;
-    
+
             json["upgrade"] = {};
             json["upgrade"]["mineRate"] = {};
             json["upgrade"]["mineRate"]["timer"] = allUsers[usersId[i]].upgrade.mineRate.timer;
