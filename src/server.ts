@@ -69,7 +69,6 @@ io.on("connection", (socket: SocketIO.Socket) => {
     socket.on('buyOre', (message) => {
         buyOre(message);
     });
-
     socket.on('searchAster', (message) => {
         searchAster(message);
     });

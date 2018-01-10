@@ -114,11 +114,14 @@ function updateFrenzyTimer(userId) {
 export function validArrow(message) {
     defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (user.val().frenzy.info.state === 1) {
-           if (message.keyCode === user.val().frenzy.info.nextCombos[message.keyInd]) {
+            if (message.keyCode === user.val().frenzy.info.nextCombos[message.keyInd]) {
                 const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
                     oreInfo[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1;
 
                 controlAndAddOreAmount(message.user, maxMinerate * 5, user.val().asteroid.ore);
+                if (user.asteroid.currentCapacity <= 0) {
+                    defaultDatabase.ref("users/" + message.user + "/frenzy/info/state").set(0);
+                }
             } else {
                 defaultDatabase.ref("users/" + message.user + "/frenzy/time/start").set(user.val().frenzy.time.start - 1000);
             }
