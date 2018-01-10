@@ -139,6 +139,7 @@ export function initializeUser(message) {
 
     json["profile"]["email"] = message.email;
     json["profile"]["name"] = message.email;
+    json["profile"]["badConfig"] = 1;
 
     json["upgrade"]["mineRate"]["lvl"] = 1;
     json["upgrade"]["storage"]["lvl"] = 1;
@@ -215,6 +216,7 @@ export function addField() {
 
             json["profile"]["email"] = allUsers[usersId[i]].profile.email;
             json["profile"]["name"] = allUsers[usersId[i]].profile.name;
+            json["profile"]["badConfig"] = allUsers[usersId[i]].profile.badConfig;
 
             json["upgrade"]["mineRate"]["lvl"] = allUsers[usersId[i]].upgrade.mineRate.lvl;
             json["upgrade"]["storage"]["lvl"] = allUsers[usersId[i]].upgrade.storage.lvl;
