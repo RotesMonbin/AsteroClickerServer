@@ -134,8 +134,7 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
             delta = (Math.random() * (oreInfos.variationRate - (oreInfos.variationRate / 4))) + (oreInfos.variationRate / 4);
             delta = oreTrend > 0 ? -delta : delta;
             if (meanDist > 0.5) {
-                const meanCoef = Math.sign(oreTrend) == Math.sign(currentVal - oreInfos.meanValue) ? (meanDist +0.5) : 1 / (meanDist * 2);
-                //console.log(oreName+" "+meanCoef);
+                const meanCoef = Math.sign(oreTrend) == Math.sign(currentVal - oreInfos.meanValue) ? 1 : 1 / (meanDist * 2);
                 newVal = currentVal + (toFixed2((delta) * oreInfos.meanValue) *meanCoef);
             }
             else {

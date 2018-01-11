@@ -119,7 +119,7 @@ export function validArrow(message) {
                     oreInfo[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1;
 
                 controlAndAddOreAmount(message.user, maxMinerate * 5, user.val().asteroid.ore);
-                if (user.asteroid.currentCapacity <= 0) {
+                if (user.val().asteroid.currentCapacity <= 0) {
                     defaultDatabase.ref("users/" + message.user + "/frenzy/info/state").set(0);
                 }
             } else {
