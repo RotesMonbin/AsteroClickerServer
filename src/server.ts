@@ -7,6 +7,7 @@ import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch, loadEn
 import { incrementOre, reachFrenzy, validArrow } from './mining';
 import { sellOre, buyOre, updateCostsMarket, updateLastDayCosts, updateLastHourCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
+import { changeBadConfig } from './profile';
 
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
@@ -111,6 +112,10 @@ io.on("connection", (socket: SocketIO.Socket) => {
     
     socket.on('validArrow', (message) => {
         validArrow(message);
+    });
+
+    socket.on('changeBadConfig', (message) => {
+        changeBadConfig(message);
     });
 
 })
