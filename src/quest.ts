@@ -1,6 +1,6 @@
 import { defaultDatabase } from "./environment";
 import { quest, oreInfo } from "./resources";
-import { toFixed2, getOreAmountFromString } from "./utils";
+import { toFixed2 } from "./utils";
 
 // Check if the quest is finish 
 export function checkQuest(missionName: string, values: number, currentUser, userID) {
@@ -67,16 +67,16 @@ function initQuestUser(i, userID, currentUser) {
 
     defaultDatabase.ref("mineRate/").once('value').then((mineRate) => {
         defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
-            let type = randomOre(oreInfo.val());
+            let type = randomOre(oreInfo.val(), currentUser.upgrade.research.lvl);
             let values;
             const mineRateCurrent = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()[type].miningSpeed;
             let typeFinal;
             switch (questCurrent.type) {
-                case 'Buy':
-                    values = getOreAmountFromString(type, currentUser); // * oreInfo.val()[type].meanValue;
+                /*case 'Buy':
+                    values (type, currentUser); // * oreInfo.val()[type].meanValue;
                     typeFinal = 'buy' + type;
                     break;
-
+*/
                 case 'Sell':
                     values = mineRateCurrent * 60 * 10;  // * oreInfo.val()[type].meanValue;
                     typeFinal = 'sell' + type;
@@ -115,13 +115,18 @@ function initQuestUser(i, userID, currentUser) {
     });
 }
 
-function randomOre(oreName) {
+function randomOre(oreName, lvlResearch) {
+    const tabName = new Array<string>();
     const keys = Object.keys(oreName);
-    const type = (Math.floor(Math.random() * keys.length));
 
-    return (keys[type]);
+    for (let i = 0; i < keys.length; i++) {
+        if (lvlResearch >= oreInfo[keys[i]].searchNewOre) {
+            tabName.push(keys[i]);
+        }
+    }
+    const type = (Math.floor(Math.random() * tabName.length));
+    return (tabName[type]);
 }
-
 
 // Glory quest - - - - - - - - - - - - - - -- - - - - - - -- - - - - - -- - - - - - - -- 
 export function checkQuestGroup(oreName: string, values: number) {
@@ -149,7 +154,7 @@ export function checkQuestGroup(oreName: string, values: number) {
 export function initQuestGroup() {
     defaultDatabase.ref("users/").once('value').then((user) => {
         defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
-            const randOreName = randomOre(oreInfo.val());
+            const randOreName = randomOre(oreInfo.val(), user.upgrade.research.lvl);
             let valuesRecover = 50000 * oreInfo.val()[randOreName].miningSpeed;
             const values = Object.keys(user.val()).length * valuesRecover;
             defaultDatabase.ref("questGroup/values").set(values);
