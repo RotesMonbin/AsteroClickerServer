@@ -138,7 +138,7 @@ export function initializeUser(message) {
 
 
     json["profile"]["email"] = message.email;
-    json["profile"]["name"] = message.email;
+    json["profile"]["name"] = message.pseudo;
     json["profile"]["badConfig"] = 1;
 
     json["upgrade"]["mineRate"]["lvl"] = 1;
