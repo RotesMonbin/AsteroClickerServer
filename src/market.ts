@@ -17,9 +17,9 @@ export function sellOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const currentOreAmount = user.val().ore[data.ore];
         if (currentOreAmount > 0) {
-            defaultDatabase.ref("trading/" + data.ore + "/lastMinute").once('value').then((oreValue) => {
-                var keys = Object.keys(oreValue.val());
-                const currentValue = oreValue.val()[keys[keys.length - 1]];
+            defaultDatabase.ref('trading/' + data.ore + "/lastMinute").limitToLast(1).once('value')
+            .then(function (lastMinuteLastVal) {
+                const currentValue = lastMinuteLastVal.val()[Object.keys(lastMinuteLastVal.val())[0]];
 
                 if (currentOreAmount < data.amount) {
                     data.amount = currentOreAmount;
@@ -45,10 +45,9 @@ export function buyOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const currentCredit = user.val().credit;
         if (currentCredit > 0 && user.val().ore[data.ore] < storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
-
-            defaultDatabase.ref("trading/" + data.ore + "/lastMinute").once('value').then((oreValue) => {
-                var keys = Object.keys(oreValue.val());
-                const currentValue = oreValue.val()[keys[keys.length - 1]] * 1.025;
+            defaultDatabase.ref('trading/' + data.ore + "/lastMinute").limitToLast(1).once('value')
+            .then(function (lastMinuteLastVal) {
+                const currentValue = lastMinuteLastVal.val()[Object.keys(lastMinuteLastVal.val())[0]];
                 const cost = data.amount * currentValue;
 
                 let newCredit: number = toFixed2(user.val().credit - cost);
