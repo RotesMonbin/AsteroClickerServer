@@ -86,42 +86,48 @@ function updateTrend(amount: number, oreName: string) {
 
 export function updateCostsMarket() {
     defaultDatabase.ref('trend').once('value').then(function (trendSnapshot) {
-        defaultDatabase.ref('trading').once('value').then(function (tradSnapshot) {
-            defaultDatabase.ref('oreInfo').once('value').then(function (oreSnapshot) {
 
-                let trendSum = 0;
-                let trendTab = trendSnapshot.val();
-                const oreKeys = Object.keys(oreSnapshot.val());
+        defaultDatabase.ref('oreInfo').once('value').then(function (oreSnapshot) {
 
-                for (let i = 0; i < oreKeys.length; i++) {
-                    computeNewRate(oreKeys[i], tradSnapshot.val()[oreKeys[i]]
-                        , trendTab[oreKeys[i]], oreSnapshot.val()[oreKeys[i]], trendSum, oreKeys.length);
-                }
-            });
+            let trendSum = 0;
+            let trendTab = trendSnapshot.val();
+            const oreKeys = Object.keys(oreSnapshot.val());
+
+            for (let i = 0; i < oreKeys.length; i++) {
+
+                defaultDatabase.ref('trading/' + oreKeys[i] + "/nextValues").once('value').then(function (nextValues) {
+                    defaultDatabase.ref('trading/' + oreKeys[i] + "/lastMinute").limitToLast(1).once('value')
+                        .then(function (lastMinuteLastVal) {
+                            defaultDatabase.ref('trading/' + oreKeys[i] + "/lastMinute").limitToFirst(1).once('value')
+                            .then(function (firstKey) {
+                            const currentVal=lastMinuteLastVal.val()[Object.keys(lastMinuteLastVal.val())[0]];
+                            computeNewRate(oreKeys[i], currentVal,Object.keys(firstKey.val())[0], nextValues.val()
+                                , trendTab[oreKeys[i]], oreSnapshot.val()[oreKeys[i]], trendSum, oreKeys.length);
+                        });
+                    });
+                });
+
+            }
         });
+
     });
 }
 
 
-function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberOfOre) {
-    let lastMinuteCostsJson = oreCosts.lastMinute;
-    let nextValuesJson = oreCosts.nextValues;
+function computeNewRate(oreName, currentVal,keyToDelete, nextValues, oreTrend, oreInfos, trendSum, numberOfOre) {
     let newVal;
-
+    let nextValuesJson=nextValues;
     numberOfOre = numberOfOre;
     trendSum = trendSum;
 
     if (nextValuesJson == null) {
-
-        const currentVal = lastMinuteCostsJson[Object.keys(lastMinuteCostsJson)[Object.keys(lastMinuteCostsJson).length - 1]];
-
         //Rapprochement de la moyenne
         let meanDist = 0;
         if (currentVal != oreInfos.meanValue) {
             meanDist = currentVal < oreInfos.meanValue ?
                 (oreInfos.meanValue - currentVal) / (oreInfos.meanValue - oreInfos.minValue) :
                 (oreInfos.meanValue - currentVal) / (oreInfos.maxValue - oreInfos.meanValue);
-                meanDist=Math.abs(meanDist);
+            meanDist = Math.abs(meanDist);
         }
 
         let delta = 0;
@@ -135,7 +141,7 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
             delta = oreTrend > 0 ? -delta : delta;
             if (meanDist > 0.5) {
                 const meanCoef = Math.sign(oreTrend) == Math.sign(currentVal - oreInfos.meanValue) ? 1 : 1 / (meanDist * 2);
-                newVal = currentVal + (toFixed2((delta) * oreInfos.meanValue) *meanCoef);
+                newVal = currentVal + (toFixed2((delta) * oreInfos.meanValue) * meanCoef);
             }
             else {
                 newVal = currentVal + toFixed2((delta) * oreInfos.meanValue);
@@ -152,13 +158,18 @@ function computeNewRate(oreName, oreCosts, oreTrend, oreInfos, trendSum, numberO
         defaultDatabase.ref('trend/' + oreName).set(oreTrend >= 0 ? Math.floor(oreTrend * 0.5) : Math.floor(oreTrend * 0.5) + 1);
     }
 
-    if (Object.keys(lastMinuteCostsJson).length >= 500) {
-        delete lastMinuteCostsJson[Object.keys(lastMinuteCostsJson)[0]];
-    }
+    
+    //Push new value
+    const refToInsert=defaultDatabase.ref('trading/' + oreName + "/lastMinute/"+Date.now());
 
-    lastMinuteCostsJson[Date.now()] = nextValuesJson[Object.keys(nextValuesJson)[0]];
+    refToInsert.set(nextValuesJson[Object.keys(nextValuesJson)[0]]);
+
+    keyToDelete=keyToDelete;
+
+    const refToInsertDelete=defaultDatabase.ref('trading/' + oreName + "/lastMinute/"+keyToDelete);
+    refToInsertDelete.remove();
+
     delete nextValuesJson[Object.keys(nextValuesJson)[0]];
-    defaultDatabase.ref('trading/' + oreName + "/lastMinute").set(lastMinuteCostsJson);
     defaultDatabase.ref('trading/' + oreName + "/nextValues").set(nextValuesJson);
 }
 
