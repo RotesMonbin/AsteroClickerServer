@@ -132,19 +132,21 @@ function randomOre(oreName, lvlResearch) {
 export function checkQuestGroup(oreName: string, values: number) {
     if (oreName === 'carbon' || oreName === 'titanium' || oreName === 'iron' || oreName === 'hyperium' || oreName === 'gold') {
         defaultDatabase.ref("questGroup/").once('value').then((questGroup) => {
-            const finalValues = questGroup.val().values - values;
-            if (finalValues <= 0) {
-                defaultDatabase.ref("users/").once('value').then((user) => {
-                    const userUis = Object.keys(user.val());
-                    for (let i = 0; i < userUis.length; i++) {
-                        const currentUser = user.val()[userUis[i]]
-                        const creditWin = currentUser.credit + questGroup.val().gain + currentUser.upgrade.score * 0.2;
-                        defaultDatabase.ref("users/" + userUis[i] + "/credit").set(creditWin);
-                    }
-                });
-                initQuestGroup();
-            } else {
-                defaultDatabase.ref("questGroup/values").set(toFixed2(finalValues));
+            if (oreName === questGroup.val().type) {
+                const finalValues = questGroup.val().values - values;
+                if (finalValues <= 0) {
+                    defaultDatabase.ref("users/").once('value').then((user) => {
+                        const userUis = Object.keys(user.val());
+                        for (let i = 0; i < userUis.length; i++) {
+                            const currentUser = user.val()[userUis[i]]
+                            const creditWin = currentUser.credit + questGroup.val().gain + currentUser.upgrade.score * 0.2;
+                            defaultDatabase.ref("users/" + userUis[i] + "/credit").set(creditWin);
+                        }
+                    });
+                    initQuestGroup();
+                } else {
+                    defaultDatabase.ref("questGroup/values").set(toFixed2(finalValues));
+                }
             }
         });
 
@@ -154,7 +156,7 @@ export function checkQuestGroup(oreName: string, values: number) {
 export function initQuestGroup() {
     defaultDatabase.ref("users/").once('value').then((user) => {
         defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
-            const randOreName = randomOre(oreInfo.val(), user.upgrade.research.lvl);
+            const randOreName = randomOre(oreInfo.val(), 200);
             let valuesRecover = 50000 * oreInfo.val()[randOreName].miningSpeed;
             const values = Object.keys(user.val()).length * valuesRecover;
             defaultDatabase.ref("questGroup/values").set(values);
@@ -246,14 +248,14 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
 
     if (name === 'credit') {
         const gainCredit = currentUser.upgrade.score *
-        toFixed2((Math.random() * gainMax) + gainMin)
-        + gain;
+            toFixed2((Math.random() * gainMax) + gainMin)
+            + gain;
         return { type: 'credit', number: gainCredit / 3 };
     }
     const values = mineRate.val()[currentUser.upgrade.mineRate.lvl].maxRate * oreInfo.val()[name].miningSpeed;
     const valuesTotal = values * 10 * Math.floor((Math.random() * 10) + 5);
-    
-    return {type: name, number: valuesTotal};
+
+    return { type: name, number: valuesTotal };
 }
 
 // Random for chest
@@ -268,16 +270,16 @@ function definePourcentageOre(researchLvl: number) {
         }
     }
     for (let j = 1; j <= tabName.length; j++) {
-        tabPource.push( Math.round(j * (70 / tabName.length)));
+        tabPource.push(Math.round(j * (70 / tabName.length)));
     }
     const rand = Math.floor((Math.random() * 100) + 1);
-    
-    for (let i = 0 ; i < tabName.length; i++) {
+
+    for (let i = 0; i < tabName.length; i++) {
         if (rand < tabPource[i]) {
             return tabName[i];
         }
     }
-    return 'credit'; 
+    return 'credit';
 }
 
 // EVENT 
