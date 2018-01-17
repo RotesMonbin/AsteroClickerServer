@@ -4,6 +4,7 @@ export let mineRateUpgrade;
 export let storageUpgrade;
 export let researchUpgrade;
 export let engineUpgrade;
+export let QGUpgrade;
 export let oreInfo;
 
 export let quest;
@@ -18,6 +19,8 @@ export function getUpgradeFromString(name) {
             return researchUpgrade;
         case "engine":
             return engineUpgrade;
+        case "QG":
+            return QGUpgrade;
         default:
             console.log("Upgrade unknown");
             return null;
@@ -59,6 +62,16 @@ export function loadEngine() {
         });
     });
 }
+
+export function loadQG() {
+    return new Promise(function (resolve) {
+        defaultDatabase.ref("QG").once('value').then((snapshot) => {
+            QGUpgrade = snapshot.val();
+            resolve(1);
+        });
+    });
+}
+
 
 export function loadOreInfo() {
     return new Promise(function (resolve) {

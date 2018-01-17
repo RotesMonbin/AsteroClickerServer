@@ -188,6 +188,48 @@ export function generateResearchUpgrade(range: number) {
     defaultDatabase.ref("research/").set(json);
 }
 
+// QG - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+function QGOreNeedFromLvl(iLvl: number) {
+    if (iLvl <= 3) {
+        return ['credit', 'carbon', 'iron'];
+    } else if (iLvl <= 5) {
+        return ['credit', 'carbon', 'iron', 'titanium'];
+    } else if (iLvl <= 7) {
+        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium'];
+    } else if (iLvl <= 10) {
+        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium', 'gold'];
+    } else {
+        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium', 'gold'];
+    }
+}
+export function generateQGUpgrade(range: number) {
+    let json = [];
+    let costCredit;
+    let cost;
+
+    for (let i = 0; i < range; i++) {
+        costCredit = Math.floor(5000 / 1000 * Math.pow(i, 1.09)) * 2000;
+        
+        json[i] = {
+            lvlMax: 10 * i,
+            time: (i * 5 *(i + 1) / 10) + 10,
+        }
+
+        json[i]['cost'] = {};
+        let tabOre = QGOreNeedFromLvl(i);
+        for (let j = 0; j < tabOre.length; j++) {
+            cost = costCredit;
+            if (tabOre[j] !== 'credit') {
+                cost = costCredit / oreInfo[tabOre[j].toString()].meanValue;
+            }
+            json[i]['cost'][tabOre[j]] = Math.round(cost / tabOre.length);
+        }
+    }
+
+    defaultDatabase.ref("QG/").set(json);
+}
+
+
 /**
  * 
  * @param message [user] : userId 
@@ -250,6 +292,10 @@ export function initializeUser(message) {
     json["upgrade"]["engine"]["timer"] = 0;
     json["upgrade"]["engine"]["start"] = 0;
 
+    json["upgrade"]["QG"] = {};
+    json["upgrade"]["QG"]["timer"] = 0;
+    json["upgrade"]["QG"]["start"] = 0;
+
     json["upgrade"]["score"] = 0;
 
     json["search"] = {};
@@ -266,6 +312,7 @@ export function initializeUser(message) {
     json["upgrade"]["storage"]["lvl"] = 1;
     json["upgrade"]["research"]["lvl"] = 1;
     json["upgrade"]["engine"]["lvl"] = 1;
+    json["upgrade"]["QG"]["lvl"] = 0;
 
     json["credit"] = 0;
 
@@ -328,6 +375,10 @@ export function addField() {
             json["upgrade"]["engine"]["timer"] = allUsers[usersId[i]].upgrade.engine.start;
             json["upgrade"]["engine"]["start"] = allUsers[usersId[i]].upgrade.engine.start;
 
+            json["upgrade"]["QG"] = {};
+            json["upgrade"]["QG"]["timer"] = allUsers[usersId[i]].upgrade.QG.start;
+            json["upgrade"]["QG"]["start"] = allUsers[usersId[i]].upgrade.QG.start;
+
             json["upgrade"]["score"] = allUsers[usersId[i]].upgrade.score;
 
             json["search"] = {};
@@ -343,6 +394,7 @@ export function addField() {
             json["upgrade"]["storage"]["lvl"] = allUsers[usersId[i]].upgrade.storage.lvl;
             json["upgrade"]["research"]["lvl"] = allUsers[usersId[i]].upgrade.research.lvl;
             json["upgrade"]["engine"]["lvl"] = allUsers[usersId[i]].upgrade.engine.lvl;
+            json["upgrade"]["QG"]["lvl"] = allUsers[usersId[i]].upgrade.QG.lvl;
 
             json["ore"]["carbon"] = allUsers[usersId[i]]["ore"]["carbon"];
             json["ore"]["titanium"] = allUsers[usersId[i]]["ore"]["titanium"];
