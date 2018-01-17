@@ -34,8 +34,8 @@ export function upgradeShipOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         if (user.val().upgrade[data.upgrade].start == 0) {
             const currentLvl = user.val().upgrade[data.upgrade].lvl;
-            if (valuesCostOreOk(getUpgradeFromString(data.upgrade)[currentLvl + 1].cost, user.val())) {
-                databaseOreReduce(getUpgradeFromString(data.upgrade)[currentLvl + 1].cost, data.user, user.val());
+            if (valuesCostOreOk(getUpgradeFromString(data.upgrade)[currentLvl + 1].cost, user.val()) && QGLvlOk(user.val(), data.upgrade)) {
+                databaseOreSet(getUpgradeFromString(data.upgrade)[currentLvl + 1].cost, data.user, user.val());
                 defaultDatabase.ref("users/" + data.user + "/upgrade/" + data.upgrade + "/start").set(Date.now());
                 checkQuest('upgrade' + data.upgrade, 1, user.val(), data.user);
             }
@@ -43,7 +43,7 @@ export function upgradeShipOre(data) {
     });
 }
 
-function databaseOreReduce(updateJson, uid, currentUser) {
+function databaseOreSet(updateJson, uid, currentUser) {
     const keys = Object.keys(updateJson);
     for (let i = 0; i < keys.length; i++) {
         if (keys[i] === 'credit') {
@@ -51,7 +51,7 @@ function databaseOreReduce(updateJson, uid, currentUser) {
         } else {
             defaultDatabase.ref("users/" + uid + "/ore/" + keys[i]).set(toFixed2(currentUser.ore[keys[i]] - updateJson[keys[i]]));
         }
-        calculScore(updateJson[keys[i]], currentUser, uid);        
+        calculScore(updateJson[keys[i]], currentUser, uid);
     }
 }
 
@@ -59,7 +59,7 @@ function valuesCostOreOk(updateJson, currentUser) {
     const keys = Object.keys(updateJson);
     for (let i = 0; i < keys.length; i++) {
         if (keys[i] === 'credit') {
-            if( updateJson[keys[i]] > currentUser.credit ) {
+            if (updateJson[keys[i]] > currentUser.credit) {
                 return false;
             }
         } else {
@@ -68,7 +68,15 @@ function valuesCostOreOk(updateJson, currentUser) {
             }
         }
     }
-    return true; 
+    return true;
+}
+
+function QGLvlOk(currentUser, updateName) {
+    const lvlMax = getUpgradeFromString('QG')[currentUser.upgrade['QG'].lvl].lvlMax;
+    if (lvlMax < currentUser.upgrade[updateName].lvl) {
+        return false;
+    }
+    return true;
 }
 
 /**
