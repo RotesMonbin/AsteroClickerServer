@@ -2,6 +2,7 @@ import { defaultDatabase } from "./environment"
 import { checkQuest } from "./quest";
 import { toFixed2 } from "./utils";
 import { storageUpgrade } from "./resources";
+import { timeCargoGo } from './cargo';
 /*
 data = {
     user : userId,
@@ -18,17 +19,18 @@ export function sellOre(data) {
         const currentOreAmount = user.val().ore[data.ore];
         if (currentOreAmount > 0) {
             defaultDatabase.ref('trading/' + data.ore + "/lastMinute").limitToLast(1).once('value')
-            .then(function (lastMinuteLastVal) {
-                const currentValue = lastMinuteLastVal.val()[Object.keys(lastMinuteLastVal.val())[0]];
+                .then(function (lastMinuteLastVal) {
+                    const currentValue = lastMinuteLastVal.val()[Object.keys(lastMinuteLastVal.val())[0]];
 
-                if (currentOreAmount < data.amount) {
-                    data.amount = currentOreAmount;
-                }
-                defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit + currentValue * data.amount));
-                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
-                checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
-                checkQuest('credit', currentValue * data.amount, user.val(), data.user);
-            });
+                    if (currentOreAmount < data.amount) {
+                        data.amount = currentOreAmount;
+                    }
+
+                    defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
+                    timeCargoGo(data.user, 'credit', currentValue * data.amount);
+                    checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
+                    checkQuest('credit', currentValue * data.amount, user.val(), data.user);
+                });
             updateTrend(data.amount, data.ore);
         }
     });
@@ -45,29 +47,31 @@ export function buyOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const currentCredit = user.val().credit;
         if (currentCredit > 0 && user.val().ore[data.ore] < storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
-            defaultDatabase.ref('trading/' + data.ore + "/lastMinute").limitToLast(1).once('value')
-            .then(function (lastMinuteLastVal) {
-                const currentValue = lastMinuteLastVal.val()[Object.keys(lastMinuteLastVal.val())[0]];
-                const cost = data.amount * currentValue;
 
-                let newCredit: number = toFixed2(user.val().credit - cost);
-                let newAmount: number = user.val().ore[data.ore] + data.amount;
+            if (user.val().cargo.availableCargo > 0) {
+                defaultDatabase.ref('trading/' + data.ore + "/lastMinute").limitToLast(1).once('value')
+                    .then(function (lastMinuteLastVal) {
+                        const currentValue = lastMinuteLastVal.val()[Object.keys(lastMinuteLastVal.val())[0]];
+                        const cost = data.amount * currentValue;
 
-                if (currentCredit < cost && currentCredit > 0) {
-                    newAmount = user.val().ore[data.ore] + toFixed2(currentCredit / currentValue);
-                    newCredit = 0;
-                }
-                if (newAmount > storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
-                    newAmount = storageUpgrade[user.val().upgrade.storage.lvl].capacity;
-                    newCredit = currentCredit - (currentValue * (storageUpgrade[user.val().upgrade.storage.lvl].capacity - user.val().ore[data.ore]));
-                }
+                        let newCredit: number = toFixed2(user.val().credit - cost);
+                        let newAmount: number = user.val().ore[data.ore] + data.amount;
 
-                checkQuest('buy' + data.ore, newAmount - user.val().ore[data.ore], user.val(), data.user);
-                defaultDatabase.ref("users/" + data.user + "/credit").set(newCredit);
-                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(newAmount));
+                        if (currentCredit < cost && currentCredit > 0) {
+                            newAmount = user.val().ore[data.ore] + toFixed2(currentCredit / currentValue);
+                            newCredit = 0;
+                        }
+                        if (newAmount > storageUpgrade[user.val().upgrade.storage.lvl].capacity) {
+                            newAmount = storageUpgrade[user.val().upgrade.storage.lvl].capacity;
+                            newCredit = currentCredit - (currentValue * (storageUpgrade[user.val().upgrade.storage.lvl].capacity - user.val().ore[data.ore]));
+                        }
+                        
+                        checkQuest('buy' + data.ore, newAmount - user.val().ore[data.ore], user.val(), data.user);
+                        timeCargoGo(data.user, data.ore, toFixed2(newAmount - user.val().ore[data.ore]));
+                        defaultDatabase.ref("users/" + data.user + "/credit").set(newCredit);
+                });
+            }
 
-
-            });
         }
         updateTrend(-data.amount, data.ore);
     });
@@ -98,12 +102,12 @@ export function updateCostsMarket() {
                     defaultDatabase.ref('trading/' + oreKeys[i] + "/lastMinute").limitToLast(1).once('value')
                         .then(function (lastMinuteLastVal) {
                             defaultDatabase.ref('trading/' + oreKeys[i] + "/lastMinute").limitToFirst(1).once('value')
-                            .then(function (firstKey) {
-                            const currentVal=lastMinuteLastVal.val()[Object.keys(lastMinuteLastVal.val())[0]];
-                            computeNewRate(oreKeys[i], currentVal,Object.keys(firstKey.val())[0], nextValues.val()
-                                , trendTab[oreKeys[i]], oreSnapshot.val()[oreKeys[i]], trendSum, oreKeys.length);
+                                .then(function (firstKey) {
+                                    const currentVal = lastMinuteLastVal.val()[Object.keys(lastMinuteLastVal.val())[0]];
+                                    computeNewRate(oreKeys[i], currentVal, Object.keys(firstKey.val())[0], nextValues.val()
+                                        , trendTab[oreKeys[i]], oreSnapshot.val()[oreKeys[i]], trendSum, oreKeys.length);
+                                });
                         });
-                    });
                 });
 
             }
@@ -113,9 +117,9 @@ export function updateCostsMarket() {
 }
 
 
-function computeNewRate(oreName, currentVal,keyToDelete, nextValues, oreTrend, oreInfos, trendSum, numberOfOre) {
+function computeNewRate(oreName, currentVal, keyToDelete, nextValues, oreTrend, oreInfos, trendSum, numberOfOre) {
     let newVal;
-    let nextValuesJson=nextValues;
+    let nextValuesJson = nextValues;
     numberOfOre = numberOfOre;
     trendSum = trendSum;
 
@@ -157,15 +161,15 @@ function computeNewRate(oreName, currentVal,keyToDelete, nextValues, oreTrend, o
         defaultDatabase.ref('trend/' + oreName).set(oreTrend >= 0 ? Math.floor(oreTrend * 0.5) : Math.floor(oreTrend * 0.5) + 1);
     }
 
-    
+
     //Push new value
-    const refToInsert=defaultDatabase.ref('trading/' + oreName + "/lastMinute/"+Date.now());
+    const refToInsert = defaultDatabase.ref('trading/' + oreName + "/lastMinute/" + Date.now());
 
     refToInsert.set(nextValuesJson[Object.keys(nextValuesJson)[0]]);
 
-    keyToDelete=keyToDelete;
+    keyToDelete = keyToDelete;
 
-    const refToInsertDelete=defaultDatabase.ref('trading/' + oreName + "/lastMinute/"+keyToDelete);
+    const refToInsertDelete = defaultDatabase.ref('trading/' + oreName + "/lastMinute/" + keyToDelete);
     refToInsertDelete.remove();
 
     delete nextValuesJson[Object.keys(nextValuesJson)[0]];

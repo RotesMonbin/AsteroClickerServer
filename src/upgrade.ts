@@ -1,8 +1,9 @@
 import { defaultDatabase } from "./environment"
-import { getUpgradeFromString } from "./resources";
+import { getUpgradeFromString, QGUpgrade } from "./resources";
 import { checkQuest } from "./quest";
 import { calculScore } from "./ranking";
 import { toFixed2 } from "./utils";
+import { unlockNewCargo } from './cargo';
 
 /**
  * 
@@ -58,7 +59,7 @@ function databaseOreSet(updateJson, uid, currentUser) {
 function valuesCostOreOk(updateJson, currentUser) {
     const keys = Object.keys(updateJson);
     for (let i = 0; i < keys.length; i++) {
-        if (keys[i] === 'credit') {
+        if (keys[i] === 'credit') { 
             if (updateJson[keys[i]] > currentUser.credit) {
                 return false;
             }
@@ -73,10 +74,7 @@ function valuesCostOreOk(updateJson, currentUser) {
 
 function QGLvlOk(currentUser, updateName) {
     const lvlMax = getUpgradeFromString('QG')[currentUser.upgrade['QG'].lvl].lvlMax;
-    if (lvlMax < currentUser.upgrade[updateName].lvl) {
-        return false;
-    }
-    return true;
+    return lvlMax >= currentUser.upgrade[updateName].lvl;
 }
 
 /**
@@ -93,8 +91,14 @@ export function updateUpgradeTimer(data) {
                 (Date.now() - upgrade.val().start);
             if (timer <= 0) {
                 timer = 0;
+                
+                if(data.upgradeName === 'QG' && QGUpgrade[currentLvl].numberOfCargo != QGUpgrade[currentLvl + 1].numberOfCargo) {
+                    unlockNewCargo(data.user);
+                }
+
                 defaultDatabase.ref("users/" + data.user + "/upgrade/" + data.upgrade + "/lvl").set(currentLvl + 1);
                 defaultDatabase.ref("users/" + data.user + "/upgrade/" + data.upgrade + "/start").set(0);
+
             }
             defaultDatabase.ref("users/" + data.user + "/upgrade/" + data.upgrade + "/timer").set(timer);
         }
