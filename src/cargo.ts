@@ -23,12 +23,16 @@ export function unlockNewCargo(iDUser: string) {
 }
 
 // When you buy some ressource 
-export function timeCargoGo(iDUser, nameOre, value) {
+export function timeCargoGo(iDUser, nameOre, value, nameDirect, valueDirect) {
     if (value === 0) {
         return;
     }
     defaultDatabase.ref("users/" + iDUser).once('value').then((user) => {
+
         const currentUser = user.val();
+        if (currentUser.cargo.availableCargo === 0) {
+            return;
+        }
         const stringCargo = "cargo" + currentUser.cargo.availableCargo;
 
         if (currentUser.cargo[stringCargo].start == 0) {
@@ -44,6 +48,12 @@ export function timeCargoGo(iDUser, nameOre, value) {
 
             defaultDatabase.ref("users/" + iDUser + "/cargo").set(json);
             defaultDatabase.ref("users/" + iDUser + "/cargo/availableCargo").set(currentUser.cargo.availableCargo - 1);
+            
+            if(nameDirect === 'credit') {
+                defaultDatabase.ref("users/" + iDUser + "/credit").set(valueDirect);
+            } else {
+                defaultDatabase.ref("users/" + iDUser + "/ore/" + nameDirect).set(valueDirect);
+            }
 
         }
 
@@ -63,7 +73,6 @@ export function upgradeTimerAllCargo(message) {
         const numberOfCargo = Object.keys(currentUser.cargo).length;
         for (let i = 1; i < numberOfCargo; i++) {
             let currentCargo = currentUser.cargo['cargo' + i];
-            console.log(currentCargo);
             if (currentCargo.start != 0) {
                 let timer = (20 * 1000) -
                     (Date.now() - currentCargo.start);

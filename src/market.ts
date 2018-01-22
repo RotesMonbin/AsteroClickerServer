@@ -26,8 +26,7 @@ export function sellOre(data) {
                         data.amount = currentOreAmount;
                     }
 
-                    defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(toFixed2(currentOreAmount - data.amount));
-                    timeCargoGo(data.user, 'credit', currentValue * data.amount);
+                    timeCargoGo(data.user, 'credit', currentValue * data.amount, data.ore, toFixed2(currentOreAmount - data.amount));
                     checkQuest('sell' + data.ore, data.amount, user.val(), data.user);
                     checkQuest('credit', currentValue * data.amount, user.val(), data.user);
                 });
@@ -67,8 +66,7 @@ export function buyOre(data) {
                         }
                         
                         checkQuest('buy' + data.ore, newAmount - user.val().ore[data.ore], user.val(), data.user);
-                        timeCargoGo(data.user, data.ore, toFixed2(newAmount - user.val().ore[data.ore]));
-                        defaultDatabase.ref("users/" + data.user + "/credit").set(newCredit);
+                        timeCargoGo(data.user, data.ore, toFixed2(newAmount - user.val().ore[data.ore]), 'credit', newCredit);
                 });
             }
 
