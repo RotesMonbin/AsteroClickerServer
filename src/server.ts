@@ -12,6 +12,7 @@ import { changeBadConfig } from './profile';
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
 import { initializeUser } from './databaseSetUp';
+import { upgradeTimerAllCargo } from './cargo';
 
 const app = express();
 const server = new http.Server(app);
@@ -90,6 +91,11 @@ io.on("connection", (socket: SocketIO.Socket) => {
         updateUpgradeTimer(message);
     });
 
+    socket.on('updateCargoTimer', (message) => {
+        upgradeTimerAllCargo(message);
+    });
+
+    
     socket.on('removeChest', (message) => {
         giveGainUser(message);
     })

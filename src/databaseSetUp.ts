@@ -213,6 +213,7 @@ export function generateQGUpgrade(range: number) {
         json[i] = {
             lvlMax: 10 * i,
             time: (i * 5 *(i + 1) / 10) + 10,
+            numberOfCargo: 1 + Math.round(i / 4),
         }
 
         json[i]['cost'] = {};
@@ -298,6 +299,17 @@ export function initializeUser(message) {
 
     json["upgrade"]["score"] = 0;
 
+    json["cargo"] = {};
+    json["cargo"]["availableCargo"] = 1;
+
+    json["cargo"]["cargo1"] = {};
+    json["cargo"]["cargo1"]["start"] = 0;
+    json["cargo"]["cargo1"]["timer"] = 0;
+
+    json["cargo"]["cargo1"]["ore"] = {};
+    json["cargo"]["cargo1"]["ore"]["value"] = 0;
+    json["cargo"]["cargo1"]["ore"]["type"] = '';
+    
     json["search"] = {};
     json["search"]["result"] = 0;
     json["search"]["timer"] = 0;
@@ -339,7 +351,8 @@ export function addField() {
             json["frenzy"]["time"]["start"] = 0;
             json["frenzy"]["time"]["timer"] = 0;
 
-
+            json["cargo"] = allUsers[usersId[i]].cargo;
+            
             json["asteroid"] = {};
             json["asteroid"]["capacity"] = allUsers[usersId[i]].asteroid.capacity;
             json["asteroid"]["currentCapacity"] = allUsers[usersId[i]].asteroid.currentCapacity;
