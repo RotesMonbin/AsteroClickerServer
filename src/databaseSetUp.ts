@@ -188,7 +188,6 @@ export function generateResearchUpgrade(range: number) {
     defaultDatabase.ref("research/").set(json);
 }
 
-<<<<<<< HEAD
 export function initializeTrading() {
     defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
         const info = oreInfo.val();
@@ -205,7 +204,6 @@ export function initializeTrading() {
     });
 }
 
-=======
 // QG - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 function QGOreNeedFromLvl(iLvl: number) {
     if (iLvl <= 3) {
@@ -249,7 +247,6 @@ export function generateQGUpgrade(range: number) {
 }
 
 
->>>>>>> 322e44d65757ba8080830387817df29762a64bc0
 /**
  * 
  * @param message [user] : userId 
