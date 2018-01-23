@@ -95,7 +95,7 @@ io.on("connection", (socket: SocketIO.Socket) => {
         upgradeTimerAllCargo(message);
     });
 
-    
+
     socket.on('removeChest', (message) => {
         giveGainUser(message);
     })
@@ -115,7 +115,7 @@ io.on("connection", (socket: SocketIO.Socket) => {
     socket.on('reachFrenzy', (message) => {
         reachFrenzy(message);
     });
-    
+
     socket.on('validArrow', (message) => {
         validArrow(message);
     });
