@@ -3,7 +3,7 @@ import * as http from 'http';
 import * as socketIO from 'socket.io';
 import * as cors from 'cors';
 import { upgradeShipCredit, upgradeShipOre, updateUpgradeTimer } from './upgrade';
-import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch, loadEngine } from './resources';
+import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch, loadEngine, loadQG } from './resources';
 import { incrementOre, reachFrenzy, validArrow } from './mining';
 import { sellOre, buyOre, updateCostsMarket, updateLastDayCosts, updateLastHourCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
@@ -12,6 +12,7 @@ import { changeBadConfig } from './profile';
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
 import { initializeUser } from './databaseSetUp';
+import { upgradeTimerAllCargo } from './cargo';
 
 const app = express();
 const server = new http.Server(app);
@@ -19,7 +20,7 @@ const io = socketIO(server);
 app.use(cors());
 
 Promise.all([loadMineRate(), loadStorage(),
-loadQuest(), loadResearch(), loadEngine(), loadOreInfo()]).then(() => {
+loadQuest(), loadResearch(), loadEngine(), loadQG(), loadOreInfo()]).then(() => {
     server.listen(process.env.PORT || 4000, (err: Error) => {
         if (err) {
             console.log(err);
@@ -90,6 +91,11 @@ io.on("connection", (socket: SocketIO.Socket) => {
         updateUpgradeTimer(message);
     });
 
+    socket.on('updateCargoTimer', (message) => {
+        upgradeTimerAllCargo(message);
+    });
+
+    
     socket.on('removeChest', (message) => {
         giveGainUser(message);
     })
