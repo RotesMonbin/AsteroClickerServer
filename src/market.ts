@@ -2,7 +2,6 @@ import { defaultDatabase } from "./environment"
 import { checkQuest } from "./quest";
 import { toFixed2 } from "./utils";
 import { storageUpgrade } from "./resources";
-import { timeCargoGo } from './cargo';
 /*
 data = {
     user : userId,
