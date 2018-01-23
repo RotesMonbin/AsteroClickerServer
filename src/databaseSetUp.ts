@@ -188,6 +188,22 @@ export function generateResearchUpgrade(range: number) {
     defaultDatabase.ref("research/").set(json);
 }
 
+export function initializeTrading() {
+    defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
+        const info = oreInfo.val();
+        const oreInfoKey = Object.keys(info);
+        let json ={};
+        for (let i = 0; i < oreInfoKey.length; i++) {
+            for (let j = 0; j < 500; j++) {
+                json[j] = info[oreInfoKey[i]].meanValue;
+            }
+            console.log(json);
+            defaultDatabase.ref("trading/" + oreInfoKey[i] +"/lastMinute").set(json);
+        }
+
+    });
+}
+
 // QG - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 function QGOreNeedFromLvl(iLvl: number) {
     if (iLvl <= 3) {
