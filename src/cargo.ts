@@ -74,7 +74,7 @@ export function upgradeTimerAllCargo(message) {
         for (let i = 1; i < numberOfCargo; i++) {
             let currentCargo = currentUser.cargo['cargo' + i];
             if (currentCargo.start != 0) {
-                let timer = (20 * 1000) -
+                let timer = (0 * 1000) -
                     (Date.now() - currentCargo.start);
                 if (timer <= 0) {
                     timer = 0;
