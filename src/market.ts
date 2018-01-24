@@ -11,7 +11,7 @@ data = {
 */
 /**
  * 
- * @param {user: userId,} data - 
+ * @param {user: userId} data - 
  */
 export function sellOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
@@ -179,7 +179,6 @@ function computeNewRate(oreName, currentVal, keyToDelete, nextValues, oreTrend, 
 export function updateLastHourCosts() {
     defaultDatabase.ref('trading').once('value').then(function (tradSnapshot) {
         const oreKeys = Object.keys(tradSnapshot.val());
-
         for (let i = 0; i < oreKeys.length; i++) {
             const mean = computeMeanForLastPeriod("lastMinute", 30, tradSnapshot.val()[oreKeys[i]]);
             let currentValue = tradSnapshot.val()[oreKeys[i]]["lastHour"];
@@ -189,7 +188,19 @@ export function updateLastHourCosts() {
             currentValue[Date.now()] = mean;
 
             defaultDatabase.ref('trading/' + oreKeys[i] + "/lastHour").set(currentValue);
+
+            let minutesKeys = Object.keys(tradSnapshot.val()[oreKeys[i]].lastMinute);
+            const minutesKeysLenght=minutesKeys.length;
+            if (minutesKeys.length > 500) {
+                let lastMinute= tradSnapshot.val()[oreKeys[i]].lastMinute;
+                minutesKeys=minutesKeys.slice(0, minutesKeys.length - 500);
+                minutesKeys.forEach(k => delete lastMinute[k]);
+                defaultDatabase.ref('trading/' + oreKeys[i] + "/lastMinute").set(lastMinute);
+                console.log("slice " + (minutesKeysLenght - 500) + " value for " + [oreKeys[i]] + " ore");
+                console.log(Object.keys(lastMinute).length + " left");
+            }
         }
+
     });
 }
 
