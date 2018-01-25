@@ -3,7 +3,7 @@ import { toFixed2, sort_by } from "./utils";
 
 // Ranking managed
 export function calculScore(amount: number, user, userID: number) {
-    defaultDatabase.ref("users/" + userID + "/score").set(amount + user.upgrade.score);
+    defaultDatabase.ref("users/" + userID + "/score").set(amount + user.score);
 }
 
 // Calcul the ranking with the score
@@ -20,7 +20,7 @@ export function calculRanking() {
                 score: currentScoreFixed
             }
         }
-        scoreTab.sort(sort_by('score', true, parseInt));    
+        scoreTab.sort(sort_by('score', true, parseInt));
         defaultDatabase.ref("ranking").set(scoreTab);
     });   
 }

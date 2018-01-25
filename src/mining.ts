@@ -123,7 +123,7 @@ export function validArrow(message) {
                     defaultDatabase.ref("users/" + message.user + "/frenzy/info/state").set(0);
                 }
             } else {
-                defaultDatabase.ref("users/" + message.user + "/frenzy/time/start").set(user.val().frenzy.time.start - 1000);
+                defaultDatabase.ref("users/" + message.user + "/frenzy/time/start").set(0);
             }
         }
     });
