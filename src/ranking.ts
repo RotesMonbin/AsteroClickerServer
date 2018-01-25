@@ -20,7 +20,7 @@ export function calculRanking() {
                 score: currentScoreFixed
             }
         }
-        scoreTab.sort(sort_by('score', true, parseInt));    
+        scoreTab.sort(sort_by('score', true, parseInt));
         defaultDatabase.ref("ranking").set(scoreTab);
     });   
 }
