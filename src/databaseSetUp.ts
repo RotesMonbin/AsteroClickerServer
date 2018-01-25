@@ -408,7 +408,7 @@ export function addField() {
             json["upgrade"]["QG"]["timer"] = allUsers[usersId[i]].upgrade.QG.start;
             json["upgrade"]["QG"]["start"] = allUsers[usersId[i]].upgrade.QG.start;
 
-            json["upgrade"]["score"] = allUsers[usersId[i]].upgrade.score;
+            json["score"] = 0;
 
             json["search"] = {};
             json["search"]["result"] = allUsers[usersId[i]].search.result;
