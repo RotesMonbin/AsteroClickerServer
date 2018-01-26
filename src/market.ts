@@ -135,7 +135,7 @@ function computeNewRate(oreName, currentVal, keyToDelete, nextValues, oreTrend, 
 
         let delta = 0;
         if (oreTrend == 0) {
-            delta = (Math.random() * 0.05) - 0.025;
+            delta = (Math.random() * 0.02) - 0.01;
             delta = currentVal < oreInfos.meanValue ? -delta : delta;
             newVal = currentVal + toFixed2((delta) * oreInfos.meanValue);
         }
