@@ -313,7 +313,7 @@ export function initializeUser(message) {
     json["upgrade"]["QG"]["timer"] = 0;
     json["upgrade"]["QG"]["start"] = 0;
 
-    json["upgrade"]["score"] = 0;
+    json["score"] = 0;
 
     json["cargo"] = {};
     json["cargo"]["availableCargo"] = 1;
