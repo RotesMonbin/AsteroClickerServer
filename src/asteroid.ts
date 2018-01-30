@@ -3,7 +3,12 @@ import { researchUpgrade, oreInfo, engineUpgrade } from "./resources";
 import { toFixed2 } from './utils';
 //import { asteroidTypes } from "./resources";
 
-
+enum searchState {
+    launchSearch,
+    searching,
+    chooseAsteroid,
+    traveling
+}
 /**
  * 
  * @param message [user] : userId
@@ -12,6 +17,7 @@ export function searchAster(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         if (user.val().search.start == 0) {
             defaultDatabase.ref("users/" + data.user + "/search/start").set(Date.now());
+            defaultDatabase.ref("users/" + data.user + "/search/state").set(searchState.searching);
         }
     });
 }
@@ -31,6 +37,7 @@ export function chooseAsteroid(message) {
                 .set(json);
             defaultDatabase.ref("users/" + message.user + "/search/start").set(Date.now());
             defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
+            defaultDatabase.ref("users/" + message.user + "/search/state").set(searchState.traveling);
         }
     });
 }
@@ -79,6 +86,7 @@ export function updateAsteroidTimer(message) {
 export function rejectResults(message) {
     defaultDatabase.ref("users/" + message.user + "/search/result").set(0);
     defaultDatabase.ref("users/" + message.user + "/search/start").set(0);
+    defaultDatabase.ref("users/" + message.user + "/search/state").set(searchState.launchSearch);
 }
 
 function changeAsteroid(userId, newAsteroid) {
@@ -87,6 +95,8 @@ function changeAsteroid(userId, newAsteroid) {
     defaultDatabase.ref("users/" + userId + "/asteroid").set(newAsteroid);
     defaultDatabase.ref("users/" + userId + "/search/result").set(0);
     defaultDatabase.ref("users/" + userId + "/search/start").set(0);
+    defaultDatabase.ref("users/" + userId + "/search/state").set(searchState.launchSearch);
+    
 }
 
 function fillSearchResult(userId, user, distance) {
@@ -107,6 +117,7 @@ function fillSearchResult(userId, user, distance) {
         // TO CHANGE
         json['timeToGo'] = Math.floor(distance / engineUpgrade[user.val().upgrade.engine.lvl].speed) + Math.floor(Math.random() * 50);
         defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
+        defaultDatabase.ref("users/" + userId + "/search/state").set(searchState.chooseAsteroid);
     }
 }
 
