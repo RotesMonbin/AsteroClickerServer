@@ -37,6 +37,7 @@ export function chooseAsteroid(message) {
             json[0] = user.val().search.result[message.ind];
             defaultDatabase.ref("users/" + message.user + "/search/result")
                 .set(json);
+            defaultDatabase.ref("users/" + message.user + "/search/state").set(3);
             defaultDatabase.ref("users/" + message.user + "/search/start").set(Date.now());
             defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
             defaultDatabase.ref("users/" + message.user + "/search/state").set(searchState.traveling);
@@ -103,7 +104,6 @@ function changeAsteroid(userId, newAsteroid) {
     defaultDatabase.ref("users/" + userId + "/search/result").set(0);
     defaultDatabase.ref("users/" + userId + "/search/start").set(0);
     defaultDatabase.ref("users/" + userId + "/search/state").set(searchState.launchSearch);
-
 }
 
 function fillSearchResult(userId, user, distance) {
