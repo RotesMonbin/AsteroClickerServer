@@ -247,7 +247,7 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
     const name = definePourcentageOre(currentUser.upgrade.research.lvl);
 
     if (name === 'credit') {
-        const gainCredit = currentUser.upgrade.score *
+        const gainCredit = currentUser.score *
             toFixed2((Math.random() * gainMax) + gainMin)
             + gain;
         return { type: 'credit', number: gainCredit / 3 };
