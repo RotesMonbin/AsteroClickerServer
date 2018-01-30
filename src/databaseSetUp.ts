@@ -330,6 +330,7 @@ export function initializeUser(message) {
     json["search"]["result"] = 0;
     json["search"]["timer"] = 0;
     json["search"]["start"] = 0;
+    json["search"]["state"] = 0;
 
 
     json["profile"]["email"] = message.email;
@@ -408,16 +409,17 @@ export function addField() {
             json["upgrade"]["QG"]["timer"] = allUsers[usersId[i]].upgrade.QG.start;
             json["upgrade"]["QG"]["start"] = allUsers[usersId[i]].upgrade.QG.start;
 
-            json["score"] = 0;
+            json["score"] = allUsers[usersId[i]].score;
 
             json["search"] = {};
             json["search"]["result"] = allUsers[usersId[i]].search.result;
             json["search"]["timer"] = allUsers[usersId[i]].search.timer;
             json["search"]["start"] = allUsers[usersId[i]].search.start;
+            json["search"]["state"] = 0;
 
             json["profile"]["email"] = allUsers[usersId[i]].profile.email;
             json["profile"]["name"] = allUsers[usersId[i]].profile.name;
-            json["profile"]["badConfig"] = 0;
+            json["profile"]["badConfig"] =  allUsers[usersId[i]].profile.badConfig;
 
             json["upgrade"]["mineRate"]["lvl"] = allUsers[usersId[i]].upgrade.mineRate.lvl;
             json["upgrade"]["storage"]["lvl"] = allUsers[usersId[i]].upgrade.storage.lvl;
