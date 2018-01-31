@@ -197,7 +197,6 @@ export function initializeTrading() {
             for (let j = 0; j < 500; j++) {
                 json[j] = info[oreInfoKey[i]].meanValue;
             }
-            console.log(json);
             defaultDatabase.ref("trading/" + oreInfoKey[i] +"/lastMinute").set(json);
         }
 

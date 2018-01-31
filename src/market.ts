@@ -196,8 +196,6 @@ export function updateLastHourCosts() {
                 minutesKeys=minutesKeys.slice(0, minutesKeys.length - 500);
                 minutesKeys.forEach(k => delete lastMinute[k]);
                 defaultDatabase.ref('trading/' + oreKeys[i] + "/lastMinute").set(lastMinute);
-                console.log("slice " + (minutesKeysLenght - 500) + " value for " + [oreKeys[i]] + " ore");
-                console.log(Object.keys(lastMinute).length + " left");
             }
         }
 
