@@ -25,10 +25,19 @@ loadQuest(), loadResearch(), loadEngine(), loadQG(), loadOreInfo()]).then(() => 
         if (err) {
             console.log(err);
         } else {
+            let startMarket:boolean=false;
+            process.argv.forEach(function (val) {
+                if(val=="market"){
+                    startMarket=true;
+                }
+              });
             console.log(`Server listen on ${process.env.PORT || 4000}`);
-            setInterval(() => {
-                updateCostsMarket();
-            }, 1000 * 2);
+            if(startMarket){
+                console.log("marker started");
+                setInterval(() => {
+                    updateCostsMarket();
+                }, 1000 * 2);
+            }
             setInterval(() => {
                 updateQuestUser();
             }, 1000 * 60 * 60);
