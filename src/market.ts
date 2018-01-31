@@ -190,10 +190,10 @@ export function updateLastHourCosts() {
             defaultDatabase.ref('trading/' + oreKeys[i] + "/lastHour").set(currentValue);
 
             let minutesKeys = Object.keys(tradSnapshot.val()[oreKeys[i]].lastMinute);
-            const minutesKeysLenght=minutesKeys.length;
-            if (minutesKeys.length > 500) {
+            const minutesKeysLenght = minutesKeys.length;
+            if (minutesKeysLenght > 500) {
                 let lastMinute= tradSnapshot.val()[oreKeys[i]].lastMinute;
-                minutesKeys=minutesKeys.slice(0, minutesKeys.length - 500);
+                minutesKeys=minutesKeys.slice(0, minutesKeysLenght - 500);
                 minutesKeys.forEach(k => delete lastMinute[k]);
                 defaultDatabase.ref('trading/' + oreKeys[i] + "/lastMinute").set(lastMinute);
             }
