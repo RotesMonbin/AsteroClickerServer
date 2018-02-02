@@ -1,5 +1,5 @@
 import { defaultDatabase } from "./environment";
-import { researchUpgrade, oreInfo, engineUpgrade } from "./resources";
+import { researchUpgrade, oreInfos, engineUpgrade } from "./resources";
 import { toFixed2 } from './utils';
 //import { asteroidTypes } from "./resources";
 
@@ -100,7 +100,7 @@ function changeAsteroid(userId, newAsteroid) {
 }
 
 function fillSearchResult(userId, user, distance) {
-    const oreNames = Object.keys(oreInfo);
+    const oreNames = Object.keys(oreInfos);
     const researchLvl = user.val().upgrade.research.lvl;
     for (let i = 0; i < 3; i++) {
         const maxDist = researchUpgrade[researchLvl].maxDist;
@@ -109,13 +109,13 @@ function fillSearchResult(userId, user, distance) {
         json["ore"] = oreNameRandomWithDistance(oreNames, researchLvl);
         const distCapacityCoef = (((distance - minDist) * 0.8) / (maxDist - minDist)) + 0.8;
         //1000×(1+(0.10×ScanLevel))×ResourceMiningRate
-        json["capacity"] = Math.floor((1000 * (1 + (0.1 * researchLvl)) * oreInfo[json["ore"]].miningSpeed) * distCapacityCoef);
+        json["capacity"] = Math.floor((1000 * (1 + (0.1 * researchLvl)) * oreInfos[json["ore"]].miningSpeed) * distCapacityCoef);
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         let purity = generatePurity(researchLvl, distance, maxDist, minDist);
         json["purity"] = purity;
         // json["timeToGo"] = Math.floor((purity) + 10 + distance / 100) * engineUpgrade[user.val().upgrade.engine.lvl].speed;
         // TO CHANGE
-        json['timeToGo'] = Math.floor(distance / engineUpgrade[user.val().upgrade.engine.lvl].speed) + Math.floor(Math.random() * 50);
+        json['timeToGo'] = (Math.floor(distance / engineUpgrade[user.val().upgrade.engine.lvl].speed) + Math.floor(Math.random() * 50))*1000;
         defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
         defaultDatabase.ref("users/" + userId + "/search/state").set(searchState.chooseAsteroid);
     }
@@ -125,7 +125,7 @@ function oreNameRandomWithDistance(oreNames, researchLvl) {
     const tabName = new Array<string>();
 
     for (let i = 0; i < oreNames.length; i++) {
-        if (researchLvl >= oreInfo[oreNames[i]].searchNewOre) {
+        if (researchLvl >= oreInfos[oreNames[i]].searchNewOre) {
             tabName.push(oreNames[i]);
         }
     }

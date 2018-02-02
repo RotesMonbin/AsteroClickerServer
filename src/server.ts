@@ -3,7 +3,7 @@ import * as http from 'http';
 import * as socketIO from 'socket.io';
 import * as cors from 'cors';
 import { upgradeShipCredit, upgradeShipOre, updateUpgradeTimer } from './upgrade';
-import { loadMineRate, loadStorage, loadQuest, loadOreInfo, loadResearch, loadEngine, loadQG } from './resources';
+import { loadQuest, loadOreInfo, generateResources, resources } from './resources';
 import { incrementOre, reachFrenzy, validArrow } from './mining';
 import { sellOre, buyOre, updateCostsMarket, updateLastDayCosts, updateLastHourCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
@@ -19,20 +19,20 @@ const server = new http.Server(app);
 const io = socketIO(server);
 app.use(cors());
 
-Promise.all([loadMineRate(), loadStorage(),
-loadQuest(), loadResearch(), loadEngine(), loadQG(), loadOreInfo()]).then(() => {
+Promise.all([loadQuest(), loadOreInfo()]).then(() => {
     server.listen(process.env.PORT || 4000, (err: Error) => {
         if (err) {
             console.log(err);
         } else {
-            let startMarket:boolean=false;
+            generateResources();
+            let startMarket: boolean = false;
             process.argv.forEach(function (val) {
-                if(val=="market"){
-                    startMarket=true;
+                if (val == "market") {
+                    startMarket = true;
                 }
-              });
+            });
             console.log(`Server listen on ${process.env.PORT || 4000}`);
-            if(startMarket){
+            if (startMarket) {
                 console.log("marker started");
                 setInterval(() => {
                     updateCostsMarket();
@@ -57,6 +57,8 @@ loadQuest(), loadResearch(), loadEngine(), loadQG(), loadOreInfo()]).then(() => 
         }
     });
 });
+
+
 
 
 io.on("connection", (socket: SocketIO.Socket) => {
@@ -132,6 +134,8 @@ io.on("connection", (socket: SocketIO.Socket) => {
     socket.on('changeBadConfig', (message) => {
         changeBadConfig(message);
     });
+        
+    socket.emit('sendResources',resources);
 
 })
 
