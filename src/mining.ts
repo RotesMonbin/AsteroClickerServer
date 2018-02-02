@@ -1,6 +1,6 @@
 
 import { defaultDatabase } from "./environment"
-import { mineRateUpgrade, storageUpgrade, oreInfo } from "./resources";
+import { mineRateUpgrade, storageUpgrade, oreInfos } from "./resources";
 import { toFixed2 } from "./utils";
 import { checkQuest, checkQuestGroup, newChest } from "./quest";
 
@@ -14,7 +14,7 @@ data = {
 export function incrementOre(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
-            oreInfo[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
+            oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
         if (user.val().frenzy.info.state == 1) {
             updateFrenzyTimer(data.user);
@@ -116,7 +116,7 @@ export function validArrow(message) {
         if (user.val().frenzy.info.state === 1) {
             if (message.keyCode === user.val().frenzy.info.nextCombos[message.keyInd]) {
                 const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
-                    oreInfo[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1;
+                    oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1;
 
                 controlAndAddOreAmount(message.user, maxMinerate * 5, user.val().asteroid.ore);
                 if (user.val().asteroid.currentCapacity <= 0) {

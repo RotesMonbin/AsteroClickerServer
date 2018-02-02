@@ -1,5 +1,5 @@
 import { defaultDatabase } from "./environment";
-import { quest, oreInfo } from "./resources";
+import { quest, oreInfos } from "./resources";
 import { toFixed2 } from "./utils";
 
 // Check if the quest is finish 
@@ -120,7 +120,7 @@ function randomOre(oreName, lvlResearch) {
     const keys = Object.keys(oreName);
 
     for (let i = 0; i < keys.length; i++) {
-        if (lvlResearch >= oreInfo[keys[i]].searchNewOre) {
+        if (lvlResearch >= oreInfos[keys[i]].searchNewOre) {
             tabName.push(keys[i]);
         }
     }
@@ -262,10 +262,10 @@ function stringRandomChest(currentUser, mineRate, oreInfo, gainMin, gainMax, gai
 function definePourcentageOre(researchLvl: number) {
     const tabName = new Array<string>();
     const tabPource = new Array<number>();
-    const oreName = Object.keys(oreInfo);
+    const oreName = Object.keys(oreInfos);
 
     for (let i = 0; i < oreName.length; i++) {
-        if (researchLvl >= oreInfo[oreName[i]].searchNewOre) {
+        if (researchLvl >= oreInfos[oreName[i]].searchNewOre) {
             tabName.push(oreName[i]);
         }
     }

@@ -193,9 +193,11 @@ export function updateLastHourCosts() {
             const minutesKeysLenght = minutesKeys.length;
             if (minutesKeysLenght > 500) {
                 let lastMinute= tradSnapshot.val()[oreKeys[i]].lastMinute;
-                minutesKeys=minutesKeys.slice(0, minutesKeysLenght - 500);
+                const nbToDelete=minutesKeysLenght - 500;
+                minutesKeys=minutesKeys.slice(0, nbToDelete);
                 minutesKeys.forEach(k => delete lastMinute[k]);
                 defaultDatabase.ref('trading/' + oreKeys[i] + "/lastMinute").set(lastMinute);
+                console.log(nbToDelete+" deleted");
             }
         }
 
