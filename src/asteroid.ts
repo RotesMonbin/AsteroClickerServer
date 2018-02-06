@@ -11,13 +11,14 @@ enum searchState {
 }
 /**
  * 
- * @param message [user] : userId
+ * @param data [user] : userId, [distance] : distance
  */
 export function searchAster(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         if (user.val().search.start == 0) {
             defaultDatabase.ref("users/" + data.user + "/search/start").set(Date.now());
             defaultDatabase.ref("users/" + data.user + "/search/state").set(searchState.searching);
+            defaultDatabase.ref("users/" + data.user + "/search/distance").set(data.distance);
         }
     });
 }
@@ -45,29 +46,28 @@ export function chooseAsteroid(message) {
 /**
  * 
  * @param message [user] : userId
- * @param message [distance]: distance
  */
 export function updateAsteroidTimer(message) {
     defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (user.val().search.start != 0) {
             //Searching
-            if (user.val().search.result == 0) {
+            if (user.val().search.state == searchState.searching) {
                 const researchLvl = user.val().upgrade.research.lvl;
                 const maxDist = researchUpgrade[researchLvl].maxDist;
                 const minDist = researchUpgrade[researchLvl].minDist;
 
-                const coefDist = (((message.distance - minDist) / (maxDist - minDist)) * 5) + 1;
+                const coefDist = (((user.val().search.distance - minDist) / (maxDist - minDist)) * 5) + 1;
                 let timer = ((researchUpgrade[user.val().upgrade.research.lvl].searchTime) * coefDist * 1000) -
                     (Date.now() - user.val().search.start);
                 if (timer <= 0) {
                     timer = 0;
-                    fillSearchResult(message.user, user, message.distance);
+                    fillSearchResult(message.user, user, user.val().search.distance);
                 }
                 defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
             }
             //Traveling
-            else if (user.val().search.result.length == 1) {
-                let timer = (user.val().search.result[0].timeToGo * 1000) -
+            else if (user.val().search.state == searchState.traveling) {
+                let timer = (user.val().search.result[0].timeToGo) -
                     (Date.now() - user.val().search.start);
                 if (timer <= 0) {
                     timer = 0;
