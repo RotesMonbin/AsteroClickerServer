@@ -1,6 +1,7 @@
 import { defaultDatabase } from "./environment";
 import { researchUpgrade, oreInfos, engineUpgrade } from "./resources";
 import { toFixed2 } from './utils';
+import { updateBoostTimer, BoostType } from './boost';
 //import { asteroidTypes } from "./resources";
 
 enum searchState {
@@ -51,14 +52,20 @@ export function updateAsteroidTimer(message) {
     defaultDatabase.ref("users/" + message.user).once('value').then((user) => {
         if (user.val().search.start != 0) {
             //Searching
+            let boostCoef = 1;
+            if (user.val().boosts[0].active == 1) {
+                updateBoostTimer(BoostType.fasterResearchAndTraveling,message.user);
+                boostCoef = 0.25;
+            }
+
             if (user.val().search.state == searchState.searching) {
                 const researchLvl = user.val().upgrade.research.lvl;
                 const maxDist = researchUpgrade[researchLvl].maxDist;
                 const minDist = researchUpgrade[researchLvl].minDist;
 
                 const coefDist = (((user.val().search.distance - minDist) / (maxDist - minDist)) * 5) + 1;
-                let timer = ((researchUpgrade[user.val().upgrade.research.lvl].searchTime) * coefDist * 1000) -
-                    (Date.now() - user.val().search.start);
+                let timer = Math.floor(((researchUpgrade[user.val().upgrade.research.lvl].searchTime) * coefDist * boostCoef * 1000) -
+                    (Date.now() - user.val().search.start));
                 if (timer <= 0) {
                     timer = 0;
                     fillSearchResult(message.user, user, user.val().search.distance);
@@ -67,8 +74,8 @@ export function updateAsteroidTimer(message) {
             }
             //Traveling
             else if (user.val().search.state == searchState.traveling) {
-                let timer = (user.val().search.result[0].timeToGo) -
-                    (Date.now() - user.val().search.start);
+                let timer = Math.floor(((user.val().search.result[0].timeToGo) * boostCoef) -
+                    (Date.now() - user.val().search.start));
                 if (timer <= 0) {
                     timer = 0;
                     changeAsteroid(message.user, user.val().search.result[0]);
@@ -96,7 +103,7 @@ function changeAsteroid(userId, newAsteroid) {
     defaultDatabase.ref("users/" + userId + "/search/result").set(0);
     defaultDatabase.ref("users/" + userId + "/search/start").set(0);
     defaultDatabase.ref("users/" + userId + "/search/state").set(searchState.launchSearch);
-    
+
 }
 
 function fillSearchResult(userId, user, distance) {
@@ -115,7 +122,7 @@ function fillSearchResult(userId, user, distance) {
         json["purity"] = purity;
         // json["timeToGo"] = Math.floor((purity) + 10 + distance / 100) * engineUpgrade[user.val().upgrade.engine.lvl].speed;
         // TO CHANGE
-        json['timeToGo'] = (Math.floor(distance / engineUpgrade[user.val().upgrade.engine.lvl].speed) + Math.floor(Math.random() * 50))*1000;
+        json['timeToGo'] = (Math.floor(distance / engineUpgrade[user.val().upgrade.engine.lvl].speed) + Math.floor(Math.random() * 50)) * 1000;
         defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
         defaultDatabase.ref("users/" + userId + "/search/state").set(searchState.chooseAsteroid);
     }

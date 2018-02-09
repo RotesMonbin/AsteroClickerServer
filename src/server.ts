@@ -11,8 +11,11 @@ import { changeBadConfig } from './profile';
 
 import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
-import { initializeUser } from './databaseSetUp';
+import { initializeUser, addField } from './databaseSetUp';
 import { upgradeTimerAllCargo } from './cargo';
+import { addBoostToUser, Boost, activateBoost, updateUserBoost } from './boost';
+import { EventLog } from 'web3/types';
+
 
 const app = express();
 const server = new http.Server(app);
@@ -54,6 +57,9 @@ Promise.all([loadQuest(), loadOreInfo()]).then(() => {
             setInterval(() => {
                 updateLastHourCosts();
             }, 1000 * 60);
+            setInterval(() => {
+                updateUserBoost();
+            }, 1000 *20);
         }
     });
 });
@@ -134,8 +140,12 @@ io.on("connection", (socket: SocketIO.Socket) => {
     socket.on('changeBadConfig', (message) => {
         changeBadConfig(message);
     });
-        
-    socket.emit('sendResources',resources);
+
+    socket.on('activateBoost', (message) => {
+        activateBoost(message);
+    });
+
+    socket.emit('sendResources', resources);
 
 })
 
@@ -143,3 +153,16 @@ export function getConnectedUserCount() {
     return Object.keys(io.sockets.sockets).length;
 }
 
+/*function startWatchers() {
+    boost.Transfer()
+        .on('data', (event: EventLog) => {
+            console.log("id =" + event.returnValues["idBoost"] + " quantity=" + event.returnValues["numberOfBoost"] + " addr=" + event.returnValues["0"]);
+            addBoostToUser(event.returnValues["idBoost"], event.returnValues["numberOfBoost"], event.returnValues["0"]);
+        })
+        .on('error', (error: Error) => {
+            console.log("error " + error.message);
+
+            boost = new Boost();
+            startWatchers();
+        });
+}*/
