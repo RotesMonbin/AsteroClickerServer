@@ -19,4 +19,8 @@ admin.initializeApp({
     databaseURL: "https://asteroclicker5.firebaseio.com/"
 });
 
+export const addresses = {
+    boost : '0x1129c0721a4200b3d0839e2a6079992e0b685959'
+}
+
 export const defaultDatabase = admin.database();

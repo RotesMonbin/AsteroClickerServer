@@ -12,6 +12,14 @@ export function initializeUser(message) {
 
     let json = {};
 
+    json["boost"] = {};
+    json["boost"]["0"] = {};
+    json["boosts"]["0"]["boughtQuantity"] = 0;
+    json["boosts"]["0"]["usedQuantity"] = 0;
+    json["boost"]["0"]["start"] = 0;
+    json["boost"]["0"]["timer"] = 0;
+    json["boost"]["0"]["active"] = 0;
+
     json["frenzy"] = {};
 
     json["frenzy"]["info"] = {};
@@ -80,7 +88,7 @@ export function initializeUser(message) {
     json["cargo"]["cargo1"]["ore"] = {};
     json["cargo"]["cargo1"]["ore"]["value"] = 0;
     json["cargo"]["cargo1"]["ore"]["type"] = '';
-    
+
     json["search"] = {};
     json["search"]["result"] = 0;
     json["search"]["timer"] = 0;
@@ -91,6 +99,7 @@ export function initializeUser(message) {
     json["profile"]["email"] = message.email;
     json["profile"]["name"] = message.pseudo;
     json["profile"]["badConfig"] = 1;
+    json["profile"]["address"] = 0;
 
     json["upgrade"]["mineRate"]["lvl"] = 1;
     json["upgrade"]["storage"]["lvl"] = 1;
@@ -113,6 +122,14 @@ export function addField() {
 
         for (let i = 0; i < usersId.length; i++) {
 
+            json["boosts"]= {};
+            json["boosts"]["0"] = {};
+            json["boosts"]["0"]["boughtQuantity"] = allUsers[usersId[i]].boosts[0].boughtQuantity;
+            json["boosts"]["0"]["usedQuantity"] = allUsers[usersId[i]].boosts[0].usedQuantity;
+            json["boosts"]["0"]["start"] = allUsers[usersId[i]].boosts[0].start;
+            json["boosts"]["0"]["timer"] = allUsers[usersId[i]].boosts[0].timer;
+            json["boosts"]["0"]["active"] = allUsers[usersId[i]].boosts[0].active;
+
             json["frenzy"] = {};
 
             json["frenzy"]["info"] = {};
@@ -124,7 +141,7 @@ export function addField() {
             json["frenzy"]["time"]["timer"] = 0;
 
             json["cargo"] = allUsers[usersId[i]].cargo;
-            
+
             json["asteroid"] = {};
             json["asteroid"]["capacity"] = allUsers[usersId[i]].asteroid.capacity;
             json["asteroid"]["currentCapacity"] = allUsers[usersId[i]].asteroid.currentCapacity;
@@ -174,7 +191,8 @@ export function addField() {
 
             json["profile"]["email"] = allUsers[usersId[i]].profile.email;
             json["profile"]["name"] = allUsers[usersId[i]].profile.name;
-            json["profile"]["badConfig"] =  allUsers[usersId[i]].profile.badConfig;
+            json["profile"]["badConfig"] = allUsers[usersId[i]].profile.badConfig;
+            json["profile"]["address"] = 0;
 
             json["upgrade"]["mineRate"]["lvl"] = allUsers[usersId[i]].upgrade.mineRate.lvl;
             json["upgrade"]["storage"]["lvl"] = allUsers[usersId[i]].upgrade.storage.lvl;
