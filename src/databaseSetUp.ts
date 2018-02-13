@@ -187,7 +187,7 @@ export function addField() {
             json["search"]["result"] = allUsers[usersId[i]].search.result;
             json["search"]["timer"] = allUsers[usersId[i]].search.timer;
             json["search"]["start"] = allUsers[usersId[i]].search.start;
-            json["search"]["state"] = 0;
+            json["search"]["state"] = allUsers[usersId[i]].search.state;
 
             json["profile"]["email"] = allUsers[usersId[i]].profile.email;
             json["profile"]["name"] = allUsers[usersId[i]].profile.name;

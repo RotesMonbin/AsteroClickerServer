@@ -22,6 +22,8 @@ const server = new http.Server(app);
 const io = socketIO(server);
 app.use(cors());
 
+let connectedClient: string[] = new Array();
+
 Promise.all([loadQuest(), loadOreInfo()]).then(() => {
     server.listen(process.env.PORT || 4000, (err: Error) => {
         if (err) {
@@ -59,15 +61,44 @@ Promise.all([loadQuest(), loadOreInfo()]).then(() => {
             }, 1000 * 60);
             setInterval(() => {
                 updateUserBoost();
-            }, 1000 *20);
+            }, 1000 * 20);
         }
     });
 });
 
 
-
-
 io.on("connection", (socket: SocketIO.Socket) => {
+
+    socket.on('authentify', (userId:string) => {
+
+        socket.id=userId;
+        
+        if (!userAlreadyConnected(userId)) {
+            connectedClient.push(userId);
+            launchlistner(socket);
+        }
+
+    });
+});
+
+function loadUsers(){
+
+}
+
+function userAlreadyConnected(id: string) {
+    for (let i = 0; i < connectedClient.length; i++) {
+        if (connectedClient[i] == id) {
+            return true; 
+        }
+    }
+    return false;
+}
+
+function launchlistner(socket: SocketIO.Socket) {
+    socket.on('disconnect', () => {
+        const i = connectedClient.indexOf(socket.id);
+        connectedClient.splice(i, 1);
+    });
 
     socket.on('incrementOre', (message) => {
         incrementOre(message);
@@ -88,6 +119,7 @@ io.on("connection", (socket: SocketIO.Socket) => {
     socket.on('buyOre', (message) => {
         buyOre(message);
     });
+
     socket.on('searchAster', (message) => {
         searchAster(message);
     });
@@ -146,8 +178,8 @@ io.on("connection", (socket: SocketIO.Socket) => {
     });
 
     socket.emit('sendResources', resources);
+}
 
-})
 
 export function getConnectedUserCount() {
     return Object.keys(io.sockets.sockets).length;
