@@ -26,7 +26,7 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
             oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
         if (fromClick) {
-            amount = maxMinerate;
+            amount = maxMinerate * 5;
         }
 
         /* if (user.val().frenzy.info.state == 1) {
@@ -34,7 +34,7 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
          }
          else {*/
 
-        if (amount <= maxMinerate) {
+        if (fromClick || amount <= maxMinerate) {
             let newCollectibleQuantity;
             if (user.val().asteroid.collectible < user.val().asteroid.currentCapacity) {
                 newCollectibleQuantity = user.val().asteroid.collectible + amount;
@@ -84,7 +84,7 @@ export function pickUpCollectible(data) {
             oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
 
-        if (data.amount <= maxMinerate) {
+        if (data.amount <= maxMinerate && data.ore == user.val().asteroid.ore) {
 
             //controlAndAddOreAmount(data.user, data.amount, data.ore)
             let newCollectibleQuantity;
