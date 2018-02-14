@@ -7,31 +7,107 @@ import { checkQuest, checkQuestGroup, newChest } from "./quest";
 /*
 data = {
     user : userId,
-    ore: oreName,
-    amount: oreIncreasing
+    amount: amountBroke
 }
 */
-export function incrementOre(data) {
+export function breakIntoCollectible(data) {
+    defaultDatabase.ref("users/" + data.user + "/miningInfo/lastTick").once('value').then((lastTick) => {
+        const timeElapsedSinceLastTick = Date.now() - lastTick.val();
+        if (timeElapsedSinceLastTick > 900) {
+            controlAndBreakAsteroid(data.user, data.amount, false);
+            defaultDatabase.ref("users/" + data.user + "/miningInfo/lastTick").set(Date.now());
+        }
+    });
+}
+
+function controlAndBreakAsteroid(userId: string, amount: number, fromClick: boolean) {
+    defaultDatabase.ref("users/" + userId).once('value').then((user) => {
+        const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
+            oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
+
+        if (fromClick) {
+            amount = maxMinerate;
+        }
+
+       /* if (user.val().frenzy.info.state == 1) {
+            updateFrenzyTimer(userId);
+        }
+        else {*/
+
+            if (amount <= maxMinerate) {
+                let newCollectibleQuantity;
+                if (user.val().asteroid.collectible < user.val().asteroid.currentCapacity) {
+                    newCollectibleQuantity = user.val().asteroid.collectible + amount;
+                    if (newCollectibleQuantity > user.val().asteroid.currentCapacity) {
+                        newCollectibleQuantity = user.val().asteroid.currentCapacity;
+                    }
+                    defaultDatabase.ref("users/" + userId + "/asteroid/collectible").set(toFixed2(newCollectibleQuantity));
+                }
+                const eventOrNot = Math.floor((Math.random() * 100000) + 1);
+                if (eventOrNot < 3) {
+                    defaultDatabase.ref("users/" + userId + "/event").set(1);
+                }
+            }
+        //}
+    });
+}
+
+/**
+ * @param data [user] : userId, [amount] : click to add
+ */
+export function updateClickGauge(data) {
+
+    defaultDatabase.ref("users/" + data.user + "/miningInfo").once('value').then((miningInfo) => {
+        if ((miningInfo.val().clickGauge + data.amount) >= 100) {
+            const timeElapsedSinceLastTick = Date.now() - miningInfo.val().lastClickExplosion;
+            if (timeElapsedSinceLastTick >= 5000) {
+                controlAndBreakAsteroid(data.user, 0, true);
+                defaultDatabase.ref("users/" + data.user + "/miningInfo/lastClickExplosion").set(Date.now());
+            }
+        }
+        defaultDatabase.ref("users/" + data.user + "/miningInfo/clickGauge").set((miningInfo.val().clickGauge + data.amount) % 100);
+    });
+
+}
+
+/*
+data = {
+    user : userId,
+    ore: oreName,
+    amount: amountBroke
+}
+*/
+
+export function pickUpCollectible(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
             oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
-        if (user.val().frenzy.info.state == 1) {
-            updateFrenzyTimer(data.user);
-        }
-        else {
-            if (data.amount <= maxMinerate) {
 
-                controlAndAddOreAmount(data.user, data.amount, data.ore)
-                const eventOrNot = Math.floor((Math.random() * 100000) + 1);
-                if (eventOrNot < 3) {
-                    defaultDatabase.ref("users/" + data.user + "/event").set(1);
+        if (data.amount <= maxMinerate) {
+
+            //controlAndAddOreAmount(data.user, data.amount, data.ore)
+            let newCollectibleQuantity;
+            if (user.val().asteroid.collectible > 0 && user.val().asteroid.currentCapacity > 0) {
+                newCollectibleQuantity = user.val().asteroid.collectible - data.amount;
+                if (newCollectibleQuantity < 0) {
+                    newCollectibleQuantity = 0;
                 }
-
+                defaultDatabase.ref("users/" + data.user + "/asteroid/collectible").set(toFixed2(newCollectibleQuantity));
+                if ((user.val().asteroid.currentCapacity - data.amount) > 0) {
+                    defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(toFixed2(user.val().asteroid.currentCapacity - data.amount));
+                }
+                else {
+                    defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(0);
+                }
             }
+
         }
+
     });
 }
+
+
 
 function controlAndAddOreAmount(userId: string, amount: number, oreName: string) {
     defaultDatabase.ref("users/" + userId).once('value').then((user) => {
