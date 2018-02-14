@@ -29,25 +29,25 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
             amount = maxMinerate;
         }
 
-       /* if (user.val().frenzy.info.state == 1) {
-            updateFrenzyTimer(userId);
-        }
-        else {*/
+        /* if (user.val().frenzy.info.state == 1) {
+             updateFrenzyTimer(userId);
+         }
+         else {*/
 
-            if (amount <= maxMinerate) {
-                let newCollectibleQuantity;
-                if (user.val().asteroid.collectible < user.val().asteroid.currentCapacity) {
-                    newCollectibleQuantity = user.val().asteroid.collectible + amount;
-                    if (newCollectibleQuantity > user.val().asteroid.currentCapacity) {
-                        newCollectibleQuantity = user.val().asteroid.currentCapacity;
-                    }
-                    defaultDatabase.ref("users/" + userId + "/asteroid/collectible").set(toFixed2(newCollectibleQuantity));
+        if (amount <= maxMinerate) {
+            let newCollectibleQuantity;
+            if (user.val().asteroid.collectible < user.val().asteroid.currentCapacity) {
+                newCollectibleQuantity = user.val().asteroid.collectible + amount;
+                if (newCollectibleQuantity > user.val().asteroid.currentCapacity) {
+                    newCollectibleQuantity = user.val().asteroid.currentCapacity;
                 }
-                const eventOrNot = Math.floor((Math.random() * 100000) + 1);
-                if (eventOrNot < 3) {
-                    defaultDatabase.ref("users/" + userId + "/event").set(1);
-                }
+                defaultDatabase.ref("users/" + userId + "/asteroid/collectible").set(toFixed2(newCollectibleQuantity));
             }
+            const eventOrNot = Math.floor((Math.random() * 100000) + 1);
+            if (eventOrNot < 3) {
+                defaultDatabase.ref("users/" + userId + "/event").set(1);
+            }
+        }
         //}
     });
 }
@@ -98,8 +98,12 @@ export function pickUpCollectible(data) {
                     defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(toFixed2(user.val().asteroid.currentCapacity - data.amount));
                 }
                 else {
+                    data.amount = user.val().asteroid.currentCapacity;
                     defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(0);
                 }
+
+                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(user.val().ore[data.ore] + data.amount);
+
             }
 
         }
