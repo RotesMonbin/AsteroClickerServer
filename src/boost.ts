@@ -29,26 +29,45 @@ export class Boost {
         return this.contract.methods.retrieveCost(nb).call();
     }
 
-    public playerNumberOfBoost(address: string,nbBoost:number) {
-        return this.contract.methods.playerNumberOfBoost(address,nbBoost).call();
+    public playerNumberOfBoost(address: string, nbBoost: number) {
+        return this.contract.methods.playerNumberOfBoost(address, nbBoost).call();
     }
 
 }
 
 const boost = new Boost;
 
-export function updateUserBoost() {
+/*export function updateUserBoost() {
     defaultDatabase.ref("users").once('value').then((users) => {
         for (let id in users.val()) {
             if (users.val()[id].profile.address != 0) {
-                 boost.playerNumberOfBoost(users.val()[id].profile.address,0).then((amount:number)=>{
+                boost.playerNumberOfBoost(users.val()[id].profile.address, 0).then((amount: number) => {
                     defaultDatabase.ref("users/" + id + "/boosts/0/boughtQuantity").set(amount);
-                   // console.log("New amount for: " + users.val()[id].profile.name + " amoun : " + amount);
                 });
             }
         }
     });
+}*/
+/**
+ * 
+ * @param data [user] = useriD
+ */
+export function upsertUserBoosts(data) {
+    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+        defaultDatabase.ref("boosts").once('value').then((boosts) => {
+            const boostsId = Object.keys(boosts.val());
+            for (const id in boostsId) {
+                if (user.val().profile.address != 0) {
+                    boost.playerNumberOfBoost(user.val().profile.address, parseInt(id)).then((amount: number) => {
+                        defaultDatabase.ref("users/" + data.user + "/boosts/" + parseInt(id) + "/boughtQuantity").set(amount);
+                    });
+                }
+            }
+        });
+    });
 }
+
+
 
 /**
  * 
@@ -57,7 +76,7 @@ export function updateUserBoost() {
  */
 export function activateBoost(message) {
     defaultDatabase.ref("users/" + message.user + "/boosts/" + message.type).once('value').then((boost) => {
-        if (boost.val().active != 1 && ((boost.val().boughtQuantity) - (boost.val().usedQuantity) )> 0) {
+        if (boost.val().active != 1 && ((boost.val().boughtQuantity) - (boost.val().usedQuantity)) > 0) {
             defaultDatabase.ref("users/" + message.user + "/boosts/" + message.type).set({
                 active: 1,
                 usedQuantity: boost.val().usedQuantity + 1,
@@ -86,6 +105,7 @@ export function updateBoostTimer(boostType: BoostType, userId: string) {
         });
     });
 }
+
 
 export function addBoostToUser(boostType: BoostType, quantity: number, address: string) {
     defaultDatabase.ref("users").once('value').then((users) => {
