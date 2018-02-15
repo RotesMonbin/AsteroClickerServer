@@ -128,6 +128,7 @@ function fillSearchResult(userId, user, distance) {
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
         let purity = generatePurity(researchLvl, distance, maxDist, minDist);
         json["purity"] = purity;
+        json["collectible"] = 0;
         // json["timeToGo"] = Math.floor((purity) + 10 + distance / 100) * engineUpgrade[user.val().upgrade.engine.lvl].speed;
         // TO CHANGE
         json['timeToGo'] = (Math.floor(distance / engineUpgrade[user.val().upgrade.engine.lvl].speed) + Math.floor(Math.random() * 50)) * 1000;
