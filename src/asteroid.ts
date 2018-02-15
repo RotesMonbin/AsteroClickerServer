@@ -17,9 +17,19 @@ enum searchState {
 export function searchAster(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         if (user.val().search.start == 0) {
+
+            const researchLvl = user.val().upgrade.research.lvl;
+            const maxDist = researchUpgrade[researchLvl].maxDist;
+            const minDist = researchUpgrade[researchLvl].minDist;
+            const coefDist = (((data.distance - minDist) / (maxDist - minDist)) * 5) + 1;
+            const time = (researchUpgrade[user.val().upgrade.research.lvl].searchTime) * coefDist * 1000;
+
+            defaultDatabase.ref("users/" + data.user + "/search/time").set(time);
             defaultDatabase.ref("users/" + data.user + "/search/start").set(Date.now());
             defaultDatabase.ref("users/" + data.user + "/search/state").set(searchState.searching);
             defaultDatabase.ref("users/" + data.user + "/search/distance").set(data.distance);
+            defaultDatabase.ref("users/" + data.user + "/search/distance").set(data.distance);
+
         }
     });
 }
@@ -55,7 +65,7 @@ export function updateAsteroidTimer(message) {
             //Searching
             let boostCoef = 1;
             if (user.val().boosts[0].active == 1) {
-                updateBoostTimer(BoostType.fasterResearchAndTraveling,message.user);
+                updateBoostTimer(BoostType.fasterResearchAndTraveling, message.user);
                 boostCoef = 0.25;
             }
 
@@ -65,8 +75,7 @@ export function updateAsteroidTimer(message) {
                 const minDist = researchUpgrade[researchLvl].minDist;
 
                 const coefDist = (((user.val().search.distance - minDist) / (maxDist - minDist)) * 5) + 1;
-                let timer = Math.floor(((researchUpgrade[user.val().upgrade.research.lvl].searchTime) * coefDist * boostCoef * 1000) -
-                    (Date.now() - user.val().search.start));
+                let timer = Math.floor((user.val().search.time * boostCoef) - (Date.now() - user.val().search.start));
                 if (timer <= 0) {
                     timer = 0;
                     fillSearchResult(message.user, user, user.val().search.distance);
@@ -98,7 +107,6 @@ export function rejectResults(message) {
 }
 
 function changeAsteroid(userId, newAsteroid) {
-    delete newAsteroid.timeToGo;
     newAsteroid.currentCapacity = newAsteroid.capacity;
     defaultDatabase.ref("users/" + userId + "/asteroid").set(newAsteroid);
     defaultDatabase.ref("users/" + userId + "/search/result").set(0);
