@@ -1,4 +1,4 @@
-
+import { Transaction } from 'firebase/database'
 import { defaultDatabase } from "./environment"
 import { mineRateUpgrade, storageUpgrade, oreInfos } from "./resources";
 import { toFixed2 } from "./utils";
@@ -22,11 +22,11 @@ export function breakIntoCollectible(data) {
 
 function controlAndBreakAsteroid(userId: string, amount: number, fromClick: boolean) {
     defaultDatabase.ref("users/" + userId).once('value').then((user) => {
-        const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
+        const mineRate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].baseRate *
             oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
         if (fromClick) {
-            amount = maxMinerate * 5;
+            amount = mineRate * 5;
         }
 
         /* if (user.val().frenzy.info.state == 1) {
@@ -34,14 +34,18 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
          }
          else {*/
 
-        if (fromClick || amount <= maxMinerate) {
+        if (fromClick || amount <= mineRate) {
             let newCollectibleQuantity;
             if (user.val().asteroid.collectible < user.val().asteroid.currentCapacity) {
-                newCollectibleQuantity = user.val().asteroid.collectible + amount;
-                if (newCollectibleQuantity > user.val().asteroid.currentCapacity) {
-                    newCollectibleQuantity = user.val().asteroid.currentCapacity;
-                }
-                defaultDatabase.ref("users/" + userId + "/asteroid/collectible").set(toFixed2(newCollectibleQuantity));
+
+                defaultDatabase.ref("users/" + userId + "/asteroid/collectible").transaction((quantity) => {
+                    if (quantity == null) return quantity;
+                    if (quantity + amount > user.val().asteroid.currentCapacity) {
+                        return user.val().asteroid.currentCapacity;
+                    }
+
+                    return quantity + amount;
+                });
             }
             const eventOrNot = Math.floor((Math.random() * 100000) + 1);
             if (eventOrNot < 3) {
@@ -86,21 +90,33 @@ export function pickUpCollectible(data) {
 
         if (data.amount <= maxMinerate && data.ore == user.val().asteroid.ore) {
 
-            //controlAndAddOreAmount(data.user, data.amount, data.ore)
-            let newCollectibleQuantity;
             if (user.val().asteroid.collectible > 0 && user.val().asteroid.currentCapacity > 0) {
-                newCollectibleQuantity = user.val().asteroid.collectible - data.amount;
-                if (newCollectibleQuantity < 0) {
-                    newCollectibleQuantity = 0;
-                }
-                defaultDatabase.ref("users/" + data.user + "/asteroid/collectible").set(toFixed2(newCollectibleQuantity));
-                if ((user.val().asteroid.currentCapacity - data.amount) > 0) {
-                    defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(toFixed2(user.val().asteroid.currentCapacity - data.amount));
-                }
-                else {
-                    data.amount = user.val().asteroid.currentCapacity;
-                    defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").set(0);
-                }
+
+                defaultDatabase.ref("users/" + data.user + "/asteroid/collectible").transaction((quantity) => {
+                    console.log( quantity);
+                    if (quantity - data.amount < 0) {
+                        return 0;
+                    }
+                    return quantity - data.amount;
+                });
+
+                defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").transaction((currentCapacity) => {
+                    if (currentCapacity == null) return undefined;
+                    if ((currentCapacity - data.amount) > 0) {
+                        return currentCapacity - data.amount;
+                    }
+                    else {
+                        return 0;
+                    }
+
+                });
+
+                defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).transaction((oreQuantity) => {
+                    if (oreQuantity == null) return undefined;
+                    return oreQuantity + data.amount;
+                });
+
+
 
                 defaultDatabase.ref("users/" + data.user + "/ore/" + data.ore).set(user.val().ore[data.ore] + data.amount);
 
