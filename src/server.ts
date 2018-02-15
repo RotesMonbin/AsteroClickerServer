@@ -13,7 +13,7 @@ import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
 import { initializeUser, addField } from './databaseSetUp';
 import { upgradeTimerAllCargo } from './cargo';
-import { addBoostToUser, Boost, activateBoost, updateUserBoost } from './boost';
+import { addBoostToUser, Boost, activateBoost, upsertUserBoosts } from './boost';
 import { EventLog } from 'web3/types';
 
 
@@ -59,9 +59,6 @@ Promise.all([loadQuest(), loadOreInfo()]).then(() => {
             setInterval(() => {
                 updateLastHourCosts();
             }, 1000 * 60);
-            setInterval(() => {
-                updateUserBoost();
-            }, 1000 * 20);
         }
     });
 });
@@ -171,6 +168,10 @@ function launchlistner(socket: SocketIO.Socket) {
 
     socket.on('changeBadConfig', (message) => {
         changeBadConfig(message);
+    });
+
+    socket.on('upsertUserBoosts', (message) => {
+        upsertUserBoosts(message);
     });
 
     socket.on('activateBoost', (message) => {
