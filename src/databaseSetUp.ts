@@ -10,15 +10,10 @@ import { defaultDatabase } from "./environment";
  */
 export function initializeUser(message) {
 
+    console.log(message);
     let json = {};
 
-    json["boost"] = {};
-    json["boost"]["0"] = {};
-    json["boosts"]["0"]["boughtQuantity"] = 0;
-    json["boosts"]["0"]["usedQuantity"] = 0;
-    json["boost"]["0"]["start"] = 0;
-    json["boost"]["0"]["timer"] = 0;
-    json["boost"]["0"]["active"] = 0;
+
 
     json["frenzy"] = {};
 
@@ -36,6 +31,12 @@ export function initializeUser(message) {
     json["asteroid"]["ore"] = "carbon";
     json["asteroid"]["purity"] = 100;
     json["asteroid"]["seed"] = "01230123";
+    json["asteroid"]["collectible"] = 0;
+
+    json["miningInfo"]= {};
+    json["miningInfo"]["clickGauge"] = 0;
+    json["miningInfo"]["lastClickExplosion"] = 0;
+    json["miningInfo"]["lastTick"] = 0;
 
     json["ore"] = {};
     json["ore"]["carbon"] = 0;
@@ -130,6 +131,12 @@ export function addField() {
             json["boosts"]["0"]["timer"] = allUsers[usersId[i]].boosts[0].timer;
             json["boosts"]["0"]["active"] = allUsers[usersId[i]].boosts[0].active;
 
+            
+            json["miningInfo"]= {};
+            json["miningInfo"]["clickGauge"] = 0;
+            json["miningInfo"]["lastClickExplosion"] = 0;
+            json["miningInfo"]["lastTick"] = 0;
+
             json["frenzy"] = {};
 
             json["frenzy"]["info"] = {};
@@ -148,6 +155,7 @@ export function addField() {
             json["asteroid"]["ore"] = allUsers[usersId[i]].asteroid.ore;
             json["asteroid"]["purity"] = allUsers[usersId[i]].asteroid.purity;
             json["asteroid"]["seed"] = allUsers[usersId[i]].asteroid.seed;
+            json["asteroid"]["collectible"] = 0;
 
             json["ore"] = {};
 

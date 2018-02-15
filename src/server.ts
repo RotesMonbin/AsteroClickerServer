@@ -66,6 +66,12 @@ Promise.all([loadQuest(), loadOreInfo()]).then(() => {
 
 io.on("connection", (socket: SocketIO.Socket) => {
 
+    console
+    socket.on('initializeUser', (message) => {
+        initializeUser(message);
+    });
+
+
     socket.on('authentify', (userId:string) => {
 
         socket.id=userId;
@@ -157,10 +163,6 @@ function launchlistner(socket: SocketIO.Socket) {
     socket.on('deleteEvent', (message) => {
         deleteEvent(message);
     })
-
-    socket.on('initializeUser', (message) => {
-        initializeUser(message);
-    });
 
     socket.on('reachFrenzy', (message) => {
         reachFrenzy(message);
