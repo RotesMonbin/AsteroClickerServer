@@ -3,7 +3,7 @@ import * as http from 'http';
 import * as socketIO from 'socket.io';
 import * as cors from 'cors';
 import { upgradeShipCredit, upgradeShipOre, updateUpgradeTimer } from './upgrade';
-import { loadQuest, loadOreInfo, generateResources, resources } from './resources';
+import { loadQuest, loadOreInfo, generateResources, resources, initializeTrading } from './resources';
 import { breakIntoCollectible, reachFrenzy, validArrow, pickUpCollectible, updateClickGauge } from './mining';
 import { sellOre, buyOre, updateCostsMarket, updateLastDayCosts, updateLastHourCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';

@@ -10,10 +10,15 @@ import { defaultDatabase } from "./environment";
  */
 export function initializeUser(message) {
 
-    console.log(message);
     let json = {};
 
-
+    /*json["boost"] = {};
+    json["boost"]["0"] = {};
+    json["boosts"]["0"]["boughtQuantity"] = 0;
+    json["boosts"]["0"]["usedQuantity"] = 0;
+    json["boost"]["0"]["start"] = 0;
+    json["boost"]["0"]["timer"] = 0;
+    json["boost"]["0"]["active"] = 0;*/
 
     json["frenzy"] = {};
 
