@@ -12,13 +12,13 @@ export function initializeUser(message) {
 
     let json = {};
 
-    /*json["boost"] = {};
-    json["boost"]["0"] = {};
+    json["boosts"] = {};
+    json["boosts"]["0"] = {};
     json["boosts"]["0"]["boughtQuantity"] = 0;
     json["boosts"]["0"]["usedQuantity"] = 0;
-    json["boost"]["0"]["start"] = 0;
-    json["boost"]["0"]["timer"] = 0;
-    json["boost"]["0"]["active"] = 0;*/
+    json["boosts"]["0"]["start"] = 0;
+    json["boosts"]["0"]["timer"] = 0;
+    json["boosts"]["0"]["active"] = 0;
 
     json["frenzy"] = {};
 
@@ -111,7 +111,7 @@ export function initializeUser(message) {
     json["upgrade"]["storage"]["lvl"] = 1;
     json["upgrade"]["research"]["lvl"] = 1;
     json["upgrade"]["engine"]["lvl"] = 1;
-    json["upgrade"]["QG"]["lvl"] = 0;
+    json["upgrade"]["QG"]["lvl"] = 1;
 
     json["credit"] = 0;
 
