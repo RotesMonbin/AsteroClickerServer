@@ -40,10 +40,10 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
 
                 defaultDatabase.ref("users/" + userId + "/asteroid/collectible").transaction((quantity) => {
                     if (quantity + amount > user.val().asteroid.currentCapacity) {
-                        return user.val().asteroid.currentCapacity;
+                        return toFixed2(user.val().asteroid.currentCapacity);
                     }
 
-                    return quantity + amount;
+                    return toFixed2(quantity + amount);
                 });
             }
             const eventOrNot = Math.floor((Math.random() * 100000) + 1);
@@ -95,7 +95,7 @@ export function pickUpCollectible(data) {
                     if (quantity - data.amount < 0) {
                         return 0;
                     }
-                    return quantity - data.amount;
+                    return toFixed2(quantity - data.amount);
                 });
 
                 defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").transaction((currentCapacity) => {
