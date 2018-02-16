@@ -61,14 +61,21 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
 export function updateClickGauge(data) {
 
     defaultDatabase.ref("users/" + data.user + "/miningInfo").once('value').then((miningInfo) => {
-        if ((miningInfo.val().clickGauge + data.amount) >= 100) {
-            const timeElapsedSinceLastTick = Date.now() - miningInfo.val().lastClickExplosion;
-            if (timeElapsedSinceLastTick >= 5000) {
-                controlAndBreakAsteroid(data.user, 0, true);
-                defaultDatabase.ref("users/" + data.user + "/miningInfo/lastClickExplosion").set(Date.now());
-            }
+        let newValue = 0;
+        if (data.amount == 0) {
+            newValue = (miningInfo.val().clickGauge - 5) < 0 ? 0 : miningInfo.val().clickGauge - 5;
         }
-        defaultDatabase.ref("users/" + data.user + "/miningInfo/clickGauge").set((miningInfo.val().clickGauge + data.amount) % 100);
+        else {
+            if ((miningInfo.val().clickGauge + data.amount) >= 50) {
+                const timeElapsedSinceLastTick = Date.now() - miningInfo.val().lastClickExplosion;
+                if (timeElapsedSinceLastTick >= 2500) {
+                    controlAndBreakAsteroid(data.user, 0, true);
+                    defaultDatabase.ref("users/" + data.user + "/miningInfo/lastClickExplosion").set(Date.now());
+                }
+            }
+            newValue = (miningInfo.val().clickGauge + data.amount) % 50;
+        }
+        defaultDatabase.ref("users/" + data.user + "/miningInfo/clickGauge").set(newValue);
     });
 
 }
