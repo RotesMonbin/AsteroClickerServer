@@ -3,8 +3,8 @@ import * as http from 'http';
 import * as socketIO from 'socket.io';
 import * as cors from 'cors';
 import { upgradeShipCredit, upgradeShipOre, updateUpgradeTimer } from './upgrade';
-import { loadQuest, loadOreInfo, generateResources, resources } from './resources';
-import { incrementOre, reachFrenzy, validArrow } from './mining';
+import { loadQuest, loadOreInfo, generateResources, resources, initializeTrading } from './resources';
+import { breakIntoCollectible, reachFrenzy, validArrow, pickUpCollectible, updateClickGauge } from './mining';
 import { sellOre, buyOre, updateCostsMarket, updateLastDayCosts, updateLastHourCosts } from './market';
 import { searchAster, chooseAsteroid, rejectResults, updateAsteroidTimer } from './asteroid';
 import { changeBadConfig } from './profile';
@@ -66,6 +66,12 @@ Promise.all([loadQuest(), loadOreInfo()]).then(() => {
 
 io.on("connection", (socket: SocketIO.Socket) => {
 
+    console
+    socket.on('initializeUser', (message) => {
+        initializeUser(message);
+    });
+
+
     socket.on('authentify', (userId:string) => {
 
         socket.id=userId;
@@ -77,10 +83,6 @@ io.on("connection", (socket: SocketIO.Socket) => {
 
     });
 });
-
-function loadUsers(){
-
-}
 
 function userAlreadyConnected(id: string) {
     for (let i = 0; i < connectedClient.length; i++) {
@@ -97,8 +99,16 @@ function launchlistner(socket: SocketIO.Socket) {
         connectedClient.splice(i, 1);
     });
 
-    socket.on('incrementOre', (message) => {
-        incrementOre(message);
+    socket.on('breakIntoCollectible', (message) => {
+        breakIntoCollectible(message);
+    });
+
+    socket.on('pickUpCollectible', (message) => {
+        pickUpCollectible(message);
+    });
+
+    socket.on('updateClickGauge', (message) => {
+        updateClickGauge(message);
     });
 
     socket.on('upgradeShipCredit', (message) => {
@@ -153,10 +163,6 @@ function launchlistner(socket: SocketIO.Socket) {
     socket.on('deleteEvent', (message) => {
         deleteEvent(message);
     })
-
-    socket.on('initializeUser', (message) => {
-        initializeUser(message);
-    });
 
     socket.on('reachFrenzy', (message) => {
         reachFrenzy(message);
