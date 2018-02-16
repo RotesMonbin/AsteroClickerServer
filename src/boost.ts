@@ -13,7 +13,7 @@ export class Boost {
     public contract: Contract;
 
     constructor() {
-        const web3 = new Web3('ws://vm-eth-node1-test.velvethyne.fr:8546');
+        const web3 = new Web3('https://ropsten.infura.io/Ge8pLCXZNKUB86c7miUf');
         this.contract = new web3.Contract(abi, addresses.boost);
     }
 
@@ -113,7 +113,6 @@ export function addBoostToUser(boostType: BoostType, quantity: number, address: 
             if (users.val()[id].profile.address == address) {
                 const currentQuantity = users.val()[id].boost[boostType].boughtQuantity;
                 defaultDatabase.ref("users/" + id + "/boosts/" + boostType + "/boughtQuantity").set(currentQuantity + quantity);
-                console.log(users.val()[id].profile.name + " a acheter " + quantity + " du boost numero " + boostType);
             }
         }
     });
