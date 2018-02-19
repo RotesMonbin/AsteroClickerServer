@@ -66,11 +66,9 @@ Promise.all([loadQuest(), loadOreInfo()]).then(() => {
 
 io.on("connection", (socket: SocketIO.Socket) => {
 
-    console
     socket.on('initializeUser', (message) => {
         initializeUser(message);
     });
-
 
     socket.on('authentify', (userId:string) => {
 

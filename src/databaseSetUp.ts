@@ -6,6 +6,7 @@ import { defaultDatabase } from "./environment";
  * 
  * @param message [user] : userId 
  * @param message [email]: userEmail
+ * @param message [address]: wallet address
  * 
  */
 export function initializeUser(message) {
@@ -101,11 +102,10 @@ export function initializeUser(message) {
     json["search"]["start"] = 0;
     json["search"]["state"] = 0;
 
-
     json["profile"]["email"] = message.email;
     json["profile"]["name"] = message.pseudo;
     json["profile"]["badConfig"] = 1;
-    json["profile"]["address"] = 0;
+    json["profile"]["address"] = message.address;
 
     json["upgrade"]["mineRate"]["lvl"] = 1;
     json["upgrade"]["storage"]["lvl"] = 1;

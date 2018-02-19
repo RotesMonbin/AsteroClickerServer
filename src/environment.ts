@@ -2,21 +2,22 @@ const admin = require("firebase-admin");
 
 const serviceAccount = {
     "type": "service_account",
-    "project_id": "asteroclicker5",
-    "private_key_id": "882c2518348d0151672e9bc2b79c7bbfb9e70b74",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCxBpSFQGrMCXTH\ngLIz9Eh0qJMjxncS+rS0dSb/Ts0aB41MGcTPz+eJPi8+EjRGD7Y3tenrXhmfqW9H\n52lwWVbKjM4HjB6qg+thh/HHGnPuWc6ts7j7NolB70Hbhwu0gOlwjYJkKvwWC2WO\nResO13MCrMxunVPtyJQnN0GqrjIBL6P1o7NFa3X/R0qr9Ppw3Mr4Alm3ihmQTVdB\nHC4yd3Q4aFr57e7888k2Blt+OYHFOi29xRI0QHf/hrCLbP8C5rQhSlenEdxA/L+9\n7/lTgfwxQLo8E4qld5B/YqVrJi1v5nd7V/nBcavxt+BxiG/Hl1dtab7fgVSJwJkd\n8zE1fmu3AgMBAAECggEAV/BY30j8xJb9+A0qeTyksa78SQ1SIY+BLRP1Z2aR5JhT\nzLYQWtuAvWCyvzbz2Mn9TveDWHTKbdIRgbqnWjRHNR91SbKFmVcnGrAZnzq41HKw\nhQF+puyUirh8Er2nRuezD0J8v53K1Hic3mxFNH46l92XQGvPQZQeZMzCRjN6i7N1\nzA0yOZE/MlSc1J8dWPEGwB8hr4te/SoxBzrMpVsk771gVukwLfl1A4rcR5cLQIzG\nLvPF55egdrBnv5O1AYruGm0TUpYAE2+J2mGgoaxuvrfKAZL1NPpLNnsncJVK08Ny\nGj1nus//LsFiHSO07ZgrsFutSuwNRYjXQG7qyUWioQKBgQDwBwFqkU8rVlNTvSB1\nx/h+cMtVPNNfSS0FwZ0o/fzdAYks6J/ng4w+/u/a83jXmehgpYFUc9kGcSIEB8Wo\nW0Cvtb7tMohyvebZF9YazIyDPZcRWaryxCdcBdHvaTyi+SlX9dlea54noJRGWVBm\njJZPIPa4ettMkly9V4Q6litn/QKBgQC8zk7BzyooGI0uYDBg3X6s1GsfKY4yFHoR\nwxdRstxUgqAFTTYx0TWxrnR0getjPqnJWp25Eetj+0dG83mhyZZbMItW1LYOINv8\nJd6GNhVk/EridwzaX5JRmD7KfFrfWTeux2S8jGZzsBe8tH87AtnUzhsJXF2fp3M7\nqrSzsBXuwwKBgBGVYcwtwu/4zffndfZK5PBWUP74ir+DO9IdIec73AdQsnzgub4b\nC+4dfPK8PVEGDFjwJu5J4k8vgH9tFlTEApQcq1TzC73kHYIv1dZ2v6BppaR2vig0\nqHF8V6nDOtbxi87OytK47YgXomUY6+PnTqeTUZ+oGGKeoj6Yp64nDBz9AoGAP7p/\nWOm9OAV5egLbsYZx4JJeigkzxvGkdmRcdaYiup/QtZlnRo9wSUYyZrUHp9sZ4i4k\n+Lf0tS221FsQXiy2BJexIKDxxnkO5+A8aR7OP+Tsvd4jR35k3AfAggZRgfwSUHtb\nJE1bs4bnrDlcjKWcszjSZWl47I/P1H79OX2hGZMCgYAr+JHVaLd3YRyF/373XLNh\nIzG3KC6D7JpyuiCRYXxiAj1tG3Ij9dmMijd92bcF1yIZd+SrDh2WxJV2nI0EE+lO\nyPsxAr1/IVdM1jJPsDOhlZWckUWJQc8Ni+cAicUuJRubyIR2lk37VsuLwAUPXk+/\ndQB87syWICh62cmXNs3l+Q==\n-----END PRIVATE KEY-----\n",
-    "client_email": "serviceaccount@asteroclicker5.iam.gserviceaccount.com",
-    "client_id": "106368488204607440247",
+    "project_id": "asteroclickerush",
+    "private_key_id": "48f072be77f51b9a3d2409f686660d00616c3c6a",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDaCberuL+gyc/B\nyTrFwMhPCoVEnN3dUsqU9ZbXhvP75MFvrK2lqHL0UOxbGZZjDxedTV8f2XkzuO6C\npTyYlVwNA8lYBmRrMAJ3I8rjnUb/Zc2cvWFWLGzNhqJmRI2Yf2alFc80lBBs7fyl\nx0W8Ev3CcPQVI/nYh4wX8EJlaxNMUzNL4vk0EIzW3SKpVoekx/vi4ypWBKKcwuV7\nPnkizSRjWYas6Z+QPa/wnk+/XsrAJ9tA4zID5AmYm7GRYDwxbN/xY0ZZ3JiN1M5F\ntr0TKcPrEe190aKGFWkTOhf5GLDaA4xgHOVEbzPjFhBxX/RVxxClEjI3MFf0Yma/\nJ5YT0QBPAgMBAAECggEAWlmOf50V4zXdXmrZbNqe5onwgWcTVMQa6DEAaZ0leyrm\nsTT32956jB0AZButQq0dVvSZx2Phonouc3qvKncx5r677zru36/MRbxSNZGVuv1f\nf2TGceQEzgHNR91+Y0Pfr+biruHwEINpnvR9RBsGhk0yB5SZ0o0Qk1be3JHLNGO9\n2hTgJAkuHaWd+LNCXq8ZdP+tx0Tda+Qi7WA2utWVWXMhs4pBnTSmW/mn5Y+mQpVg\n3f4/ne7jtEUmFU45Kz5pBkLoGgl+PN9Gl+KpoeY2SVVsAykw6iUlbJgQmCbY4rm+\nN4IdBN5HPwLPZd9F7/DEHFm3UESw9ry+4T6aQOqseQKBgQDvwMdIJptzQ+wq8edM\n7kCL56IFekDTbWbb2ZxIF7S0y8h+i8oUX3JGfuCeGCb8rQCaLD3ww7Ig+3fzGWXl\n0VBiDCHDC3HVmSGdqG8A/tJiSpOWdpTMXZTavh7HzuEkh5/e7FrGc7J+TKlOtlpI\nlalUwT1kt/N63JLkC94RqG83ewKBgQDo0Dog000hIFptZ84lUw3vj6EBf+CJCLbf\n7EgxtlGIEDksfbsvmy5z2tki3YxTf2c1vKMXJkkjrgiZ76CvcZBj3yEU7hSPvyum\nHcNl877RhC213U5QGTFUM10xwJ/t5FFTCeTJZB7K7693Jlajak7YrYtyk7P3pz/e\n39etFzPYPQKBgQDlIR8TNFpyIWLOdBuy6SvkyT2N8JWNukuIJwN13roD45G8Zwp8\nx+8lslImpTx1VT1zGn8j31MYtFuhiA9bQNyKp7+IcSKcmVmIHBXiJKaZ6137eV6h\npXoCR5qRKIUA7WD7onTqnl3i2I8iO6IzJl0LNBbhb/AQ5ka4DSNxSsDniwKBgQDg\nv9vNwo6L8zK4uWRdzd7/LFXPH8cAIyR/6RcMvqfYxWicVch1vcZLW7MQoHYOSUi2\nrKN4/qHOyvxMtvMVS3mLoGTMUsYQuwmFNOhkLLlCg+qozbsDQj7HvUozdHQv8KC9\nnCh8bqX3XQmz6ZPr7/2r2WVsN8CdzJyxKMCJvYN0NQKBgFiVXJfWjz2mmqnSgrhE\nedhEP58SNnpnM/amrj+j3JaIVJ7+xIM9ftIGgtaf6LfqPhbpopxcV7bFwYASyxBn\nq+AOnx+DL6hbJiw/pECOSG2HLmH6Qqf+iIvSK4eYzqwKT71a6ISlsNISs7OomAFL\nhwssvTSBEk74dHKkawRU9+7s\n-----END PRIVATE KEY-----\n",
+    "client_email": "serviceaccount@asteroclickerush.iam.gserviceaccount.com",
+    "client_id": "103029080389410795481",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
     "token_uri": "https://accounts.google.com/o/oauth2/token",
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/serviceaccount%40asteroclicker5.iam.gserviceaccount.com"
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/serviceaccount%40asteroclickerush.iam.gserviceaccount.com"
   };
+  
 
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://asteroclicker5.firebaseio.com/"
+    databaseURL: "https://asteroclickerush.firebaseio.com/"
 });
 
 export const addresses = {
