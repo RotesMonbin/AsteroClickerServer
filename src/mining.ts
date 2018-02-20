@@ -26,7 +26,7 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
             oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
         if (fromClick) {
-            amount = mineRate * 5;
+            amount = mineRate * 10;
         }
 
         /* if (user.val().frenzy.info.state == 1) {
