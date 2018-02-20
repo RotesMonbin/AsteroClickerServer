@@ -70,10 +70,10 @@ io.on("connection", (socket: SocketIO.Socket) => {
         initializeUser(message);
     });
 
-    socket.on('authentify', (userId:string) => {
+    socket.on('authentify', (userId: string) => {
 
-        socket.id=userId;
-        
+        socket.id = userId;
+
         if (!userAlreadyConnected(userId)) {
             connectedClient.push(userId);
             launchlistner(socket);
@@ -85,7 +85,7 @@ io.on("connection", (socket: SocketIO.Socket) => {
 function userAlreadyConnected(id: string) {
     for (let i = 0; i < connectedClient.length; i++) {
         if (connectedClient[i] == id) {
-            return true; 
+            return true;
         }
     }
     return false;
@@ -203,3 +203,9 @@ export function getConnectedUserCount() {
             startWatchers();
         });
 }*/
+
+
+process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+    // application specific logging, throwing an error, or other logic here
+});
