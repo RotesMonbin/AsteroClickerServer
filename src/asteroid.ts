@@ -3,6 +3,7 @@ import { researchUpgrade, oreInfos, engineUpgrade } from "./resources";
 import { toFixed2 } from './utils';
 import { updateBoostTimer, BoostType } from './boost';
 import { getResearchTotalTime } from './rules/researchRules';
+import { getAsteroidCapacity, getAsteroidPurity, getTimeToGoToAsteroid } from './rules/asteroidRules';
 //import { asteroidTypes } from "./resources";
 
 enum searchState {
@@ -20,7 +21,7 @@ export function searchAster(data) {
         if (user.val().search.start == 0) {
             const researchLvl = user.val().upgrade.research.lvl;
 
-            defaultDatabase.ref("users/" + data.user + "/search/time").set(getResearchTotalTime(researchLvl,data.distance));
+            defaultDatabase.ref("users/" + data.user + "/search/time").set(getResearchTotalTime(researchLvl, data.distance));
             defaultDatabase.ref("users/" + data.user + "/search/start").set(Date.now());
             defaultDatabase.ref("users/" + data.user + "/search/state").set(searchState.searching);
             defaultDatabase.ref("users/" + data.user + "/search/distance").set(data.distance);
@@ -64,11 +65,7 @@ export function updateAsteroidTimer(message) {
             }
 
             if (user.val().search.state == searchState.searching) {
-                const researchLvl = user.val().upgrade.research.lvl;
-                const maxDist = researchUpgrade[researchLvl].maxDist;
-                const minDist = researchUpgrade[researchLvl].minDist;
 
-                const coefDist = (((user.val().search.distance - minDist) / (maxDist - minDist)) * 5) + 1;
                 let timer = Math.floor((user.val().search.time * boostCoef) - (Date.now() - user.val().search.start));
                 if (timer <= 0) {
                     timer = 0;
@@ -111,21 +108,18 @@ function changeAsteroid(userId, newAsteroid) {
 function fillSearchResult(userId, user, distance) {
     const oreNames = Object.keys(oreInfos);
     const researchLvl = user.val().upgrade.research.lvl;
+    const engineLvl = user.val().upgrade.engine.lvl;
     for (let i = 0; i < 3; i++) {
-        const maxDist = researchUpgrade[researchLvl].maxDist;
-        const minDist = researchUpgrade[researchLvl].minDist;
         let json = {};
         json["ore"] = oreNameRandomWithDistance(oreNames, researchLvl);
-        const distCapacityCoef = (((distance - minDist) * 0.8) / (maxDist - minDist)) + 0.8;
-        //1000×(1+(0.10×ScanLevel))×ResourceMiningRate
-        json["capacity"] = Math.floor((1000 * (1 + (0.1 * researchLvl)) * oreInfos[json["ore"]].miningSpeed) * distCapacityCoef);
+        json["capacity"] = getAsteroidCapacity(researchLvl, distance, json["ore"]);
         json["seed"] = generateRandomNumber(4) + generateRandomNumber(4);
-        let purity = generatePurity(researchLvl, distance, maxDist, minDist);
+        let purity = getAsteroidPurity(researchLvl, distance);
         json["purity"] = purity;
         json["collectible"] = 0;
         // json["timeToGo"] = Math.floor((purity) + 10 + distance / 100) * engineUpgrade[user.val().upgrade.engine.lvl].speed;
         // TO CHANGE
-        json['timeToGo'] = (Math.floor(distance / engineUpgrade[user.val().upgrade.engine.lvl].speed) + Math.floor(Math.random() * 50)) * 1000;
+        json['timeToGo'] = getTimeToGoToAsteroid(distance, engineLvl);
         defaultDatabase.ref("users/" + userId + "/search/result/" + i).set(json);
         defaultDatabase.ref("users/" + userId + "/search/state").set(searchState.chooseAsteroid);
     }
@@ -140,22 +134,6 @@ function oreNameRandomWithDistance(oreNames, researchLvl) {
         }
     }
     return tabName[Math.floor(Math.random() * (tabName.length))];
-}
-
-function generatePurity(researchLvl: number, distance: number, maxDistance: number, minDistance: number): number {
-    const f = Math.pow(1 / researchLvl, 0.4) * 2;
-
-    const v = Math.random();
-    const w = Math.random();
-    const x = Math.random();
-    const y = Math.random();
-    const z = Math.random();
-
-    const g = Math.pow((v + w + x + y + z) / 5, f) + 0.5;
-    const deltaD = (distance - minDistance);
-    const d = ((deltaD * 0.3) / (maxDistance - minDistance)) - 0.15;
-
-    return toFixed2((g + d) * 100);
 }
 
 
