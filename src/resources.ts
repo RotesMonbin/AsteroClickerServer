@@ -3,7 +3,7 @@ import { toFixed2 } from './utils';
 import { getMineRateCreditCost, getMineRateBaseRate, lvl0MineRate, getMineRateOreCost, getMineRateMaxRate, getFrenzyDuration, getMineRateUpgradeTime } from './rules/mineRateRules';
 import { storageOreNeedFromLvl, getStorageCreditCost, getCapacity, getStorageUpgradeTime } from './rules/storageRules';
 import { getEngineSpeed, getEngineUpgradeTime, engineOreNeedFromLvl } from './rules/engineRules';
-import { researchOreNeedFromLvl, getResearchCreditCost, lvl0ResearchTime, getResearchBaseTime, researchMinDistance, getResearchMaxDistance } from './rules/researchRules';
+import { researchOreNeedFromLvl, getResearchCreditCost, lvl0ResearchTime, getResearchBaseTime, researchMinDistance, getResearchMaxDistance, getResearchUpgradeTime } from './rules/researchRules';
 import { QGOreNeedFromLvl, getHQCreditCost, getMaxUpgradeLvl, getHQUpgradeTime, getCargoNumber } from './rules/headQuarterRules';
 
 export let resources;
@@ -153,7 +153,7 @@ export function generateResearchUpgrade(range: number) {
             searchTime: i == 0 ? lvl0ResearchTime : getResearchBaseTime(json[i - 1].searchTime),
             minDist: researchMinDistance,
             maxDist: getResearchMaxDistance(i),
-            time: getResearchBaseTime(i)
+            time: getResearchUpgradeTime(i)
         }
 
         json[i]['cost'] = {};
