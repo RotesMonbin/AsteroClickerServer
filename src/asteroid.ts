@@ -2,6 +2,7 @@ import { defaultDatabase } from "./environment";
 import { researchUpgrade, oreInfos, engineUpgrade } from "./resources";
 import { toFixed2 } from './utils';
 import { updateBoostTimer, BoostType } from './boost';
+import { getResearchTotalTime } from './rules/researchRules';
 //import { asteroidTypes } from "./resources";
 
 enum searchState {
@@ -17,19 +18,12 @@ enum searchState {
 export function searchAster(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         if (user.val().search.start == 0) {
-
             const researchLvl = user.val().upgrade.research.lvl;
-            const maxDist = researchUpgrade[researchLvl].maxDist;
-            const minDist = researchUpgrade[researchLvl].minDist;
-            const coefDist = (((data.distance - minDist) / (maxDist - minDist)) * 5) + 1;
-            const time = (researchUpgrade[user.val().upgrade.research.lvl].searchTime) * coefDist * 1000;
 
-            defaultDatabase.ref("users/" + data.user + "/search/time").set(time);
+            defaultDatabase.ref("users/" + data.user + "/search/time").set(getResearchTotalTime(researchLvl,data.distance));
             defaultDatabase.ref("users/" + data.user + "/search/start").set(Date.now());
             defaultDatabase.ref("users/" + data.user + "/search/state").set(searchState.searching);
             defaultDatabase.ref("users/" + data.user + "/search/distance").set(data.distance);
-            defaultDatabase.ref("users/" + data.user + "/search/distance").set(data.distance);
-
         }
     });
 }

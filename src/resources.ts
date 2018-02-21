@@ -1,5 +1,10 @@
 import { defaultDatabase } from "./environment"
 import { toFixed2 } from './utils';
+import { getMineRateCreditCost, getMineRateBaseRate, lvl0MineRate, getMineRateOreCost, getMineRateMaxRate, getFrenzyDuration, getMineRateUpgradeTime } from './rules/mineRateRules';
+import { storageOreNeedFromLvl, getStorageCreditCost, getCapacity, getStorageUpgradeTime } from './rules/storageRules';
+import { getEngineSpeed, getEngineUpgradeTime, engineOreNeedFromLvl } from './rules/engineRules';
+import { researchOreNeedFromLvl, getResearchCreditCost, lvl0ResearchTime, getResearchBaseTime, researchMinDistance, getResearchMaxDistance } from './rules/researchRules';
+import { QGOreNeedFromLvl, getHQCreditCost, getMaxUpgradeLvl, getHQUpgradeTime, getCargoNumber } from './rules/headQuarterRules';
 
 export let resources;
 export let mineRateUpgrade;
@@ -29,71 +34,44 @@ export function getUpgradeFromString(name) {
     }
 }
 
-export function generateResources(){
-    this.mineRateUpgrade=generateMineRateUpgrade(200);
-    this.storageUpgrade=generateStorageUpgrade(200);
-    this.researchUpgrade=generateResearchUpgrade(200);
-    this.engineUpgrade=generateEngineUpgrade(200);
-    this.QGUpgrade=generateQGUpgrade(200);
+export function generateResources() {
+    this.mineRateUpgrade = generateMineRateUpgrade(200);
+    this.storageUpgrade = generateStorageUpgrade(200);
+    this.researchUpgrade = generateResearchUpgrade(200);
+    this.engineUpgrade = generateEngineUpgrade(200);
+    this.QGUpgrade = generateQGUpgrade(200);
 
-    this.resources={};
-    this.resources["mineRate"]=this.mineRateUpgrade;
-    this.resources["storage"]=this.storageUpgrade;
-    this.resources["research"]=this.researchUpgrade;
-    this.resources["engine"]=this.engineUpgrade;
-    this.resources["QG"]=this.QGUpgrade;
-    this.resources["oreInfos"]=this.oreInfos;
+    this.resources = {};
+    this.resources["mineRate"] = this.mineRateUpgrade;
+    this.resources["storage"] = this.storageUpgrade;
+    this.resources["research"] = this.researchUpgrade;
+    this.resources["engine"] = this.engineUpgrade;
+    this.resources["QG"] = this.QGUpgrade;
+    this.resources["oreInfos"] = this.oreInfos;
 }
 
 // Mine Rate - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-function mineRateOreNeedFromLvl(iLvl: number) {
-    if (iLvl <= 10) {
-        return ['credit', 'carbon'];
-    } else if (iLvl <= 30) {
-        return ['credit', 'carbon', 'iron'];
-    } else if (iLvl <= 50) {
-        return ['credit', 'carbon', 'iron', 'titanium'];
-    } else if (iLvl <= 90) {
-        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium'];
-    } else {
-        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium'];
-    }
-}
 
 export function generateMineRateUpgrade(range: number) {
     let json = [];
     let costCredit;
     let cost;
+    let rate
 
-    json[0] = {
-        baseRate: 1,
-        maxRate: 1.5,
-        frenzyTime: 10,
-        time: 10 //(level*(level+1)/10)+10
-    }
-
-    json[0]['cost'] = {};
-    let tabOre = mineRateOreNeedFromLvl(0);
-    for (let j = 0; j < tabOre.length; j++) {
-        cost = 1000;
-        if (tabOre[j] !== 'credit') {
-            cost = 1000 / oreInfos[tabOre[j].toString()].meanValue;
-        }
-        json[0]['cost'][tabOre[j]] = toFixed2(cost / tabOre.length);
-    }
+    json[0] = lvl0MineRate;
 
     for (let i = 1; i < range; i++) {
-        costCredit = Math.floor(((500 * Math.pow(i, 1.7)) + 1500) / 1000) * 1000; //Prix = (500 * x^1.7) + 1500z
-        const rate = toFixed2(json[i - 1].baseRate + (0.2 * (Math.floor((i - 1) / 10) + 1)));
+        costCredit = getMineRateCreditCost(i);
+        rate = getMineRateBaseRate(i, json[i - 1].baseRate);
         json[i] = {
             baseRate: rate,
-            maxRate: toFixed2(Math.round(rate * 1.5 * 10) / 10),
-            frenzyTime: 10 + ((i * 10) / 200),
-            time: (i * (i + 1) / 10) + 10 //(level*(level+1)/10)+10
+            maxRate: getMineRateMaxRate(rate),
+            frenzyTime: getFrenzyDuration(i),
+            time: getMineRateUpgradeTime(i),
         }
 
         json[i]['cost'] = {};
-        let tabOre = mineRateOreNeedFromLvl(i);
+        let tabOre = getMineRateOreCost(i);
         for (let j = 0; j < tabOre.length; j++) {
             cost = costCredit;
             if (tabOre[j] !== 'credit') {
@@ -107,19 +85,6 @@ export function generateMineRateUpgrade(range: number) {
 }
 
 // Storage - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-function storageOreNeedFromLvl(iLvl: number) {
-    if (iLvl <= 10) {
-        return ['carbon'];
-    } else if (iLvl <= 30) {
-        return ['carbon', 'iron'];
-    } else if (iLvl <= 50) {
-        return ['carbon', 'iron', 'titanium'];
-    } else if (iLvl <= 90) {
-        return ['carbon', 'iron', 'titanium', 'gold'];
-    } else {
-        return ['carbon', 'iron', 'titanium', 'gold'];
-    }
-}
 
 export function generateStorageUpgrade(range: number) {
     let json = [];
@@ -127,11 +92,11 @@ export function generateStorageUpgrade(range: number) {
     let cost;
 
     for (let i = 0; i < range; i++) {
-        costCredit = Math.floor(3000 / 1000 * Math.pow(i, 1.07)) * 1000;
+        costCredit = getStorageCreditCost(i);
 
         json[i] = {
-            capacity: Math.floor(5000 / 1000 * Math.pow(i + 1, 1.5)) * 1000,
-            time: (i * (i + 1) / 10) + 10
+            capacity: getCapacity(i),
+            time: getStorageUpgradeTime(i)
         }
 
         json[i]['cost'] = {};
@@ -148,19 +113,6 @@ export function generateStorageUpgrade(range: number) {
 }
 
 // Engine  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-function engineOreNeedFromLvl(iLvl: number) {
-    if (iLvl <= 10) {
-        return ['iron'];
-    } else if (iLvl <= 30) {
-        return ['iron', 'titanium'];
-    } else if (iLvl <= 50) {
-        return ['iron', 'titanium', 'credit'];
-    } else if (iLvl <= 90) {
-        return ['iron', 'titanium', 'credit', 'hyperium'];
-    } else {
-        return ['iron', 'titanium', 'credit', 'hyperium'];
-    }
-}
 
 export function generateEngineUpgrade(range: number) {
     let json = [];
@@ -168,11 +120,11 @@ export function generateEngineUpgrade(range: number) {
     let cost;
 
     for (let i = 0; i < range; i++) {
-        costCredit = Math.floor(3000 / 1000 * Math.pow(i, 1.07)) * 1000;
-        
+        costCredit = getMineRateCreditCost(i);
+
         json[i] = {
-            speed: 10 + i,
-            time: (i * (i + 1) / 10) + 10
+            speed: getEngineSpeed(i),
+            time: getEngineUpgradeTime(i)
         }
         json[i]['cost'] = {};
         let tabOre = engineOreNeedFromLvl(i);
@@ -188,32 +140,20 @@ export function generateEngineUpgrade(range: number) {
 }
 
 // Research - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-function researchOreNeedFromLvl(iLvl: number) {
-    if (iLvl <= 10) {
-        return ['credit'];
-    } else if (iLvl <= 30) {
-        return ['credit', 'iron'];
-    } else if (iLvl <= 50) {
-        return ['credit', 'iron', 'titanium'];
-    } else if (iLvl <= 90) {
-        return ['credit', 'iron', 'titanium', 'gold'];
-    } else {
-        return ['credit', 'iron', 'titanium', 'gold'];
-    }
-}
+
 export function generateResearchUpgrade(range: number) {
     let json = [];
     let costCredit;
     let cost;
 
     for (let i = 0; i < range; i++) {
-        costCredit = Math.floor(5000 / 1000 * Math.pow(i, 1.09)) * 1000;
-        
+        costCredit = getResearchCreditCost(i);
+
         json[i] = {
-            searchTime: i == 0 ? 120 : toFixed2(json[i - 1].searchTime * 0.92),
-            minDist: 100,
-            maxDist: 10000 + 1000 * i,
-            time: (i * (i + 1) / 10) + 10,
+            searchTime: i == 0 ? lvl0ResearchTime : getResearchBaseTime(json[i - 1].searchTime),
+            minDist: researchMinDistance,
+            maxDist: getResearchMaxDistance(i),
+            time: getResearchBaseTime(i)
         }
 
         json[i]['cost'] = {};
@@ -234,31 +174,19 @@ export function initializeTrading() {
     defaultDatabase.ref("oreInfo/").once('value').then((oreInfo) => {
         const info = oreInfo.val();
         const oreInfoKey = Object.keys(info);
-        let json ={};
+        let json = {};
         for (let i = 0; i < oreInfoKey.length; i++) {
             for (let j = 0; j < 500; j++) {
                 json[j] = info[oreInfoKey[i]].meanValue;
             }
-            defaultDatabase.ref("trading/" + oreInfoKey[i] +"/lastMinute").set(json);
+            defaultDatabase.ref("trading/" + oreInfoKey[i] + "/lastMinute").set(json);
         }
 
     });
 }
 
 // QG - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-function QGOreNeedFromLvl(iLvl: number) {
-    if (iLvl <= 3) {
-        return ['credit', 'carbon', 'iron'];
-    } else if (iLvl <= 5) {
-        return ['credit', 'carbon', 'iron', 'titanium'];
-    } else if (iLvl <= 7) {
-        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium'];
-    } else if (iLvl <= 10) {
-        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium', 'gold'];
-    } else {
-        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium', 'gold'];
-    }
-}
+
 
 export function generateQGUpgrade(range: number) {
     let json = [];
@@ -266,12 +194,12 @@ export function generateQGUpgrade(range: number) {
     let cost;
 
     for (let i = 0; i < range; i++) {
-        costCredit = Math.floor(5000 / 1000 * Math.pow(i, 1.09)) * 2000;
-        
+        costCredit = getHQCreditCost(i);
+
         json[i] = {
-            lvlMax: 10 * i,
-            time: (i * 5 *(i + 1) / 10) + 10,
-            numberOfCargo: 1 + Math.round(i / 4),
+            lvlMax: getMaxUpgradeLvl(i),
+            time: getHQUpgradeTime(i),
+            numberOfCargo: getCargoNumber(i),
         }
 
         json[i]['cost'] = {};
