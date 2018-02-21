@@ -22,7 +22,7 @@ export function getAsteroidCapacity(rlvl: number, distance: number, oreName: str
     const minDist = researchUpgrade[rlvl].minDist;
     const distCapacityCoef = (((distance - minDist) * 0.8) / (maxDist - minDist)) + 0.8;
 
-    return Math.floor((1000 * (1 + (0.1 * rlvl)) * oreInfos[oreName].miningSpeed) * distCapacityCoef);;
+    return Math.floor((1000 * (1 + (0.1 * rlvl)) * oreInfos[oreName].miningSpeed) * distCapacityCoef);
 }
 
 /**
