@@ -187,7 +187,6 @@ export function initializeTrading() {
 
 // QG - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-
 export function generateQGUpgrade(range: number) {
     let json = [];
     let costCredit;

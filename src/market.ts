@@ -56,6 +56,11 @@ export function buyOre(data) {
                         let newCredit: number = toFixed2(user.val().credit - cost);
                         let newAmount: number = user.val().ore[data.ore] + data.amount;
 
+                        /*
+                        if (user.val().profile.step < 8) { // 
+                            return;
+                        }
+                        */
                         if (currentCredit < cost && currentCredit > 0) {
                             newAmount = user.val().ore[data.ore] + toFixed2(currentCredit / currentValue);
                             newCredit = 0;

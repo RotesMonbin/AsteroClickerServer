@@ -3,6 +3,7 @@ import { mineRateUpgrade, storageUpgrade, oreInfos } from "./resources";
 import { toFixed2 } from "./utils";
 import { checkQuest, checkQuestGroup, newChest } from "./quest";
 import { error } from 'util';
+import { validationTutorial } from './tutorial';
 
 /*
 data = {
@@ -33,7 +34,10 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
              updateFrenzyTimer(userId);
          }
          else {*/
-
+        
+        if ( user.val().profile.step < 10) {
+            validationTutorial(userId, user.val().ore['carbon']);
+        }
         if (fromClick || amount <= mineRate) {
             let newCollectibleQuantity;
             if (user.val().asteroid.collectible < user.val().asteroid.currentCapacity) {
@@ -87,7 +91,6 @@ data = {
     amount: amountBroke
 }
 */
-
 export function pickUpCollectible(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *

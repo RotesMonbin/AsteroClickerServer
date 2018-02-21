@@ -15,6 +15,7 @@ import { initializeUser, addField } from './databaseSetUp';
 import { upgradeTimerAllCargo } from './cargo';
 import { addBoostToUser, Boost, activateBoost, upsertUserBoosts } from './boost';
 import { EventLog } from 'web3/types';
+import { nextStep } from './tutorial';
 
 
 const app = express();
@@ -180,6 +181,10 @@ function launchlistner(socket: SocketIO.Socket) {
 
     socket.on('activateBoost', (message) => {
         activateBoost(message);
+    });
+
+    socket.on('nextStep', (message) => {
+        nextStep(message);
     });
 
     socket.emit('sendResources', resources);
