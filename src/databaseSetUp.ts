@@ -112,7 +112,7 @@ export function initializeUser(message) {
     json["upgrade"]["storage"]["lvl"] = 1;
     json["upgrade"]["research"]["lvl"] = 1;
     json["upgrade"]["engine"]["lvl"] = 1;
-    json["upgrade"]["QG"]["lvl"] = 1;
+    json["upgrade"]["QG"]["lvl"] = 0;
 
     json["credit"] = 0;
 
