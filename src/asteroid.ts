@@ -48,7 +48,7 @@ export function chooseAsteroid(message) {
             defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
             defaultDatabase.ref("users/" + message.user + "/search/state").set(searchState.traveling);
 
-            if(user.val().profile.step === 6) {
+            if(user.val().profile.step === 6 || user.val().profile.step === 5) {
                 nextStep({user: message.user, step: 7});
             }
 
