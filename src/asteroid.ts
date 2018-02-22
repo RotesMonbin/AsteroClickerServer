@@ -71,7 +71,10 @@ export function updateAsteroidTimer(message) {
             }
 
             if (user.val().search.state == searchState.searching) {
-
+                if(user.val().profile.step === 4) {
+                    nextStep({user: message.user, step: 5});
+                }
+                
                 let timer = Math.floor((user.val().search.time * boostCoef) - (Date.now() - user.val().search.start));
                 if (timer <= 0) {
                     timer = 0;

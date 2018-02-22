@@ -32,8 +32,8 @@ export function initializeUser(message) {
     json["frenzy"]["time"]["timer"] = 0;
 
     json["asteroid"] = {};
-    json["asteroid"]["capacity"] = 1000;
-    json["asteroid"]["currentCapacity"] = 1000;
+    json["asteroid"]["capacity"] = 0;
+    json["asteroid"]["currentCapacity"] = 0;
     json["asteroid"]["ore"] = "carbon";
     json["asteroid"]["purity"] = 100;
     json["asteroid"]["seed"] = "01230123";

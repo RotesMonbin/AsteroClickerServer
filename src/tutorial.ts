@@ -8,8 +8,8 @@ import { defaultDatabase } from "./environment";
 export function nextStep(message) {
     if (message.step === 1) {
         const json = {};
-        json["capacity"] = 1000;
-        json["currentCapacity"] = 1000;
+        json["capacity"] = 600;
+        json["currentCapacity"] = 600;
         json["ore"] = "carbon";
         json["purity"] = 100;
         json["seed"] = "01230123";
