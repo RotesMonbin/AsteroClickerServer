@@ -21,9 +21,10 @@ export function breakIntoCollectible(data) {
 }
 
 function controlAndBreakAsteroid(userId: string, amount: number, fromClick: boolean) {
-    defaultDatabase.ref("users/" + userId).once('value').then((user) => {
-        const mineRate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].baseRate *
-            oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
+    defaultDatabase.ref("users/" + userId + "/asteroid").once('value').then((asteroid) => {
+        defaultDatabase.ref("users/" + userId + "/upgrade/mineRate/lvl").once('value').then((mineRateLvl) => {
+            const mineRate = (mineRateUpgrade[mineRateLvl.val()].baseRate *
+            oreInfos[asteroid.val().ore].miningSpeed * (asteroid.val().purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
         if (fromClick) {
             amount = mineRate * 10;
@@ -36,11 +37,11 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
 
         if (fromClick || amount <= mineRate) {
             let newCollectibleQuantity;
-            if (user.val().asteroid.collectible < user.val().asteroid.currentCapacity) {
+            if (asteroid.val().collectible < asteroid.val().currentCapacity) {
 
                 defaultDatabase.ref("users/" + userId + "/asteroid/collectible").transaction((quantity) => {
-                    if (quantity + amount > user.val().asteroid.currentCapacity) {
-                        return toFixed2(user.val().asteroid.currentCapacity);
+                    if (quantity + amount >asteroid.val().currentCapacity) {
+                        return toFixed2(asteroid.val().currentCapacity);
                     }
 
                     return toFixed2(quantity + amount);
@@ -52,6 +53,7 @@ function controlAndBreakAsteroid(userId: string, amount: number, fromClick: bool
             }
         }
         //}
+        });
     });
 }
 
@@ -155,7 +157,7 @@ function controlAndAddOreAmount(userId: string, amount: number, oreName: string)
                 newCapacity = 0;
             }
 
-            checkQuest(oreName, amount, user.val(), userId);
+            checkQuest(oreName, amount, userId);
             checkQuestGroup(oreName, amount);
             defaultDatabase.ref("users/" + userId + "/asteroid/currentCapacity").set(toFixed2(newCapacity));
             defaultDatabase.ref("users/" + userId + "/ore/" + oreName).set(toFixed2(newAmount));

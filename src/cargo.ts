@@ -2,12 +2,11 @@ import { defaultDatabase } from "./environment";
 
 // When you have a new Cargo 
 export function unlockNewCargo(iDUser: string) {
-    defaultDatabase.ref("users/" + iDUser).once('value').then((user) => {
-        const currentUser = user.val();
+    defaultDatabase.ref("users/" + iDUser + "/cargo/availableCargo").once('value').then((availableCargo) => {
 
         const json = {};
 
-        const currentCargoActu = currentUser.cargo.availableCargo + 1;
+        const currentCargoActu = availableCargo.val() + 1;
         json["cargo"]["availableCargo"] = currentCargoActu;
 
         json["cargo"]["cargo" + currentCargoActu] = {};
@@ -27,15 +26,14 @@ export function timeCargoGo(iDUser, nameOre, value, nameDirect, valueDirect) {
     if (value === 0) {
         return;
     }
-    defaultDatabase.ref("users/" + iDUser).once('value').then((user) => {
+    defaultDatabase.ref("users/" + iDUser + "/cargo").once('value').then((cargo) => {
 
-        const currentUser = user.val();
-        if (currentUser.cargo.availableCargo === 0) {
+        if (cargo.val().availableCargo === 0) {
             return;
         }
-        const stringCargo = "cargo" + currentUser.cargo.availableCargo;
+        const stringCargo = "cargo" + cargo.val().availableCargo;
 
-        if (currentUser.cargo[stringCargo].start == 0) {
+        if (cargo.val()[stringCargo].start == 0) {
             const json = {};
 
             json[stringCargo] = {};
@@ -47,7 +45,7 @@ export function timeCargoGo(iDUser, nameOre, value, nameDirect, valueDirect) {
             json[stringCargo]["ore"]["type"] = nameOre;
 
             defaultDatabase.ref("users/" + iDUser + "/cargo").set(json);
-            defaultDatabase.ref("users/" + iDUser + "/cargo/availableCargo").set(currentUser.cargo.availableCargo - 1);
+            defaultDatabase.ref("users/" + iDUser + "/cargo/availableCargo").set(cargo.val().availableCargo - 1);
             
             if(nameDirect === 'credit') {
                 defaultDatabase.ref("users/" + iDUser + "/credit").set(valueDirect);

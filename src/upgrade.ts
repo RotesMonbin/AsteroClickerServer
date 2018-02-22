@@ -19,7 +19,7 @@ export function upgradeShipCredit(data) {
             if (user.val().credit >= cost) {
                 defaultDatabase.ref("users/" + data.user + "/credit").set(toFixed2(user.val().credit - cost));
                 defaultDatabase.ref("users/" + data.user + "/upgrade/" + data.upgrade + "/start").set(Date.now());
-                checkQuest('upgrade' + data.upgrade, 1, user.val(), data.user);
+                checkQuest('upgrade' + data.upgrade, 1, data.user);
                 calculScore(cost, user.val(), data.user);
             }
         }
@@ -38,7 +38,7 @@ export function upgradeShipOre(data) {
             if (valuesCostOreOk(getUpgradeFromString(data.upgrade)[currentLvl + 1].cost, user.val()) && QGLvlOk(user.val(), data.upgrade)) {
                 databaseOreSet(getUpgradeFromString(data.upgrade)[currentLvl + 1].cost, data.user, user.val());
                 defaultDatabase.ref("users/" + data.user + "/upgrade/" + data.upgrade + "/start").set(Date.now());
-                checkQuest('upgrade' + data.upgrade, 1, user.val(), data.user);
+                checkQuest('upgrade' + data.upgrade, 1, data.user);
             }
         }
     });
