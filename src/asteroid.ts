@@ -4,6 +4,7 @@ import { toFixed2 } from './utils';
 import { updateBoostTimer, BoostType } from './boost';
 import { getResearchTotalTime } from './rules/researchRules';
 import { getAsteroidCapacity, getAsteroidPurity, getTimeToGoToAsteroid } from './rules/asteroidRules';
+import { nextStep } from './tutorial';
 //import { asteroidTypes } from "./resources";
 
 enum searchState {
@@ -37,17 +38,24 @@ export function searchAster(data) {
 export function chooseAsteroid(message) {
 
     defaultDatabase.ref("users/" + message.user + "/search/result").once('value').then((result) => {
-        if (result.val() != 0 && Object.keys(result.val()).length == 3
-            && message.ind >= 0 && message.ind < 3) {
-            let json = {};
-            json[0] = result.val()[message.ind];
-            defaultDatabase.ref("users/" + message.user + "/search/result")
-                .set(json);
-            defaultDatabase.ref("users/" + message.user + "/search/state").set(3);
-            defaultDatabase.ref("users/" + message.user + "/search/start").set(Date.now());
-            defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
-            defaultDatabase.ref("users/" + message.user + "/search/state").set(searchState.traveling);
-        }
+        defaultDatabase.ref("users/" + message.user + "/profile/step").once('value').then((tutoStep) => {
+            if (result.val() != 0 && Object.keys(result.val()).length == 3
+                && message.ind >= 0 && message.ind < 3) {
+                let json = {};
+                json[0] = result.val()[message.ind];
+                defaultDatabase.ref("users/" + message.user + "/search/result")
+                    .set(json);
+                defaultDatabase.ref("users/" + message.user + "/search/state").set(3);
+                defaultDatabase.ref("users/" + message.user + "/search/start").set(Date.now());
+                defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
+                defaultDatabase.ref("users/" + message.user + "/search/state").set(searchState.traveling);
+
+                if (tutoStep.val() === 6 || tutoStep.val() === 5) {
+                    nextStep({ user: message.user, step: 7 });
+                }
+
+            }
+        });
     });
 }
 
@@ -59,32 +67,38 @@ export function updateAsteroidTimer(message) {
     defaultDatabase.ref("users/" + message.user + "/search").once('value').then((search) => {
         if (search.val().start != 0) {
             defaultDatabase.ref("users/" + message.user + "/boosts").once('value').then((boosts) => {
-                //Searching
-                let boostCoef = 1;
-                if (boosts.val()[0].active == 1) {
-                    updateBoostTimer(BoostType.fasterResearchAndTraveling, message.user);
-                    boostCoef = 0.25;
-                }
+                defaultDatabase.ref("users/" + message.user + "/profile/step").once('value').then((tutoStep) => {
 
-                if (search.val().state == searchState.searching) {
+                    //Searching
+                    let boostCoef = 1;
+                    if (boosts.val()[0].active == 1) {
+                        updateBoostTimer(BoostType.fasterResearchAndTraveling, message.user);
+                        boostCoef = 0.25;
+                    }
 
-                    let timer = Math.floor((search.val().time * boostCoef) - (Date.now() - search.val().start));
-                    if (timer <= 0) {
-                        timer = 0;
-                        fillSearchResult(message.user, search.val().distance);
+                    if (search.val().state == searchState.searching) {
+                        if (tutoStep.val() === 4) {
+                            nextStep({ user: message.user, step: 5 });
+                        }
+
+                        let timer = Math.floor((search.val().time * boostCoef) - (Date.now() - search.val().start));
+                        if (timer <= 0) {
+                            timer = 0;
+                            fillSearchResult(message.user, search.val().distance);
+                        }
+                        defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
                     }
-                    defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
-                }
-                //Traveling
-                else if (search.val().state == searchState.traveling) {
-                    let timer = Math.floor(((search.val().result[0].timeToGo) * boostCoef) -
-                        (Date.now() - search.val().start));
-                    if (timer <= 0) {
-                        timer = 0;
-                        changeAsteroid(message.user, search.val().result[0]);
+                    //Traveling
+                    else if (search.val().state == searchState.traveling) {
+                        let timer = Math.floor(((search.val().result[0].timeToGo) * boostCoef) -
+                            (Date.now() - search.val().start));
+                        if (timer <= 0) {
+                            timer = 0;
+                            changeAsteroid(message.user, search.val().result[0]);
+                        }
+                        defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
                     }
-                    defaultDatabase.ref("users/" + message.user + "/search/timer").set(timer);
-                }
+                });
             });
         }
     });

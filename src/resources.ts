@@ -39,7 +39,7 @@ export function generateResources() {
     this.storageUpgrade = generateStorageUpgrade(200);
     this.researchUpgrade = generateResearchUpgrade(200);
     this.engineUpgrade = generateEngineUpgrade(200);
-    this.QGUpgrade = generateQGUpgrade(200);
+    this.QGUpgrade = generateQGUpgrade(10);
 
     this.resources = {};
     this.resources["mineRate"] = this.mineRateUpgrade;
@@ -186,7 +186,6 @@ export function initializeTrading() {
 }
 
 // QG - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
 
 export function generateQGUpgrade(range: number) {
     let json = [];

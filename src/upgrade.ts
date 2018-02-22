@@ -4,6 +4,7 @@ import { checkQuest } from "./quest";
 import { calculScore } from "./ranking";
 import { toFixed2 } from "./utils";
 import { unlockNewCargo } from './cargo';
+import { nextStep } from './tutorial';
 
 /**
  * 
@@ -92,6 +93,10 @@ export function updateUpgradeTimer(data) {
             if (timer <= 0) {
                 timer = 0;
                 
+                if(data.upgrade === 'QG' && currentLvl === 0) {
+                    nextStep({user: data.user, step: 4});
+                }
+
                 if(data.upgradeName === 'QG' && QGUpgrade[currentLvl].numberOfCargo != QGUpgrade[currentLvl + 1].numberOfCargo) {
                     unlockNewCargo(data.user);
                 }

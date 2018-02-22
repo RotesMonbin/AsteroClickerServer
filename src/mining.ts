@@ -3,6 +3,7 @@ import { mineRateUpgrade, storageUpgrade, oreInfos } from "./resources";
 import { toFixed2 } from "./utils";
 import { checkQuest, checkQuestGroup, newChest } from "./quest";
 import { error } from 'util';
+import { validationTutorial } from './tutorial';
 
 /*
 data = {
@@ -23,36 +24,43 @@ export function breakIntoCollectible(data) {
 function controlAndBreakAsteroid(userId: string, amount: number, fromClick: boolean) {
     defaultDatabase.ref("users/" + userId + "/asteroid").once('value').then((asteroid) => {
         defaultDatabase.ref("users/" + userId + "/upgrade/mineRate/lvl").once('value').then((mineRateLvl) => {
-            const mineRate = (mineRateUpgrade[mineRateLvl.val()].baseRate *
-            oreInfos[asteroid.val().ore].miningSpeed * (asteroid.val().purity / 100)) + 0.1; // +0.1 to avoid false comparison
+            defaultDatabase.ref("users/" + userId + "/profile").once('value').then((profile) => {
+                const mineRate = (mineRateUpgrade[mineRateLvl.val()].baseRate *
+                    oreInfos[asteroid.val().ore].miningSpeed * (asteroid.val().purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
-        if (fromClick) {
-            amount = mineRate * 10;
-        }
+                if (fromClick) {
+                    amount = mineRate * 10;
+                }
 
-        /* if (user.val().frenzy.info.state == 1) {
-             updateFrenzyTimer(userId);
-         }
-         else {*/
+                /* if (user.val().frenzy.info.state == 1) {
+                     updateFrenzyTimer(userId);
+                 }
+                 else {*/
 
-        if (fromClick || amount <= mineRate) {
-            let newCollectibleQuantity;
-            if (asteroid.val().collectible < asteroid.val().currentCapacity) {
+                if (profile.val().step < 10) {
+                    defaultDatabase.ref("users/" + userId + "/ore/carbon").once('value').then((carbonAmount) => {
+                        validationTutorial(userId, carbonAmount.val());
+                    });
+                }
+                if (fromClick || amount <= mineRate) {
+                    let newCollectibleQuantity;
+                    if (asteroid.val().collectible < asteroid.val().currentCapacity) {
 
-                defaultDatabase.ref("users/" + userId + "/asteroid/collectible").transaction((quantity) => {
-                    if (quantity + amount >asteroid.val().currentCapacity) {
-                        return toFixed2(asteroid.val().currentCapacity);
+                        defaultDatabase.ref("users/" + userId + "/asteroid/collectible").transaction((quantity) => {
+                            if (quantity + amount > asteroid.val().currentCapacity) {
+                                return toFixed2(asteroid.val().currentCapacity);
+                            }
+
+                            return toFixed2(quantity + amount);
+                        });
                     }
-
-                    return toFixed2(quantity + amount);
-                });
-            }
-            const eventOrNot = Math.floor((Math.random() * 100000) + 1);
-            if (eventOrNot < 3) {
-                defaultDatabase.ref("users/" + userId + "/event").set(1);
-            }
-        }
-        //}
+                    const eventOrNot = Math.floor((Math.random() * 100000) + 1);
+                    if (eventOrNot < 3) {
+                        defaultDatabase.ref("users/" + userId + "/event").set(1);
+                    }
+                }
+                //}
+            });
         });
     });
 }
@@ -89,7 +97,6 @@ data = {
     amount: amountBroke
 }
 */
-
 export function pickUpCollectible(data) {
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
