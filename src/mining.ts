@@ -116,7 +116,7 @@ export function pickUpCollectible(data) {
 
                 defaultDatabase.ref("users/" + data.user + "/asteroid/currentCapacity").transaction((currentCapacity) => {
                     if ((currentCapacity - data.amount) > 0) {
-                        return currentCapacity - data.amount;
+                        return toFixed2(currentCapacity - data.amount);
                     }
                     else {
                         return 0;
