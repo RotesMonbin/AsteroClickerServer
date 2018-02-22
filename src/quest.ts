@@ -276,6 +276,7 @@ function definePourcentageOre(researchLvl: number) {
 
     for (let i = 0; i < tabName.length; i++) {
         if (rand < tabPource[i]) {
+
             return tabName[i];
         }
     }

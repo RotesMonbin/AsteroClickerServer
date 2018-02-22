@@ -7,25 +7,29 @@ import { toFixed2 } from '../utils';
  ****************************************************************************************************/
 
 export function QGOreNeedFromLvl(iLvl: number) {
-    if (iLvl <= 3) {
-        return ['credit', 'carbon', 'iron'];
+    if (iLvl < 2) {
+        return ['carbon'];
     } else if (iLvl <= 5) {
-        return ['credit', 'carbon', 'iron', 'titanium'];
+        return ['credit', 'carbon', 'iron'];
     } else if (iLvl <= 7) {
-        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium'];
+        return ['credit', 'carbon', 'iron', 'titanium'];
     } else if (iLvl <= 10) {
-        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium', 'gold'];
+        return ['credit', 'carbon', 'iron', 'titanium', 'gold'];
     } else {
-        return ['credit', 'carbon', 'iron', 'titanium', 'hyperium', 'gold'];
+        return ['credit', 'carbon', 'iron', 'titanium', 'gold'];
     }
 }
 
  /**
  * 
  * Cost in credit depending on the lvl = x (trunc to thousand)
+ * f(0) = 200; tuto
  * f(x)= 5000 * x^1.09
  */
 export function getHQCreditCost(lvl: number): number {
+    if(lvl === 1) {
+        return 1250; 
+    }
     return Math.floor(5000 / 1000 * Math.pow(lvl, 1.09)) * 1000;
 }
 

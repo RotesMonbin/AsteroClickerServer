@@ -4,6 +4,7 @@ import { toFixed2 } from './utils';
 import { updateBoostTimer, BoostType } from './boost';
 import { getResearchTotalTime } from './rules/researchRules';
 import { getAsteroidCapacity, getAsteroidPurity, getTimeToGoToAsteroid } from './rules/asteroidRules';
+import { nextStep } from './tutorial';
 //import { asteroidTypes } from "./resources";
 
 enum searchState {
@@ -46,6 +47,11 @@ export function chooseAsteroid(message) {
             defaultDatabase.ref("users/" + message.user + "/search/start").set(Date.now());
             defaultDatabase.ref("users/" + message.user + "/asteroid/currentCapacity").set(0);
             defaultDatabase.ref("users/" + message.user + "/search/state").set(searchState.traveling);
+
+            if(user.val().profile.step === 6) {
+                nextStep({user: message.user, step: 7});
+            }
+
         }
     });
 }
@@ -65,7 +71,10 @@ export function updateAsteroidTimer(message) {
             }
 
             if (user.val().search.state == searchState.searching) {
-
+                if(user.val().profile.step === 4) {
+                    nextStep({user: message.user, step: 5});
+                }
+                
                 let timer = Math.floor((user.val().search.time * boostCoef) - (Date.now() - user.val().search.start));
                 if (timer <= 0) {
                     timer = 0;

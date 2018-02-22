@@ -32,14 +32,14 @@ export function initializeUser(message) {
     json["frenzy"]["time"]["timer"] = 0;
 
     json["asteroid"] = {};
-    json["asteroid"]["capacity"] = 1000;
-    json["asteroid"]["currentCapacity"] = 1000;
+    json["asteroid"]["capacity"] = 0;
+    json["asteroid"]["currentCapacity"] = 0;
     json["asteroid"]["ore"] = "carbon";
     json["asteroid"]["purity"] = 100;
     json["asteroid"]["seed"] = "01230123";
     json["asteroid"]["collectible"] = 0;
 
-    json["miningInfo"]= {};
+    json["miningInfo"] = {};
     json["miningInfo"]["clickGauge"] = 0;
     json["miningInfo"]["lastClickExplosion"] = 0;
     json["miningInfo"]["lastTick"] = 0;
@@ -106,6 +106,7 @@ export function initializeUser(message) {
     json["profile"]["name"] = message.pseudo;
     json["profile"]["badConfig"] = 1;
     json["profile"]["address"] = message.address;
+    json["profile"]["step"] = 0;
 
     json["upgrade"]["mineRate"]["lvl"] = 1;
     json["upgrade"]["storage"]["lvl"] = 1;
@@ -128,7 +129,7 @@ export function addField() {
 
         for (let i = 0; i < usersId.length; i++) {
 
-            json["boosts"]= {};
+            json["boosts"] = {};
             json["boosts"]["0"] = {};
             json["boosts"]["0"]["boughtQuantity"] = allUsers[usersId[i]].boosts[0].boughtQuantity;
             json["boosts"]["0"]["usedQuantity"] = allUsers[usersId[i]].boosts[0].usedQuantity;
@@ -136,8 +137,8 @@ export function addField() {
             json["boosts"]["0"]["timer"] = allUsers[usersId[i]].boosts[0].timer;
             json["boosts"]["0"]["active"] = allUsers[usersId[i]].boosts[0].active;
 
-            
-            json["miningInfo"]= {};
+
+            json["miningInfo"] = {};
             json["miningInfo"]["clickGauge"] = 0;
             json["miningInfo"]["lastClickExplosion"] = 0;
             json["miningInfo"]["lastTick"] = 0;
@@ -206,6 +207,8 @@ export function addField() {
             json["profile"]["name"] = allUsers[usersId[i]].profile.name;
             json["profile"]["badConfig"] = allUsers[usersId[i]].profile.badConfig;
             json["profile"]["address"] = 0;
+            json["profile"]["step"] = allUsers[usersId[i]].profile.step;
+
 
             json["upgrade"]["mineRate"]["lvl"] = allUsers[usersId[i]].upgrade.mineRate.lvl;
             json["upgrade"]["storage"]["lvl"] = allUsers[usersId[i]].upgrade.storage.lvl;
