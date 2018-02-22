@@ -13,7 +13,7 @@ import { calculRanking } from './ranking';
 import { updateQuestUser, initQuestGroup, giveGainUser, newChest, checkQuestForAddChest, deleteEvent } from './quest';
 import { initializeUser, addField } from './databaseSetUp';
 import { upgradeTimerAllCargo } from './cargo';
-import { addBoostToUser, Boost, activateBoost, upsertUserBoosts } from './boost';
+import { Boost, activateBoost, upsertUserBoosts } from './boost';
 import { EventLog } from 'web3/types';
 import { nextStep } from './tutorial';
 

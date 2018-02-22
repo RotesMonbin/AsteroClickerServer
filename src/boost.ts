@@ -53,12 +53,12 @@ const boost = new Boost;
  * @param data [user] = useriD
  */
 export function upsertUserBoosts(data) {
-    defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
+    defaultDatabase.ref("users/" + data.user + "/profile/address").once('value').then((userAddress) => {
         defaultDatabase.ref("boosts").once('value').then((boosts) => {
             const boostsId = Object.keys(boosts.val());
             for (const id in boostsId) {
-                if (user.val().profile.address != 0) {
-                    boost.playerNumberOfBoost(user.val().profile.address, parseInt(id)).then((amount: number) => {
+                if (userAddress.val() != 0) {
+                    boost.playerNumberOfBoost(userAddress.val(), parseInt(id)).then((amount: number) => {
                         defaultDatabase.ref("users/" + data.user + "/boosts/" + parseInt(id) + "/boughtQuantity").set(amount);
                     });
                 }
@@ -103,17 +103,5 @@ export function updateBoostTimer(boostType: BoostType, userId: string) {
                 defaultDatabase.ref("users/" + userId + "/boosts/" + boostType + "/timer").set(timer);
             }
         });
-    });
-}
-
-
-export function addBoostToUser(boostType: BoostType, quantity: number, address: string) {
-    defaultDatabase.ref("users").once('value').then((users) => {
-        for (let id in users.val()) {
-            if (users.val()[id].profile.address == address) {
-                const currentQuantity = users.val()[id].boost[boostType].boughtQuantity;
-                defaultDatabase.ref("users/" + id + "/boosts/" + boostType + "/boughtQuantity").set(currentQuantity + quantity);
-            }
-        }
     });
 }

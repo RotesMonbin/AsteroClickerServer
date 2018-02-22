@@ -3,20 +3,24 @@ import { quest, oreInfos } from "./resources";
 import { toFixed2 } from "./utils";
 
 // Check if the quest is finish 
-export function checkQuest(missionName: string, values: number, currentUser, userID) {
-    if (currentUser.quest.values === 0) {
-        return;
-    }
-    if (missionName === currentUser.quest.type) {
-        const finalValues = currentUser.quest.values - values;
-        if (finalValues <= 0) {
-            defaultDatabase.ref("users/" + userID + "/credit").set(currentUser.quest.gain + currentUser.credit);
-            defaultDatabase.ref("users/" + userID + "/quest/values").set(0);
-            defaultDatabase.ref("users/" + userID + "/quest/gain").set(0);
-        } else {
-            defaultDatabase.ref("users/" + userID + "/quest/values").set(toFixed2(finalValues));
+export function checkQuest(missionName: string, values: number, userID) {
+    defaultDatabase.ref("users/" + userID + "/quest").once('value').then((quest) => {
+        if (quest.val().values === 0) {
+            return;
         }
-    }
+        if (missionName === quest.val().type) {
+            const finalValues = quest.val().values - values;
+            if (finalValues <= 0) {
+                defaultDatabase.ref("users/" + userID + "/credit").transaction((credit) => {
+                    return quest.val().gain + credit;
+                });
+                defaultDatabase.ref("users/" + userID + "/quest/values").set(0);
+                defaultDatabase.ref("users/" + userID + "/quest/gain").set(0);
+            } else {
+                defaultDatabase.ref("users/" + userID + "/quest/values").set(toFixed2(finalValues));
+            }
+        }
+    });
 }
 
 /*

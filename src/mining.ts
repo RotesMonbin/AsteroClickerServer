@@ -22,40 +22,46 @@ export function breakIntoCollectible(data) {
 }
 
 function controlAndBreakAsteroid(userId: string, amount: number, fromClick: boolean) {
-    defaultDatabase.ref("users/" + userId).once('value').then((user) => {
-        const mineRate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].baseRate *
-            oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
+    defaultDatabase.ref("users/" + userId + "/asteroid").once('value').then((asteroid) => {
+        defaultDatabase.ref("users/" + userId + "/upgrade/mineRate/lvl").once('value').then((mineRateLvl) => {
+            defaultDatabase.ref("users/" + userId + "/profile").once('value').then((profile) => {
+                const mineRate = (mineRateUpgrade[mineRateLvl.val()].baseRate *
+                    oreInfos[asteroid.val().ore].miningSpeed * (asteroid.val().purity / 100)) + 0.1; // +0.1 to avoid false comparison
 
-        if (fromClick) {
-            amount = mineRate * 10;
-        }
+                if (fromClick) {
+                    amount = mineRate * 10;
+                }
 
-        /* if (user.val().frenzy.info.state == 1) {
-             updateFrenzyTimer(userId);
-         }
-         else {*/
-        
-        if ( user.val().profile.step < 10) {
-            validationTutorial(userId, user.val().ore['carbon']);
-        }
-        if (fromClick || amount <= mineRate) {
-            let newCollectibleQuantity;
-            if (user.val().asteroid.collectible < user.val().asteroid.currentCapacity) {
+                /* if (user.val().frenzy.info.state == 1) {
+                     updateFrenzyTimer(userId);
+                 }
+                 else {*/
 
-                defaultDatabase.ref("users/" + userId + "/asteroid/collectible").transaction((quantity) => {
-                    if (quantity + amount > user.val().asteroid.currentCapacity) {
-                        return toFixed2(user.val().asteroid.currentCapacity);
+                if (profile.val().step < 10) {
+                    defaultDatabase.ref("users/" + userId + "/ore/carbon").once('value').then((carbonAmount) => {
+                        validationTutorial(userId, carbonAmount.val());
+                    });
+                }
+                if (fromClick || amount <= mineRate) {
+                    let newCollectibleQuantity;
+                    if (asteroid.val().collectible < asteroid.val().currentCapacity) {
+
+                        defaultDatabase.ref("users/" + userId + "/asteroid/collectible").transaction((quantity) => {
+                            if (quantity + amount > asteroid.val().currentCapacity) {
+                                return toFixed2(asteroid.val().currentCapacity);
+                            }
+
+                            return toFixed2(quantity + amount);
+                        });
                     }
-
-                    return toFixed2(quantity + amount);
-                });
-            }
-            const eventOrNot = Math.floor((Math.random() * 100000) + 1);
-            if (eventOrNot < 3) {
-                defaultDatabase.ref("users/" + userId + "/event").set(1);
-            }
-        }
-        //}
+                    const eventOrNot = Math.floor((Math.random() * 100000) + 1);
+                    if (eventOrNot < 3) {
+                        defaultDatabase.ref("users/" + userId + "/event").set(1);
+                    }
+                }
+                //}
+            });
+        });
     });
 }
 
@@ -158,7 +164,7 @@ function controlAndAddOreAmount(userId: string, amount: number, oreName: string)
                 newCapacity = 0;
             }
 
-            checkQuest(oreName, amount, user.val(), userId);
+            checkQuest(oreName, amount, userId);
             checkQuestGroup(oreName, amount);
             defaultDatabase.ref("users/" + userId + "/asteroid/currentCapacity").set(toFixed2(newCapacity));
             defaultDatabase.ref("users/" + userId + "/ore/" + oreName).set(toFixed2(newAmount));
