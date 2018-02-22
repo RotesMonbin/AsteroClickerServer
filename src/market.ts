@@ -148,7 +148,6 @@ export function buyOre(data) {
                         // timeCargoGo(data.user, data.ore, toFixed2(newAmount - user.val().ore[data.ore]), 'credit', newCredit);
                     });
             }
-
         }
         updateTrend(-data.amount, data.ore);
     });
