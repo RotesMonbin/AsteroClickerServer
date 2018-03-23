@@ -16,6 +16,7 @@ import { upgradeTimerAllCargo } from './cargo';
 import { Boost, activateBoost, upsertUserBoosts } from './boost';
 import { EventLog } from 'web3/types';
 import { nextStep } from './tutorial';
+import { sendUser } from './initializeUser';
 
 
 const app = express();
@@ -39,7 +40,7 @@ Promise.all([loadQuest(), loadOreInfo()]).then(() => {
             });
             console.log(`Server listen on ${process.env.PORT || 4000}`);
             if (startMarket) {
-                console.log("marker started");
+                console.log("market started");
                 setInterval(() => {
                     updateCostsMarket();
                 }, 1000 * 2);
@@ -66,18 +67,16 @@ Promise.all([loadQuest(), loadOreInfo()]).then(() => {
 
 
 io.on("connection", (socket: SocketIO.Socket) => {
-
     socket.on('initializeUser', (message) => {
         initializeUser(message);
     });
 
     socket.on('authentify', (userId: string) => {
-
         socket.id = userId;
 
         if (!userAlreadyConnected(userId)) {
             connectedClient.push(userId);
-            launchlistner(socket);
+            launchlistner(socket, userId);
         }
 
     });
@@ -92,7 +91,7 @@ function userAlreadyConnected(id: string) {
     return false;
 }
 
-function launchlistner(socket: SocketIO.Socket) {
+function launchlistner(socket: SocketIO.Socket, userId: string) {
     socket.on('disconnect', () => {
         const i = connectedClient.indexOf(socket.id);
         connectedClient.splice(i, 1);
@@ -188,8 +187,12 @@ function launchlistner(socket: SocketIO.Socket) {
     });
 
     socket.emit('sendResources', resources);
-}
+    sendUser(userId).then((user) => {
+        socket.emit('sendUser', user.val());
+    });
 
+
+}
 
 export function getConnectedUserCount() {
     return Object.keys(io.sockets.sockets).length;
