@@ -98,6 +98,7 @@ data = {
 }
 */
 export function pickUpCollectible(data) {
+    data.amount = parseFloat(data.amount);    
     defaultDatabase.ref("users/" + data.user).once('value').then((user) => {
         const maxMinerate = (mineRateUpgrade[user.val().upgrade.mineRate.lvl].maxRate *
             oreInfos[user.val().asteroid.ore].miningSpeed * (user.val().asteroid.purity / 100)) + 0.1; // +0.1 to avoid false comparison
@@ -106,7 +107,6 @@ export function pickUpCollectible(data) {
         if (data.amount <= maxMinerate && data.ore == user.val().asteroid.ore && user.val().ore[data.ore] < maxQuantity) {
 
             if (user.val().asteroid.collectible > 0 && user.val().asteroid.currentCapacity > 0) {
-
                 defaultDatabase.ref("users/" + data.user + "/asteroid/collectible").transaction((quantity) => {
                     if (quantity - data.amount < 0) {
                         return 0;

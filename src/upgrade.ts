@@ -60,7 +60,7 @@ function databaseOreSet(updateJson, uid, currentUser) {
 function valuesCostOreOk(updateJson, currentUser) {
     const keys = Object.keys(updateJson);
     for (let i = 0; i < keys.length; i++) {
-        if (keys[i] === 'credit') { 
+        if (keys[i] === 'credit') {
             if (updateJson[keys[i]] > currentUser.credit) {
                 return false;
             }
@@ -92,12 +92,12 @@ export function updateUpgradeTimer(data) {
                 (Date.now() - upgrade.val().start);
             if (timer <= 0) {
                 timer = 0;
-                
-                if(data.upgrade === 'QG' && currentLvl === 0) {
-                    nextStep({user: data.user, step: 4});
+
+                if (data.upgrade === 'QG' && currentLvl === 0) {
+                    nextStep({ user: data.user, step: 4 });
                 }
 
-                if(data.upgradeName === 'QG' && QGUpgrade[currentLvl].numberOfCargo != QGUpgrade[currentLvl + 1].numberOfCargo) {
+                if (data.upgradeName === 'QG' && QGUpgrade[currentLvl].numberOfCargo != QGUpgrade[currentLvl + 1].numberOfCargo) {
                     unlockNewCargo(data.user);
                 }
 
